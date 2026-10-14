@@ -1,0 +1,173 @@
+[
+  {
+    "name": "empty",
+    "encoding": "gsm7",
+    "units": 0,
+    "segments": 0,
+    "text": ""
+  },
+  {
+    "name": "short latin",
+    "encoding": "gsm7",
+    "units": 5,
+    "segments": 1,
+    "text": "Hello"
+  },
+  {
+    "name": "160 latin fits",
+    "encoding": "gsm7",
+    "units": 160,
+    "segments": 1,
+    "repeat": "a",
+    "times": 160
+  },
+  {
+    "name": "161 latin splits",
+    "encoding": "gsm7",
+    "units": 161,
+    "segments": 2,
+    "repeat": "a",
+    "times": 161
+  },
+  {
+    "name": "306 latin is 2",
+    "encoding": "gsm7",
+    "units": 306,
+    "segments": 2,
+    "repeat": "a",
+    "times": 306
+  },
+  {
+    "name": "307 latin is 3",
+    "encoding": "gsm7",
+    "units": 307,
+    "segments": 3,
+    "repeat": "a",
+    "times": 307
+  },
+  {
+    "name": "euro counts double",
+    "encoding": "gsm7",
+    "units": 160,
+    "segments": 1,
+    "repeat": "€",
+    "times": 80
+  },
+  {
+    "name": "euro over the limit",
+    "encoding": "gsm7",
+    "units": 162,
+    "segments": 2,
+    "repeat": "€",
+    "times": 81
+  },
+  {
+    "name": "brace counts double",
+    "encoding": "gsm7",
+    "units": 5,
+    "segments": 1,
+    "text": "{a}"
+  },
+  {
+    "name": "newline is gsm7",
+    "encoding": "gsm7",
+    "units": 8,
+    "segments": 1,
+    "text": "Hi\nthere"
+  },
+  {
+    "name": "cyrillic is ucs2",
+    "encoding": "ucs2",
+    "units": 7,
+    "segments": 1,
+    "text": "Здравей"
+  },
+  {
+    "name": "70 cyrillic fits",
+    "encoding": "ucs2",
+    "units": 70,
+    "segments": 1,
+    "repeat": "я",
+    "times": 70
+  },
+  {
+    "name": "71 cyrillic splits",
+    "encoding": "ucs2",
+    "units": 71,
+    "segments": 2,
+    "repeat": "я",
+    "times": 71
+  },
+  {
+    "name": "134 cyrillic is 2",
+    "encoding": "ucs2",
+    "units": 134,
+    "segments": 2,
+    "repeat": "я",
+    "times": 134
+  },
+  {
+    "name": "135 cyrillic is 3",
+    "encoding": "ucs2",
+    "units": 135,
+    "segments": 3,
+    "repeat": "я",
+    "times": 135
+  },
+  {
+    "name": "one cyrillic letter",
+    "encoding": "ucs2",
+    "units": 10,
+    "segments": 1,
+    "text": "Hello Иван"
+  },
+  {
+    "name": "emoji is two units",
+    "encoding": "ucs2",
+    "units": 2,
+    "segments": 1,
+    "text": "😀"
+  },
+  {
+    "name": "accent outside gsm7",
+    "encoding": "ucs2",
+    "units": 1,
+    "segments": 1,
+    "text": "ő"
+  },
+  {
+    "name": "accent inside gsm7",
+    "encoding": "gsm7",
+    "units": 1,
+    "segments": 1,
+    "text": "é"
+  },
+  {
+    "name": "order sms typical",
+    "encoding": "gsm7",
+    "units": 60,
+    "segments": 1,
+    "text": "Hi Maria, your order #1234 is complete. Thank you! Demo Shop"
+  },
+  {
+    "name": "bulgarian default",
+    "encoding": "ucs2",
+    "units": 66,
+    "segments": 1,
+    "text": "Здравейте, Мария! Поръчка №1234 е изпълнена. Благодарим! Demo Shop"
+  },
+  {
+    "name": "pound and at sign",
+    "encoding": "gsm7",
+    "units": 9,
+    "segments": 1,
+    "text": "£5 @ shop"
+  },
+  {
+    "name": "tilde and pipe",
+    "encoding": "gsm7",
+    "units": 7,
+    "segments": 1,
+    "text": "a~b|c"
+  }
+]

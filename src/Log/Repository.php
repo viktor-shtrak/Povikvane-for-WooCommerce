@@ -150,6 +150,79 @@ final class Repository implements MessageStore {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $since Unix time.
+	 */
+	public function count_created_since( int $since ): int {
+		global $wpdb;
+
+		$table = Schema::table();
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND status <> %s", gmdate( 'Y-m-d H:i:s', $since ), Status::Skipped->value )
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int    $order_id Order ID.
+	 * @param string $event    Event slug.
+	 */
+	public function count_for_order_event( int $order_id, string $event ): int {
+		global $wpdb;
+
+		$table = Schema::table();
+
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND event = %s", $order_id, $event ) );
+	}
+
+	/**
+	 * Messages for one order, newest first.
+	 *
+	 * @param int $order_id Order ID.
+	 * @param int $limit    Number of rows.
+	 * @return Message[]
+	 */
+	public function for_order( int $order_id, int $limit = 10 ): array {
+		global $wpdb;
+
+		$table = Schema::table();
+		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE order_id = %d ORDER BY id DESC LIMIT %d", $order_id, $limit ), ARRAY_A );
+
+		return array_map( fn( array $row ): Message => $this->hydrate( $row ), is_array( $rows ) ? $rows : array() );
+	}
+
+	/**
+	 * Mark every waiting message as skipped (an administrator discarded the queue).
+	 *
+	 * @param string $reason A SkipReason constant.
+	 * @param int    $now    Current time.
+	 * @return int Number of messages discarded.
+	 */
+	public function discard_pending( string $reason, int $now ): int {
+		global $wpdb;
+
+		$table = Schema::table();
+		$when  = gmdate( 'Y-m-d H:i:s', $now );
+
+		$affected = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET status = %s, skip_reason = %s, next_attempt_at = NULL, updated_at = %s, final_at = %s WHERE status IN (%s, %s)",
+				Status::Skipped->value,
+				$reason,
+				$when,
+				$when,
+				Status::Pending->value,
+				Status::HeldCredits->value
+			)
+		);
+
+		return false === $affected ? 0 : (int) $affected;
+	}
+
+	/**
 	 * Convert a message to column values.
 	 *
 	 * @param Message $message Message.

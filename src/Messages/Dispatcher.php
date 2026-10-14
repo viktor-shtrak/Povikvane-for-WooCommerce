@@ -47,14 +47,15 @@ final class Dispatcher {
 	/**
 	 * Constructor.
 	 *
-	 * @param MessageStore $store           Message log.
-	 * @param Gateway      $gateway         API gateway.
-	 * @param Scheduler    $scheduler       Job scheduler.
-	 * @param Clock        $clock           Time source.
-	 * @param Notifier     $notifier        Order note writer.
-	 * @param SendingState $state           Global pause switch.
-	 * @param int          $max_age_seconds Messages older than this are dropped, not sent late.
-	 * @param Logger       $logger          Diagnostic logger.
+	 * @param MessageStore  $store           Message log.
+	 * @param Gateway       $gateway         API gateway.
+	 * @param Scheduler     $scheduler       Job scheduler.
+	 * @param Clock         $clock           Time source.
+	 * @param Notifier      $notifier        Order note writer.
+	 * @param SendingState  $state           Global pause switch.
+	 * @param int           $max_age_seconds Messages older than this are dropped, not sent late.
+	 * @param Logger        $logger          Diagnostic logger.
+	 * @param SendGate|null $gate           Optional last-moment check.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -64,7 +65,8 @@ final class Dispatcher {
 		private readonly Notifier $notifier,
 		private readonly SendingState $state,
 		private readonly int $max_age_seconds = 86400,
-		private readonly Logger $logger = new NullLogger()
+		private readonly Logger $logger = new NullLogger(),
+		private readonly ?SendGate $gate = null
 	) {}
 
 	/**
@@ -85,6 +87,22 @@ final class Dispatcher {
 			$this->finish( $message, Status::Expired, $now );
 			$this->notifier->note( $message, Notifier::NOTE_EXPIRED );
 			$this->logger->log( Logger::WARNING, 'Message ' . $message->id . ' expired before it could be sent', array( 'reference' => $message->reference ) );
+			return;
+		}
+
+		$blocked = $this->gate?->blocks( $message );
+		if ( null !== $blocked ) {
+			$message->skip_reason = $blocked;
+			$this->finish( $message, Status::Skipped, $now );
+			$this->notifier->note( $message, Notifier::NOTE_SKIPPED, array( 'reason' => $blocked ) );
+			$this->logger->log(
+				Logger::INFO,
+				'Message ' . $message->id . ' skipped before sending',
+				array(
+					'reference' => $message->reference,
+					'reason'    => $blocked,
+				)
+			);
 			return;
 		}
 

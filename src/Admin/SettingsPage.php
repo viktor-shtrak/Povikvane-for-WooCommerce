@@ -15,11 +15,13 @@ use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Messages\Enqueuer;
 use Povikvane\WooCommerce\Messages\Reference;
 use Povikvane\WooCommerce\Messages\Status;
+use Povikvane\WooCommerce\Orders\TriggerRepository;
 use Povikvane\WooCommerce\Phone\Normalizer;
 use Povikvane\WooCommerce\Support\ActionSchedulerScheduler;
 use Povikvane\WooCommerce\Support\Countries;
 use Povikvane\WooCommerce\Support\Mask;
 use Povikvane\WooCommerce\Support\SendingState;
+use Povikvane\WooCommerce\Support\SkipLabels;
 use Povikvane\WooCommerce\Support\Settings;
 use Povikvane\WooCommerce\Support\SiteIdentity;
 
@@ -44,14 +46,23 @@ final class SettingsPage {
 	private $probe;
 
 	/**
+	 * Admin screen hook suffix, set when the menu is added.
+	 *
+	 * @var string
+	 */
+	private string $hook_suffix = '';
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Settings     $settings   Settings.
-	 * @param Repository   $repository Message log.
-	 * @param Enqueuer     $enqueuer   Queues messages.
-	 * @param SendingState $state      Pause switch.
-	 * @param Normalizer   $normalizer Phone normaliser.
-	 * @param callable     $probe      Runs a capability probe.
+	 * @param Settings          $settings   Settings.
+	 * @param Repository        $repository Message log.
+	 * @param Enqueuer          $enqueuer   Queues messages.
+	 * @param SendingState      $state      Pause switch.
+	 * @param Normalizer        $normalizer Phone normaliser.
+	 * @param TriggerRepository $triggers  Trigger configuration.
+	 * @param TemplatesSection  $templates Template editor.
+	 * @param callable          $probe      Runs a capability probe.
 	 */
 	public function __construct(
 		private readonly Settings $settings,
@@ -59,6 +70,8 @@ final class SettingsPage {
 		private readonly Enqueuer $enqueuer,
 		private readonly SendingState $state,
 		private readonly Normalizer $normalizer,
+		private readonly TriggerRepository $triggers,
+		private readonly TemplatesSection $templates,
 		callable $probe
 	) {
 		$this->probe = $probe;
@@ -70,17 +83,16 @@ final class SettingsPage {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_notices', array( $this, 'render_pause_notice' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_post_povikvane_check_connection', array( $this, 'handle_check_connection' ) );
 		add_action( 'admin_post_povikvane_send_test', array( $this, 'handle_send_test' ) );
-		add_action( 'admin_post_povikvane_resume', array( $this, 'handle_resume' ) );
 	}
 
 	/**
 	 * Add the page under the WooCommerce menu.
 	 */
 	public function add_menu(): void {
-		add_submenu_page(
+		$this->hook_suffix = (string) add_submenu_page(
 			'woocommerce',
 			__( 'Povikvane SMS', 'povikvane-for-woocommerce' ),
 			__( 'Povikvane SMS', 'povikvane-for-woocommerce' ),
@@ -91,7 +103,18 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Register the settings option.
+	 * Load the template editor script on this page only.
+	 *
+	 * @param string $hook_suffix Current admin screen.
+	 */
+	public function enqueue_assets( string $hook_suffix ): void {
+		if ( '' !== $this->hook_suffix && $hook_suffix === $this->hook_suffix ) {
+			$this->templates->enqueue();
+		}
+	}
+
+	/**
+	 * Register the settings options.
 	 */
 	public function register_settings(): void {
 		register_setting(
@@ -104,6 +127,17 @@ final class SettingsPage {
 				'show_in_rest'      => false,
 			)
 		);
+
+		register_setting(
+			self::GROUP,
+			TriggerRepository::OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this->triggers, 'sanitize' ),
+				'default'           => array(),
+				'show_in_rest'      => false,
+			)
+		);
 	}
 
 	/**
@@ -112,7 +146,7 @@ final class SettingsPage {
 	 * WordPress has already removed slashes from the value at this point.
 	 *
 	 * @param mixed $input Submitted settings.
-	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool}
+	 * @return array<string,mixed>
 	 */
 	public function sanitize( mixed $input ): array {
 		$input   = is_array( $input ) ? $input : array();
@@ -146,32 +180,14 @@ final class SettingsPage {
 		}
 
 		return array(
-			'service_id'      => $service_id,
-			'default_country' => $country,
-			'max_age_hours'   => min( 168, max( 1, $max_age ) ),
-			'debug_log'       => ! empty( $input['debug_log'] ),
-		);
-	}
-
-	/**
-	 * Warn when sending is paused.
-	 */
-	public function render_pause_notice(): void {
-		$reason = $this->state->paused_reason();
-
-		if ( null === $reason || ! current_user_can( self::CAPABILITY ) ) {
-			return;
-		}
-
-		$text = SendingState::REASON_CREDITS === $reason
-			? __( 'Povikvane SMS: the account has no credits, so messages are on hold. Top up your credits; held messages are sent automatically once credits are available, unless they become too old.', 'povikvane-for-woocommerce' )
-			: __( 'Povikvane SMS: the API key or service ID was rejected, so no messages are being sent. Check the connection settings.', 'povikvane-for-woocommerce' );
-
-		printf(
-			'<div class="notice notice-error"><p>%1$s <a href="%2$s">%3$s</a></p></div>',
-			esc_html( $text ),
-			esc_url( $this->page_url() ),
-			esc_html__( 'Open settings', 'povikvane-for-woocommerce' )
+			'service_id'         => $service_id,
+			'default_country'    => $country,
+			'max_age_hours'      => min( 168, max( 1, $max_age ) ),
+			'debug_log'          => ! empty( $input['debug_log'] ),
+			'max_order_age_days' => min( 365, max( 0, (int) ( $input['max_order_age_days'] ?? $current['max_order_age_days'] ) ) ),
+			'skip_admin_created' => ! empty( $input['skip_admin_created'] ),
+			'mobile_only'        => ! empty( $input['mobile_only'] ),
+			'storm_threshold'    => min( 10000, max( 0, (int) ( $input['storm_threshold'] ?? $current['storm_threshold'] ) ) ),
 		);
 	}
 
@@ -189,7 +205,7 @@ final class SettingsPage {
 
 		echo '<div class="wrap"><h1>' . esc_html__( 'Povikvane SMS', 'povikvane-for-woocommerce' ) . '</h1>';
 
-		$this->render_flash();
+		Flash::render();
 
 		echo '<p>' . esc_html__( 'Send order SMS notifications through your Povikvane account. A Povikvane account with message credits is required.', 'povikvane-for-woocommerce' ) . ' ';
 		printf(
@@ -209,7 +225,7 @@ final class SettingsPage {
 	/**
 	 * Credentials form.
 	 *
-	 * @param array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool} $settings Current settings.
+	 * @param array<string,mixed> $settings Current settings.
 	 */
 	private function render_settings_form( array $settings ): void {
 		$source = $this->settings->api_key_source();
@@ -282,8 +298,60 @@ final class SettingsPage {
 		);
 
 		echo '</table>';
+
+		$this->render_safety( $settings );
+		$this->templates->render();
+
 		submit_button();
 		echo '</form>';
+	}
+
+	/**
+	 * Safety options.
+	 *
+	 * @param array<string,mixed> $settings Current settings.
+	 */
+	private function render_safety( array $settings ): void {
+		$name = Settings::OPTION;
+
+		echo '<h2>' . esc_html__( 'Safety', 'povikvane-for-woocommerce' ) . '</h2><table class="form-table" role="presentation">';
+
+		printf(
+			'<tr><th scope="row"><label for="povikvane_order_age">%1$s</label></th><td><input type="number" id="povikvane_order_age" name="%2$s[max_order_age_days]" value="%3$d" min="0" max="365" class="small-text"> %4$s<p class="description">%5$s</p></td></tr>',
+			esc_html__( 'Do not message orders older than', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			(int) $settings['max_order_age_days'],
+			esc_html__( 'days', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Protects against messages for old orders after imports or bulk changes. 0 means no limit.', 'povikvane-for-woocommerce' )
+		);
+
+		printf(
+			'<tr><th scope="row">%1$s</th><td><label><input type="checkbox" name="%2$s[mobile_only]" value="1"%3$s> %4$s</label><p class="description">%5$s</p></td></tr>',
+			esc_html__( 'Landline numbers', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			checked( $settings['mobile_only'], true, false ),
+			esc_html__( 'Skip numbers that are not mobile (checked for Bulgaria)', 'povikvane-for-woocommerce' ),
+			esc_html__( 'A message to a landline is charged but cannot be delivered.', 'povikvane-for-woocommerce' )
+		);
+
+		printf(
+			'<tr><th scope="row">%1$s</th><td><label><input type="checkbox" name="%2$s[skip_admin_created]" value="1"%3$s> %4$s</label></td></tr>',
+			esc_html__( 'Orders created in the admin', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			checked( $settings['skip_admin_created'], true, false ),
+			esc_html__( 'Do not send automatic messages for orders created by hand', 'povikvane-for-woocommerce' )
+		);
+
+		printf(
+			'<tr><th scope="row"><label for="povikvane_storm">%1$s</label></th><td><input type="number" id="povikvane_storm" name="%2$s[storm_threshold]" value="%3$d" min="0" max="10000" class="small-text"> %4$s<p class="description">%5$s</p></td></tr>',
+			esc_html__( 'Pause when more than', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			(int) $settings['storm_threshold'],
+			esc_html__( 'messages are created within 10 minutes', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Stops accidental mass messaging, for example after changing many orders at once. The messages are kept for you to send or discard. 0 turns this off.', 'povikvane-for-woocommerce' )
+		);
+
+		echo '</table>';
 	}
 
 	/**
@@ -319,7 +387,7 @@ final class SettingsPage {
 
 		echo '<p>';
 		$this->action_form( 'povikvane_check_connection', __( 'Check connection', 'povikvane-for-woocommerce' ) );
-		if ( null !== $paused ) {
+		if ( in_array( $paused, array( SendingState::REASON_AUTH, SendingState::REASON_CREDITS ), true ) ) {
 			$this->action_form( 'povikvane_resume', __( 'Resume sending', 'povikvane-for-woocommerce' ) );
 		}
 		echo '</p>';
@@ -369,7 +437,7 @@ final class SettingsPage {
 				esc_html( Mask::phone( $row->recipient ) ),
 				esc_html( $this->status_label( $row->status ) ),
 				esc_html( null === $row->credits ? '' : number_format_i18n( $row->credits, 1 ) ),
-				esc_html( (string) $row->error_detail )
+				esc_html( null !== $row->skip_reason ? SkipLabels::text( $row->skip_reason ) : (string) $row->error_detail )
 			);
 		}
 
@@ -388,7 +456,7 @@ final class SettingsPage {
 		$caps       = get_option( Capabilities::OPTION, array() );
 		$connection = is_array( $caps ) ? (string) ( $caps['connection'] ?? 'unknown' ) : 'unknown';
 
-		$this->flash( Capabilities::CONNECTION_OK === $connection ? 'success' : 'error', $this->connection_label( $connection ) );
+		Flash::add( Capabilities::CONNECTION_OK === $connection ? 'success' : 'error', $this->connection_label( $connection ) );
 		$this->redirect();
 	}
 
@@ -402,13 +470,13 @@ final class SettingsPage {
 		$phone = isset( $_POST['test_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['test_phone'] ) ) : '';
 
 		if ( ! $this->settings->credentials()->is_complete() ) {
-			$this->flash( 'error', __( 'Enter and save your API key and service ID first.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'Enter and save your API key and service ID first.', 'povikvane-for-woocommerce' ) );
 			$this->redirect();
 		}
 
 		$number = $this->normalizer->normalize( $phone, Countries::calling_code( $this->settings->default_country() ) );
 		if ( ! $number->is_valid() ) {
-			$this->flash( 'error', __( 'That phone number does not look valid.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'That phone number does not look valid.', 'povikvane-for-woocommerce' ) );
 			$this->redirect();
 		}
 
@@ -423,23 +491,11 @@ final class SettingsPage {
 		);
 
 		if ( null === $this->enqueuer->enqueue( $message ) ) {
-			$this->flash( 'error', __( 'A test message was just sent. Wait a second and try again.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'A test message was just sent. Wait a second and try again.', 'povikvane-for-woocommerce' ) );
 		} else {
-			$this->flash( 'success', __( 'Test message queued. It appears in the list below within a minute.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'success', __( 'Test message queued. It appears in the list below within a minute.', 'povikvane-for-woocommerce' ) );
 		}
 
-		$this->redirect();
-	}
-
-	/**
-	 * Resume sending after a pause.
-	 */
-	public function handle_resume(): void {
-		check_admin_referer( 'povikvane_resume' );
-		$this->require_capability();
-
-		$this->state->resume();
-		$this->flash( 'success', __( 'Sending resumed.', 'povikvane-for-woocommerce' ) );
 		$this->redirect();
 	}
 
@@ -465,36 +521,6 @@ final class SettingsPage {
 	private function redirect(): never {
 		wp_safe_redirect( $this->page_url() );
 		exit;
-	}
-
-	/**
-	 * Store a one-time message for the next page view.
-	 *
-	 * @param string $type "success" or "error".
-	 * @param string $text Message.
-	 */
-	private function flash( string $type, string $text ): void {
-		set_transient( 'povikvane_flash_' . get_current_user_id(), array( $type, $text ), 60 );
-	}
-
-	/**
-	 * Show and clear the one-time message.
-	 */
-	private function render_flash(): void {
-		$key   = 'povikvane_flash_' . get_current_user_id();
-		$flash = get_transient( $key );
-
-		if ( ! is_array( $flash ) || 2 !== count( $flash ) ) {
-			return;
-		}
-
-		delete_transient( $key );
-
-		printf(
-			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
-			'success' === $flash[0] ? 'success' : 'error',
-			esc_html( (string) $flash[1] )
-		);
 	}
 
 	/**

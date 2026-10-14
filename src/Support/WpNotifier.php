@@ -88,6 +88,13 @@ final class WpNotifier implements Notifier {
 					$message->recipient
 				);
 
+			case Notifier::NOTE_SKIPPED:
+				return sprintf(
+					/* translators: %s: reason the SMS was not sent. */
+					__( 'Povikvane: no SMS was sent because %s.', 'povikvane-for-woocommerce' ),
+					SkipLabels::text( (string) ( $params['reason'] ?? '' ) )
+				);
+
 			case Notifier::NOTE_EXPIRED:
 				return sprintf(
 					/* translators: %s: recipient phone number. */

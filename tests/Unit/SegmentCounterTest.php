@@ -14,37 +14,28 @@ use PHPUnit\Framework\TestCase;
 use Povikvane\WooCommerce\Messages\SegmentCounter;
 
 /**
- * Segment counting.
+ * Segment counting. The cases live in a JSON file shared with the JavaScript
+ * counter used by the template editor, so the two cannot disagree.
  */
 final class SegmentCounterTest extends TestCase {
 
 	/**
-	 * Cases: text, encoding, units, segments.
+	 * Cases from the shared fixture file.
 	 *
 	 * @return array<string, array{string, string, int, int}>
 	 */
 	public static function cases(): array {
-		return array(
-			'empty'               => array( '', 'gsm7', 0, 0 ),
-			'short latin'         => array( 'Hello', 'gsm7', 5, 1 ),
-			'160 latin fits'      => array( str_repeat( 'a', 160 ), 'gsm7', 160, 1 ),
-			'161 latin splits'    => array( str_repeat( 'a', 161 ), 'gsm7', 161, 2 ),
-			'306 latin is 2'      => array( str_repeat( 'a', 306 ), 'gsm7', 306, 2 ),
-			'307 latin is 3'      => array( str_repeat( 'a', 307 ), 'gsm7', 307, 3 ),
-			'euro counts double'  => array( str_repeat( '€', 80 ), 'gsm7', 160, 1 ),
-			'euro over the limit' => array( str_repeat( '€', 81 ), 'gsm7', 162, 2 ),
-			'brace counts double' => array( '{a}', 'gsm7', 5, 1 ),
-			'newline is gsm7'     => array( "Hi\nthere", 'gsm7', 8, 1 ),
-			'cyrillic is ucs2'    => array( 'Здравей', 'ucs2', 7, 1 ),
-			'70 cyrillic fits'    => array( str_repeat( 'я', 70 ), 'ucs2', 70, 1 ),
-			'71 cyrillic splits'  => array( str_repeat( 'я', 71 ), 'ucs2', 71, 2 ),
-			'134 cyrillic is 2'   => array( str_repeat( 'я', 134 ), 'ucs2', 134, 2 ),
-			'135 cyrillic is 3'   => array( str_repeat( 'я', 135 ), 'ucs2', 135, 3 ),
-			'one cyrillic letter' => array( 'Hello Иван', 'ucs2', 10, 1 ),
-			'emoji is two units'  => array( '😀', 'ucs2', 2, 1 ),
-			'accent outside gsm7' => array( 'ő', 'ucs2', 1, 1 ),
-			'accent inside gsm7'  => array( 'é', 'gsm7', 1, 1 ),
-		);
+		$json  = file_get_contents( dirname( __DIR__ ) . '/fixtures/segment-cases.json' );
+		$cases = json_decode( (string) $json, true );
+		$out   = array();
+
+		foreach ( $cases as $case ) {
+			$text = isset( $case['repeat'] ) ? str_repeat( $case['repeat'], $case['times'] ) : $case['text'];
+
+			$out[ $case['name'] ] = array( $text, $case['encoding'], $case['units'], $case['segments'] );
+		}
+
+		return $out;
 	}
 
 	/**

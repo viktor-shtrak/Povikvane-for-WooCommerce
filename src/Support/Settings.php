@@ -11,6 +11,7 @@ namespace Povikvane\WooCommerce\Support;
 
 use Povikvane\WooCommerce\Api\Client;
 use Povikvane\WooCommerce\Api\Credentials;
+use Povikvane\WooCommerce\Orders\Rules;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,10 +30,14 @@ final class Settings {
 	public const KEY_SOURCE_NONE       = 'none';
 
 	private const DEFAULTS = array(
-		'service_id'      => '',
-		'default_country' => 'BG',
-		'max_age_hours'   => 24,
-		'debug_log'       => false,
+		'service_id'         => '',
+		'default_country'    => 'BG',
+		'max_age_hours'      => 24,
+		'debug_log'          => false,
+		'max_order_age_days' => 7,
+		'skip_admin_created' => false,
+		'mobile_only'        => true,
+		'storm_threshold'    => 50,
 	);
 
 	/**
@@ -45,17 +50,21 @@ final class Settings {
 	/**
 	 * All settings with defaults applied.
 	 *
-	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool}
+	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int}
 	 */
 	public function all(): array {
 		$stored = get_option( self::OPTION, array() );
 		$stored = is_array( $stored ) ? $stored : array();
 
 		return array(
-			'service_id'      => (string) ( $stored['service_id'] ?? self::DEFAULTS['service_id'] ),
-			'default_country' => (string) ( $stored['default_country'] ?? self::DEFAULTS['default_country'] ),
-			'max_age_hours'   => (int) ( $stored['max_age_hours'] ?? self::DEFAULTS['max_age_hours'] ),
-			'debug_log'       => (bool) ( $stored['debug_log'] ?? self::DEFAULTS['debug_log'] ),
+			'service_id'         => (string) ( $stored['service_id'] ?? self::DEFAULTS['service_id'] ),
+			'default_country'    => (string) ( $stored['default_country'] ?? self::DEFAULTS['default_country'] ),
+			'max_age_hours'      => (int) ( $stored['max_age_hours'] ?? self::DEFAULTS['max_age_hours'] ),
+			'debug_log'          => (bool) ( $stored['debug_log'] ?? self::DEFAULTS['debug_log'] ),
+			'max_order_age_days' => (int) ( $stored['max_order_age_days'] ?? self::DEFAULTS['max_order_age_days'] ),
+			'skip_admin_created' => (bool) ( $stored['skip_admin_created'] ?? self::DEFAULTS['skip_admin_created'] ),
+			'mobile_only'        => (bool) ( $stored['mobile_only'] ?? self::DEFAULTS['mobile_only'] ),
+			'storm_threshold'    => (int) ( $stored['storm_threshold'] ?? self::DEFAULTS['storm_threshold'] ),
 		);
 	}
 
@@ -78,6 +87,22 @@ final class Settings {
 	 */
 	public function max_age_seconds(): int {
 		return max( 1, $this->all()['max_age_hours'] ) * HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * Eligibility rules for automatic messages.
+	 */
+	public function rules(): Rules {
+		$all = $this->all();
+
+		return new Rules( max( 0, $all['max_order_age_days'] ), $all['skip_admin_created'], $all['mobile_only'] );
+	}
+
+	/**
+	 * Messages created within ten minutes that pause sending (0 = guard off).
+	 */
+	public function storm_threshold(): int {
+		return max( 0, $this->all()['storm_threshold'] );
 	}
 
 	/**

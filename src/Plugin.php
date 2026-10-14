@@ -9,7 +9,10 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce;
 
+use Povikvane\WooCommerce\Admin\OrderMetabox;
+use Povikvane\WooCommerce\Admin\PauseControls;
 use Povikvane\WooCommerce\Admin\SettingsPage;
+use Povikvane\WooCommerce\Admin\TemplatesSection;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Api\Client;
 use Povikvane\WooCommerce\Api\WpTransport;
@@ -17,12 +20,21 @@ use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Log\Schema;
 use Povikvane\WooCommerce\Messages\Dispatcher;
 use Povikvane\WooCommerce\Messages\Enqueuer;
+use Povikvane\WooCommerce\Orders\OrderContext;
+use Povikvane\WooCommerce\Orders\OrderEventHandler;
+use Povikvane\WooCommerce\Orders\OrderFacts;
+use Povikvane\WooCommerce\Orders\OrderStatusGate;
+use Povikvane\WooCommerce\Orders\StatusHooks;
+use Povikvane\WooCommerce\Orders\TriggerRepository;
 use Povikvane\WooCommerce\Phone\Normalizer;
+use Povikvane\WooCommerce\Safety\SiteGuard;
+use Povikvane\WooCommerce\Safety\StormGuard;
 use Povikvane\WooCommerce\Support\ActionSchedulerScheduler;
 use Povikvane\WooCommerce\Support\Crypto;
 use Povikvane\WooCommerce\Support\Logger;
 use Povikvane\WooCommerce\Support\OptionSendingState;
 use Povikvane\WooCommerce\Support\SendingState;
+use Povikvane\WooCommerce\Support\SiteIdentity;
 use Povikvane\WooCommerce\Support\Settings;
 use Povikvane\WooCommerce\Support\SystemClock;
 use Povikvane\WooCommerce\Support\WcLogger;
@@ -90,18 +102,41 @@ final class Plugin {
 
 		Schema::maybe_upgrade();
 
+		( new SiteGuard( $this->state() ) )->check();
+
 		add_action( ActionSchedulerScheduler::SEND_HOOK, array( $this, 'run_send_job' ) );
 		add_action( ActionSchedulerScheduler::PROBE_HOOK, array( $this, 'run_probe' ) );
 		add_action( 'action_scheduler_init', array( $this, 'schedule_recurring_jobs' ) );
 
+		( new StatusHooks(
+			$this->order_handler(),
+			$this->triggers(),
+			new OrderContext( $this->settings()->default_country() )
+		) )->register();
+
 		if ( is_admin() ) {
+			$templates = new TemplatesSection( $this->triggers() );
+
 			( new SettingsPage(
 				$this->settings(),
 				$this->repository(),
 				$this->enqueuer(),
 				$this->state(),
 				new Normalizer(),
+				$this->triggers(),
+				$templates,
 				array( $this, 'run_probe' )
+			) )->register();
+
+			( new PauseControls( $this->state(), new SiteGuard( $this->state() ), $this->repository() ) )->register();
+
+			( new OrderMetabox(
+				$this->settings(),
+				$this->repository(),
+				$this->enqueuer(),
+				new Normalizer(),
+				new OrderContext( $this->settings()->default_country() ),
+				$this->state()
 			) )->register();
 		}
 
@@ -130,7 +165,8 @@ final class Plugin {
 			new WpNotifier(),
 			$this->state(),
 			$this->settings()->max_age_seconds(),
-			$this->logger()
+			$this->logger(),
+			new OrderStatusGate()
 		) )->handle( (int) $message_id );
 	}
 
@@ -256,6 +292,40 @@ final class Plugin {
 	 */
 	private function logger(): Logger {
 		return new WcLogger( $this->settings() );
+	}
+
+	/**
+	 * Trigger configuration.
+	 */
+	private function triggers(): TriggerRepository {
+		return new TriggerRepository( get_locale() );
+	}
+
+	/**
+	 * The handler that turns order status changes into queued messages.
+	 */
+	private function order_handler(): OrderEventHandler {
+		$clock = new SystemClock();
+
+		return new OrderEventHandler(
+			$this->repository(),
+			$this->enqueuer(),
+			new Normalizer(),
+			new StormGuard( $this->repository(), $this->state(), $clock, $this->settings()->storm_threshold() ),
+			$this->state(),
+			new WpNotifier(),
+			$clock,
+			SiteIdentity::token(),
+			$this->settings()->rules(),
+			/**
+			 * Filters whether an automatic message may be sent for an order event.
+			 *
+			 * @param bool   $allow    Whether to send. Default true.
+			 * @param int    $order_id Order ID.
+			 * @param string $status   New order status slug without "wc-".
+			 */
+			static fn( OrderFacts $facts ): bool => (bool) apply_filters( 'povikvane_should_send', true, $facts->order_id, $facts->status )
+		);
 	}
 
 	/**

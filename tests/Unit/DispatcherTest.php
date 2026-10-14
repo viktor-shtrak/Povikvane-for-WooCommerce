@@ -14,6 +14,9 @@ use Povikvane\WooCommerce\Api\ApiResult;
 use Povikvane\WooCommerce\Api\Outcome;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Messages\Dispatcher;
+use Povikvane\WooCommerce\Messages\SendGate;
+use Povikvane\WooCommerce\Messages\SkipReason;
+use Povikvane\WooCommerce\Support\NullLogger;
 use Povikvane\WooCommerce\Messages\Status;
 use Povikvane\WooCommerce\Support\Notifier;
 use Povikvane\WooCommerce\Support\SendingState;
@@ -353,5 +356,45 @@ final class DispatcherTest extends TestCase {
 		$this->dispatcher->handle( 9999 );
 
 		$this->assertCount( 1, $this->gateway->sent );
+	}
+
+	/**
+	 * A message whose order moved on while it waited is dropped, not sent late.
+	 */
+	public function test_gate_can_skip_a_stale_message(): void {
+		$gate = new class() implements SendGate {
+			/**
+			 * Always block.
+			 *
+			 * @param Message $message Message.
+			 */
+			public function blocks( Message $message ): ?string {
+				return SkipReason::STATUS_CHANGED;
+			}
+		};
+
+		$dispatcher = new Dispatcher( $this->store, $this->gateway, $this->scheduler, $this->clock, $this->notifier, $this->state, 86400, new NullLogger(), $gate );
+		$dispatcher->handle( $this->id );
+
+		$message = $this->message();
+		$this->assertSame( Status::Skipped, $message->status );
+		$this->assertSame( SkipReason::STATUS_CHANGED, $message->skip_reason );
+		$this->assertNotNull( $message->final_at );
+		$this->assertCount( 0, $this->gateway->sent );
+		$this->assertSame( array( Notifier::NOTE_SKIPPED ), $this->notifier->codes );
+	}
+
+	/**
+	 * Sending paused for the site or a storm waits like an auth pause and sends nothing.
+	 */
+	public function test_site_and_storm_pauses_hold_messages(): void {
+		foreach ( array( SendingState::REASON_SITE, SendingState::REASON_STORM ) as $reason ) {
+			$this->state->reason = $reason;
+			$this->dispatcher->handle( $this->id );
+		}
+
+		$this->assertCount( 0, $this->gateway->sent );
+		$this->assertSame( Status::Pending, $this->message()->status );
+		$this->assertSame( array( 900, 900 ), array_column( $this->scheduler->runs, 1 ) );
 	}
 }

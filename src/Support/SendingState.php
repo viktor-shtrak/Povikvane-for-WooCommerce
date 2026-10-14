@@ -18,6 +18,8 @@ interface SendingState {
 
 	public const REASON_AUTH    = 'auth';
 	public const REASON_CREDITS = 'credits';
+	public const REASON_SITE    = 'site';
+	public const REASON_STORM   = 'storm';
 
 	/**
 	 * Current pause reason, or null when sending is active.

@@ -70,4 +70,34 @@ final class EnqueuerTest extends TestCase {
 		$this->assertCount( 1, $scheduler->runs, 'no second job for a duplicate' );
 		$this->assertCount( 1, $store->rows );
 	}
+
+	/**
+	 * A skipped message is logged as final, never scheduled, and still uses up its reference.
+	 */
+	public function test_record_skipped_logs_without_scheduling(): void {
+		$store     = new InMemoryStore();
+		$scheduler = new RecordingScheduler();
+		$enqueuer  = new Enqueuer( $store, $scheduler, new FixedClock( 1760000000 ) );
+
+		$id = $enqueuer->record_skipped( $this->message( 'woo:ab:1:processing:1' ), 'no_phone' );
+
+		$this->assertSame( 1, $id );
+		$stored = $store->find( 1 );
+		$this->assertSame( Status::Skipped, $stored->status );
+		$this->assertSame( 'no_phone', $stored->skip_reason );
+		$this->assertSame( 1760000000, $stored->final_at );
+		$this->assertSame( array(), $scheduler->runs );
+		$this->assertNull( $enqueuer->enqueue( $this->message( 'woo:ab:1:processing:1' ) ), 'reference is used up' );
+	}
+
+	/**
+	 * A delay is passed through to the scheduler.
+	 */
+	public function test_delay_reaches_the_scheduler(): void {
+		$scheduler = new RecordingScheduler();
+
+		( new Enqueuer( new InMemoryStore(), $scheduler, new FixedClock() ) )->enqueue( $this->message( 'woo:ab:2:completed:1' ), 600 );
+
+		$this->assertSame( array( array( 1, 600 ) ), $scheduler->runs );
+	}
 }

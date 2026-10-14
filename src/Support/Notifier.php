@@ -24,6 +24,7 @@ interface Notifier {
 	public const NOTE_UNCONFIRMED  = 'unconfirmed';
 	public const NOTE_HELD_CREDITS = 'held_credits';
 	public const NOTE_EXPIRED      = 'expired';
+	public const NOTE_SKIPPED      = 'skipped';
 
 	/**
 	 * Add a note for a message event.

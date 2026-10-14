@@ -44,4 +44,19 @@ interface MessageStore {
 	 * @param Message $message Message with an ID.
 	 */
 	public function save( Message $message ): void;
+
+	/**
+	 * Number of messages created since a time, not counting skipped ones.
+	 *
+	 * @param int $since Unix time.
+	 */
+	public function count_created_since( int $since ): int;
+
+	/**
+	 * Number of messages (including skipped ones) logged for an order event.
+	 *
+	 * @param int    $order_id Order ID.
+	 * @param string $event    Event slug.
+	 */
+	public function count_for_order_event( int $order_id, string $event ): int;
 }

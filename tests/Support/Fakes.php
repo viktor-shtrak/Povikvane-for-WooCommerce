@@ -248,6 +248,32 @@ final class InMemoryStore implements MessageStore {
 		++$this->saves;
 		$this->rows[ (int) $message->id ] = clone $message;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $since Unix time.
+	 */
+	public function count_created_since( int $since ): int {
+		$count = 0;
+		foreach ( $this->rows as $row ) {
+			if ( $row->created_at >= $since && \Povikvane\WooCommerce\Messages\Status::Skipped !== $row->status ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int    $order_id Order ID.
+	 * @param string $event    Event.
+	 */
+	public function count_for_order_event( int $order_id, string $event ): int {
+		return count( array_filter( $this->rows, static fn( Message $row ): bool => $row->order_id === $order_id && $row->event === $event ) );
+	}
 }
 
 /**
