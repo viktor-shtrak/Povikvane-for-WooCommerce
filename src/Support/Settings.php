@@ -30,14 +30,18 @@ final class Settings {
 	public const KEY_SOURCE_NONE       = 'none';
 
 	private const DEFAULTS = array(
-		'service_id'         => '',
-		'default_country'    => 'BG',
-		'max_age_hours'      => 24,
-		'debug_log'          => false,
-		'max_order_age_days' => 7,
-		'skip_admin_created' => false,
-		'mobile_only'        => true,
-		'storm_threshold'    => 50,
+		'service_id'            => '',
+		'default_country'       => 'BG',
+		'max_age_hours'         => 24,
+		'debug_log'             => false,
+		'max_order_age_days'    => 7,
+		'skip_admin_created'    => false,
+		'mobile_only'           => true,
+		'storm_threshold'       => 50,
+		'low_balance_threshold' => 50,
+		'retention_body_days'   => 90,
+		'retention_row_days'    => 365,
+		'export_full_numbers'   => false,
 	);
 
 	/**
@@ -50,21 +54,26 @@ final class Settings {
 	/**
 	 * All settings with defaults applied.
 	 *
-	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int}
+	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int,retention_body_days:int,retention_row_days:int,export_full_numbers:bool}
 	 */
 	public function all(): array {
 		$stored = get_option( self::OPTION, array() );
 		$stored = is_array( $stored ) ? $stored : array();
+		$value  = static fn( string $key ): mixed => $stored[ $key ] ?? self::DEFAULTS[ $key ];
 
 		return array(
-			'service_id'         => (string) ( $stored['service_id'] ?? self::DEFAULTS['service_id'] ),
-			'default_country'    => (string) ( $stored['default_country'] ?? self::DEFAULTS['default_country'] ),
-			'max_age_hours'      => (int) ( $stored['max_age_hours'] ?? self::DEFAULTS['max_age_hours'] ),
-			'debug_log'          => (bool) ( $stored['debug_log'] ?? self::DEFAULTS['debug_log'] ),
-			'max_order_age_days' => (int) ( $stored['max_order_age_days'] ?? self::DEFAULTS['max_order_age_days'] ),
-			'skip_admin_created' => (bool) ( $stored['skip_admin_created'] ?? self::DEFAULTS['skip_admin_created'] ),
-			'mobile_only'        => (bool) ( $stored['mobile_only'] ?? self::DEFAULTS['mobile_only'] ),
-			'storm_threshold'    => (int) ( $stored['storm_threshold'] ?? self::DEFAULTS['storm_threshold'] ),
+			'service_id'            => (string) $value( 'service_id' ),
+			'default_country'       => (string) $value( 'default_country' ),
+			'max_age_hours'         => (int) $value( 'max_age_hours' ),
+			'debug_log'             => (bool) $value( 'debug_log' ),
+			'max_order_age_days'    => (int) $value( 'max_order_age_days' ),
+			'skip_admin_created'    => (bool) $value( 'skip_admin_created' ),
+			'mobile_only'           => (bool) $value( 'mobile_only' ),
+			'storm_threshold'       => (int) $value( 'storm_threshold' ),
+			'low_balance_threshold' => (int) $value( 'low_balance_threshold' ),
+			'retention_body_days'   => (int) $value( 'retention_body_days' ),
+			'retention_row_days'    => (int) $value( 'retention_row_days' ),
+			'export_full_numbers'   => (bool) $value( 'export_full_numbers' ),
 		);
 	}
 
@@ -110,6 +119,27 @@ final class Settings {
 	 */
 	public function low_balance_threshold(): int {
 		return max( 0, $this->all()['low_balance_threshold'] );
+	}
+
+	/**
+	 * Days after which message text is erased (0 = never).
+	 */
+	public function retention_body_days(): int {
+		return max( 0, $this->all()['retention_body_days'] );
+	}
+
+	/**
+	 * Days after which message records are deleted (0 = never).
+	 */
+	public function retention_row_days(): int {
+		return max( 0, $this->all()['retention_row_days'] );
+	}
+
+	/**
+	 * Whether the CSV export contains full phone numbers.
+	 */
+	public function export_full_numbers(): bool {
+		return $this->all()['export_full_numbers'];
 	}
 
 	/**

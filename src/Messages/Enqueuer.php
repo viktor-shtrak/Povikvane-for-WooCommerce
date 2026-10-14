@@ -49,6 +49,9 @@ final class Enqueuer {
 		$message->created_at = $now;
 		$message->updated_at = $now;
 
+		// A delayed message is not overdue until the delay has passed.
+		$message->next_attempt_at = $delay_seconds > 0 ? $now + $delay_seconds : null;
+
 		$id = $this->store->create( $message );
 		if ( null === $id ) {
 			return null;

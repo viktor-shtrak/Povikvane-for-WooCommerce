@@ -125,6 +125,8 @@ final class DispatcherTest extends TestCase {
 		$this->assertSame( 1, $message->attempts );
 		$this->assertSame( array( Notifier::NOTE_QUEUED ), $this->notifier->codes );
 		$this->assertSame( array(), $this->scheduler->runs );
+		$this->assertSame( $this->clock->time + 300, $message->next_attempt_at, 'the first delivery check is scheduled' );
+		$this->assertSame( 0, $message->checks );
 	}
 
 	/**
@@ -331,6 +333,7 @@ final class DispatcherTest extends TestCase {
 		$this->assertSame( 'api-id-504', $message->api_message_id );
 		$this->assertSame( 'http_504', $message->error_code );
 		$this->assertCount( 1, $this->gateway->sent, 'must not resend after a 504' );
+		$this->assertSame( $this->clock->time + 300, $message->next_attempt_at, 'a 504 with a message ID is still checked' );
 		$this->assertSame( array(), $this->scheduler->runs );
 		$this->assertSame( array( Notifier::NOTE_UNCONFIRMED ), $this->notifier->codes );
 	}

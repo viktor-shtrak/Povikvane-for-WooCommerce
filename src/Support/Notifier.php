@@ -19,12 +19,14 @@ defined( 'ABSPATH' ) || exit;
  */
 interface Notifier {
 
-	public const NOTE_QUEUED       = 'queued';
-	public const NOTE_FAILED       = 'failed';
-	public const NOTE_UNCONFIRMED  = 'unconfirmed';
-	public const NOTE_HELD_CREDITS = 'held_credits';
-	public const NOTE_EXPIRED      = 'expired';
-	public const NOTE_SKIPPED      = 'skipped';
+	public const NOTE_QUEUED          = 'queued';
+	public const NOTE_FAILED          = 'failed';
+	public const NOTE_UNCONFIRMED     = 'unconfirmed';
+	public const NOTE_HELD_CREDITS    = 'held_credits';
+	public const NOTE_EXPIRED         = 'expired';
+	public const NOTE_SKIPPED         = 'skipped';
+	public const NOTE_DELIVERED       = 'delivered';
+	public const NOTE_DELIVERY_FAILED = 'delivery_failed';
 
 	/**
 	 * Add a note for a message event.

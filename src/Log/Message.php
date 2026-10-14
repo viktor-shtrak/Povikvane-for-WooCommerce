@@ -132,6 +132,13 @@ final class Message {
 	public int $attempts = 0;
 
 	/**
+	 * Delivery status checks made so far.
+	 *
+	 * @var int
+	 */
+	public int $checks = 0;
+
+	/**
 	 * When the next attempt is due.
 	 *
 	 * @var int|null

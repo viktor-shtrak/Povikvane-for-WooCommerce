@@ -189,7 +189,7 @@ final class Dispatcher {
 				$message->credits        = isset( $attributes['credits-charged'] ) ? (float) $attributes['credits-charged'] : null;
 				$message->error_code     = null;
 				$message->error_detail   = null;
-				$this->finish( $message, Status::Queued, $now );
+				$this->finish( $message, Status::Queued, $now, $now + (int) CheckSchedule::delay_after( 0 ) );
 				$this->balance?->record_spent( (float) $message->credits );
 				$this->notifier->note(
 					$message,
@@ -233,7 +233,8 @@ final class Dispatcher {
 				$message->api_message_id = $result->message_id;
 				$message->error_code     = 'http_504';
 				$message->error_detail   = $result->detail;
-				$this->finish( $message, Status::Unconfirmed, $now );
+				// With a message ID the reconciler can still find out what happened.
+				$this->finish( $message, Status::Unconfirmed, $now, null === $result->message_id ? null : $now + (int) CheckSchedule::delay_after( 0 ) );
 				$this->notifier->note( $message, Notifier::NOTE_UNCONFIRMED, array( 'message_id' => $result->message_id ) );
 				return;
 
@@ -313,13 +314,15 @@ final class Dispatcher {
 	/**
 	 * Move a message to a status and save it.
 	 *
-	 * @param Message $message Message.
-	 * @param Status  $status  New status.
-	 * @param int     $now     Current time.
+	 * @param Message  $message Message.
+	 * @param Status   $status  New status.
+	 * @param int      $now     Current time.
+	 * @param int|null $next_check_at When to check delivery status next, if at all.
 	 */
-	private function finish( Message $message, Status $status, int $now ): void {
+	private function finish( Message $message, Status $status, int $now, ?int $next_check_at = null ): void {
 		$message->status          = $status;
-		$message->next_attempt_at = null;
+		$message->checks          = 0;
+		$message->next_attempt_at = $next_check_at;
 		$message->updated_at      = $now;
 		$message->final_at        = $status->is_final() ? $now : null;
 		$this->store->save( $message );

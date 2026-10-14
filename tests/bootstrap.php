@@ -25,6 +25,37 @@ foreach ( array(
 	}
 }
 
+// In-memory options for classes that read WordPress options.
+$GLOBALS['povikvane_test_options'] = array();
+
+if ( ! function_exists( 'get_option' ) ) {
+	/**
+	 * Minimal get_option().
+	 *
+	 * @param string $name          Option name.
+	 * @param mixed  $default_value Default.
+	 * @return mixed
+	 */
+	function get_option( string $name, $default_value = false ) {
+		return $GLOBALS['povikvane_test_options'][ $name ] ?? $default_value;
+	}
+}
+
+if ( ! function_exists( 'update_option' ) ) {
+	/**
+	 * Minimal update_option().
+	 *
+	 * @param string $name  Option name.
+	 * @param mixed  $value Value.
+	 * @return bool
+	 */
+	function update_option( string $name, $value ): bool {
+		$GLOBALS['povikvane_test_options'][ $name ] = $value;
+
+		return true;
+	}
+}
+
 // Stand-in for the WordPress JSON helper used by the API client.
 if ( ! function_exists( 'wp_json_encode' ) ) {
 	/**

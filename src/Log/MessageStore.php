@@ -59,4 +59,45 @@ interface MessageStore {
 	 * @param string $event    Event slug.
 	 */
 	public function count_for_order_event( int $order_id, string $event ): int;
+
+	/**
+	 * Load by the message ID the API returned.
+	 *
+	 * @param string $api_message_id API message UUID.
+	 */
+	public function find_by_api_message_id( string $api_message_id ): ?Message;
+
+	/**
+	 * Accepted or unconfirmed messages whose delivery status is due to be checked.
+	 *
+	 * @param int $now   Current time.
+	 * @param int $limit Maximum rows.
+	 * @return Message[]
+	 */
+	public function due_for_check( int $now, int $limit ): array;
+
+	/**
+	 * Messages that have been in the sending state since before a time.
+	 *
+	 * @param int $before Unix time.
+	 * @param int $limit  Maximum rows.
+	 * @return Message[]
+	 */
+	public function stuck_sending( int $before, int $limit ): array;
+
+	/**
+	 * Erase the text of finished messages older than a time.
+	 *
+	 * @param int $before Unix time.
+	 * @return int Rows changed.
+	 */
+	public function purge_bodies( int $before ): int;
+
+	/**
+	 * Delete finished messages older than a time.
+	 *
+	 * @param int $before Unix time.
+	 * @return int Rows deleted.
+	 */
+	public function delete_rows( int $before ): int;
 }

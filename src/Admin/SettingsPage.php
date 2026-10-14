@@ -64,6 +64,7 @@ final class SettingsPage {
 	 * @param TriggerRepository $triggers  Trigger configuration.
 	 * @param TemplatesSection  $templates Template editor.
 	 * @param BalanceStore      $balances  Stored credit balance.
+	 * @param DeliveryPanel     $delivery  Delivery tracking panel.
 	 * @param callable          $probe      Runs a capability probe.
 	 */
 	public function __construct(
@@ -75,6 +76,7 @@ final class SettingsPage {
 		private readonly TriggerRepository $triggers,
 		private readonly TemplatesSection $templates,
 		private readonly BalanceStore $balances,
+		private readonly DeliveryPanel $delivery,
 		callable $probe
 	) {
 		$this->probe = $probe;
@@ -113,6 +115,7 @@ final class SettingsPage {
 	public function enqueue_assets( string $hook_suffix ): void {
 		if ( '' !== $this->hook_suffix && $hook_suffix === $this->hook_suffix ) {
 			$this->templates->enqueue();
+			Assets::confirm();
 
 			wp_enqueue_script( 'povikvane-status', plugins_url( 'assets/js/status.js', \Povikvane\WooCommerce\PLUGIN_FILE ), array(), \Povikvane\WooCommerce\VERSION, true );
 			wp_localize_script(
@@ -203,6 +206,9 @@ final class SettingsPage {
 			'mobile_only'           => ! empty( $input['mobile_only'] ),
 			'storm_threshold'       => min( 10000, max( 0, (int) ( $input['storm_threshold'] ?? $current['storm_threshold'] ) ) ),
 			'low_balance_threshold' => min( 1000000, max( 0, (int) ( $input['low_balance_threshold'] ?? $current['low_balance_threshold'] ) ) ),
+			'retention_body_days'   => min( 3650, max( 0, (int) ( $input['retention_body_days'] ?? $current['retention_body_days'] ) ) ),
+			'retention_row_days'    => min( 3650, max( 0, (int) ( $input['retention_row_days'] ?? $current['retention_row_days'] ) ) ),
+			'export_full_numbers'   => ! empty( $input['export_full_numbers'] ),
 		);
 	}
 
@@ -231,6 +237,7 @@ final class SettingsPage {
 
 		$this->render_settings_form( $settings );
 		$this->render_connection( $caps );
+		$this->delivery->render();
 		$this->render_test_form();
 		$this->render_recent();
 
@@ -315,6 +322,7 @@ final class SettingsPage {
 		echo '</table>';
 
 		$this->render_safety( $settings );
+		$this->render_data_settings( $settings );
 		$this->templates->render();
 
 		submit_button();
@@ -373,6 +381,45 @@ final class SettingsPage {
 			(int) $settings['low_balance_threshold'],
 			esc_html__( 'credits', 'povikvane-for-woocommerce' ),
 			esc_html__( 'Shows a notice in the admin and sends the site administrator one email a day while credits stay below this level. 0 turns the warning off.', 'povikvane-for-woocommerce' )
+		);
+
+		echo '</table>';
+	}
+
+	/**
+	 * Data retention and export options.
+	 *
+	 * @param array<string,mixed> $settings Current settings.
+	 */
+	private function render_data_settings( array $settings ): void {
+		$name = Settings::OPTION;
+
+		echo '<h2>' . esc_html__( 'Data and privacy', 'povikvane-for-woocommerce' ) . '</h2><table class="form-table" role="presentation">';
+
+		printf(
+			'<tr><th scope="row"><label for="povikvane_keep_text">%1$s</label></th><td><input type="number" id="povikvane_keep_text" name="%2$s[retention_body_days]" value="%3$d" min="0" max="3650" class="small-text"> %4$s<p class="description">%5$s</p></td></tr>',
+			esc_html__( 'Erase message text after', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			(int) $settings['retention_body_days'],
+			esc_html__( 'days', 'povikvane-for-woocommerce' ),
+			esc_html__( 'The text of finished messages is personal data. 0 keeps it forever.', 'povikvane-for-woocommerce' )
+		);
+
+		printf(
+			'<tr><th scope="row"><label for="povikvane_keep_rows">%1$s</label></th><td><input type="number" id="povikvane_keep_rows" name="%2$s[retention_row_days]" value="%3$d" min="0" max="3650" class="small-text"> %4$s<p class="description">%5$s</p></td></tr>',
+			esc_html__( 'Delete message records after', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			(int) $settings['retention_row_days'],
+			esc_html__( 'days', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Records (order, status, credits, phone number) are kept longer than the text, for billing questions. 0 keeps them forever.', 'povikvane-for-woocommerce' )
+		);
+
+		printf(
+			'<tr><th scope="row">%1$s</th><td><label><input type="checkbox" name="%2$s[export_full_numbers]" value="1"%3$s> %4$s</label></td></tr>',
+			esc_html__( 'CSV export', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			checked( $settings['export_full_numbers'], true, false ),
+			esc_html__( 'Include full phone numbers (otherwise they are shortened)', 'povikvane-for-woocommerce' )
 		);
 
 		echo '</table>';
@@ -446,7 +493,7 @@ final class SettingsPage {
 	private function render_recent(): void {
 		$rows = $this->repository->recent( 10 );
 
-		echo '<h2>' . esc_html__( 'Recent messages', 'povikvane-for-woocommerce' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Recent messages', 'povikvane-for-woocommerce' ) . ' <a class="page-title-action" href="' . esc_url( admin_url( 'admin.php?page=' . MessageLogPage::SLUG ) ) . '">' . esc_html__( 'View all', 'povikvane-for-woocommerce' ) . '</a></h2>';
 
 		if ( array() === $rows ) {
 			echo '<p>' . esc_html__( 'No messages yet.', 'povikvane-for-woocommerce' ) . '</p>';

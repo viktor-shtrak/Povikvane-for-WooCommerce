@@ -11,6 +11,8 @@ namespace Povikvane\WooCommerce;
 
 use Povikvane\WooCommerce\Admin\BalanceAjax;
 use Povikvane\WooCommerce\Admin\BalanceNotice;
+use Povikvane\WooCommerce\Admin\DeliveryPanel;
+use Povikvane\WooCommerce\Admin\MessageLogPage;
 use Povikvane\WooCommerce\Admin\OrderMetabox;
 use Povikvane\WooCommerce\Admin\PauseControls;
 use Povikvane\WooCommerce\Admin\SettingsPage;
@@ -24,9 +26,13 @@ use Povikvane\WooCommerce\Balance\LowBalanceAlert;
 use Povikvane\WooCommerce\Balance\OptionBalanceStore;
 use Povikvane\WooCommerce\Balance\WpMailer;
 use Povikvane\WooCommerce\Log\Repository;
+use Povikvane\WooCommerce\Log\Retention;
 use Povikvane\WooCommerce\Log\Schema;
+use Povikvane\WooCommerce\Messages\DeliveryUpdater;
 use Povikvane\WooCommerce\Messages\Dispatcher;
 use Povikvane\WooCommerce\Messages\Enqueuer;
+use Povikvane\WooCommerce\Messages\Reconciler;
+use Povikvane\WooCommerce\Messages\StuckRecovery;
 use Povikvane\WooCommerce\Orders\OrderContext;
 use Povikvane\WooCommerce\Orders\OrderEventHandler;
 use Povikvane\WooCommerce\Orders\OrderFacts;
@@ -46,6 +52,10 @@ use Povikvane\WooCommerce\Support\Settings;
 use Povikvane\WooCommerce\Support\SystemClock;
 use Povikvane\WooCommerce\Support\WcLogger;
 use Povikvane\WooCommerce\Support\WpNotifier;
+use Povikvane\WooCommerce\Webhook\OptionActivity;
+use Povikvane\WooCommerce\Webhook\RestController;
+use Povikvane\WooCommerce\Webhook\Token;
+use Povikvane\WooCommerce\Webhook\WebhookHandler;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -114,6 +124,13 @@ final class Plugin {
 		add_action( ActionSchedulerScheduler::SEND_HOOK, array( $this, 'run_send_job' ) );
 		add_action( ActionSchedulerScheduler::PROBE_HOOK, array( $this, 'run_probe' ) );
 		add_action( ActionSchedulerScheduler::BALANCE_HOOK, array( $this, 'run_balance_refresh' ) );
+		add_action( ActionSchedulerScheduler::RECONCILE_HOOK, array( $this, 'run_reconcile' ) );
+		add_action( ActionSchedulerScheduler::PURGE_HOOK, array( $this, 'run_purge' ) );
+
+		( new RestController(
+			new WebhookHandler( $this->repository(), $this->delivery_updater(), new OptionActivity(), new SystemClock() ),
+			new Token()
+		) )->register();
 		add_action( 'action_scheduler_init', array( $this, 'schedule_recurring_jobs' ) );
 
 		( new StatusHooks(
@@ -124,6 +141,10 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			$templates = new TemplatesSection( $this->triggers() );
+			$delivery  = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
+			$delivery->register();
+
+			( new MessageLogPage( $this->repository(), $this->enqueuer(), $this->settings(), $this->state() ) )->register();
 
 			( new SettingsPage(
 				$this->settings(),
@@ -134,6 +155,7 @@ final class Plugin {
 				$this->triggers(),
 				$templates,
 				new OptionBalanceStore(),
+				$delivery,
 				array( $this, 'run_probe' )
 			) )->register();
 
@@ -236,6 +258,30 @@ final class Plugin {
 	}
 
 	/**
+	 * Action Scheduler job: recover interrupted sends and check delivery results.
+	 */
+	public function run_reconcile(): void {
+		if ( ! $this->settings()->credentials()->is_complete() || SendingState::REASON_AUTH === $this->state()->paused_reason() ) {
+			return;
+		}
+
+		$clock = new SystemClock();
+
+		( new StuckRecovery( $this->repository(), $this->client(), new ActionSchedulerScheduler(), new WpNotifier(), $clock, $this->logger() ) )->run();
+
+		( new Reconciler( $this->repository(), $this->client(), $this->delivery_updater(), $this->state(), $clock, $this->logger() ) )->run();
+	}
+
+	/**
+	 * Action Scheduler job: erase old message text and delete old records.
+	 */
+	public function run_purge(): void {
+		$result = ( new Retention( $this->repository(), new SystemClock(), $this->settings()->retention_body_days(), $this->settings()->retention_row_days() ) )->run();
+
+		$this->logger()->log( Logger::INFO, 'Retention run', $result );
+	}
+
+	/**
 	 * Action Scheduler job: refresh the credit balance.
 	 */
 	public function run_balance_refresh(): void {
@@ -254,6 +300,14 @@ final class Plugin {
 	public function schedule_recurring_jobs(): void {
 		if ( false === as_has_scheduled_action( ActionSchedulerScheduler::PROBE_HOOK, array(), ActionSchedulerScheduler::GROUP ) ) {
 			as_schedule_recurring_action( time() + 120, DAY_IN_SECONDS, ActionSchedulerScheduler::PROBE_HOOK, array(), ActionSchedulerScheduler::GROUP );
+		}
+
+		if ( false === as_has_scheduled_action( ActionSchedulerScheduler::RECONCILE_HOOK, array(), ActionSchedulerScheduler::GROUP ) ) {
+			as_schedule_recurring_action( time() + 120, 5 * MINUTE_IN_SECONDS, ActionSchedulerScheduler::RECONCILE_HOOK, array(), ActionSchedulerScheduler::GROUP );
+		}
+
+		if ( false === as_has_scheduled_action( ActionSchedulerScheduler::PURGE_HOOK, array(), ActionSchedulerScheduler::GROUP ) ) {
+			as_schedule_recurring_action( time() + HOUR_IN_SECONDS, DAY_IN_SECONDS, ActionSchedulerScheduler::PURGE_HOOK, array(), ActionSchedulerScheduler::GROUP );
 		}
 
 		if ( false === as_has_scheduled_action( ActionSchedulerScheduler::BALANCE_HOOK, array(), ActionSchedulerScheduler::GROUP ) ) {
@@ -326,6 +380,13 @@ final class Plugin {
 	 */
 	private function logger(): Logger {
 		return new WcLogger( $this->settings() );
+	}
+
+	/**
+	 * Records delivery results and adds the order notes.
+	 */
+	private function delivery_updater(): DeliveryUpdater {
+		return new DeliveryUpdater( $this->repository(), new WpNotifier(), new SystemClock(), $this->logger() );
 	}
 
 	/**

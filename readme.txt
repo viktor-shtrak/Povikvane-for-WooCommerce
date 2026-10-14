@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.2.1
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,13 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 3. Enter your Povikvane API key and service ID in the plugin settings (available in a later version).
 
 == Changelog ==
+
+= 0.3.0 =
+* Delivery tracking: messages now become "Delivered" or "Failed" through a webhook and regular checks, with order notes.
+* New message log screen with filters, search, Resend and CSV export.
+* Interrupted sends are recovered safely without sending duplicates.
+* Old message text and records are erased automatically (configurable).
+* Fix: the low-credits warning level was not applied in 0.2.1.
 
 = 0.2.1 =
 * The credit balance now stays current: it drops as messages are sent, is refreshed from the service shortly afterwards and every 15 minutes, and updates in the background when you open the settings page.

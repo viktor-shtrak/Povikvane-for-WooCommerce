@@ -40,6 +40,7 @@ final class Repository implements MessageStore {
 		'segments'        => '%s',
 		'credits'         => '%s',
 		'attempts'        => '%d',
+		'checks'          => '%d',
 		'next_attempt_at' => '%s',
 		'created_at'      => '%s',
 		'updated_at'      => '%s',
@@ -223,6 +224,228 @@ final class Repository implements MessageStore {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $api_message_id API message UUID.
+	 */
+	public function find_by_api_message_id( string $api_message_id ): ?Message {
+		global $wpdb;
+
+		$table = Schema::table();
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE api_message_id = %s ORDER BY id DESC LIMIT 1", $api_message_id ), ARRAY_A );
+
+		return is_array( $row ) ? $this->hydrate( $row ) : null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $now   Current time.
+	 * @param int $limit Maximum rows.
+	 */
+	public function due_for_check( int $now, int $limit ): array {
+		global $wpdb;
+
+		$table = Schema::table();
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE status IN (%s, %s) AND api_message_id IS NOT NULL AND next_attempt_at IS NOT NULL AND next_attempt_at <= %s ORDER BY next_attempt_at ASC LIMIT %d",
+				Status::Queued->value,
+				Status::Unconfirmed->value,
+				gmdate( 'Y-m-d H:i:s', $now ),
+				$limit
+			),
+			ARRAY_A
+		);
+
+		return $this->hydrate_all( $rows );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $before Unix time.
+	 * @param int $limit  Maximum rows.
+	 */
+	public function stuck_sending( int $before, int $limit ): array {
+		global $wpdb;
+
+		$table = Schema::table();
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE status = %s AND updated_at < %s ORDER BY id ASC LIMIT %d", Status::Sending->value, gmdate( 'Y-m-d H:i:s', $before ), $limit ),
+			ARRAY_A
+		);
+
+		return $this->hydrate_all( $rows );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $before Unix time.
+	 */
+	public function purge_bodies( int $before ): int {
+		global $wpdb;
+
+		$table = Schema::table();
+		$done  = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET body = '' WHERE created_at < %s AND body <> '' AND status NOT IN (%s, %s, %s)",
+				gmdate( 'Y-m-d H:i:s', $before ),
+				Status::Pending->value,
+				Status::Sending->value,
+				Status::HeldCredits->value
+			)
+		);
+
+		return false === $done ? 0 : (int) $done;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $before Unix time.
+	 */
+	public function delete_rows( int $before ): int {
+		global $wpdb;
+
+		$table = Schema::table();
+		$done  = $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$table} WHERE created_at < %s AND status NOT IN (%s, %s, %s)",
+				gmdate( 'Y-m-d H:i:s', $before ),
+				Status::Pending->value,
+				Status::Sending->value,
+				Status::HeldCredits->value
+			)
+		);
+
+		return false === $done ? 0 : (int) $done;
+	}
+
+	/**
+	 * When the oldest overdue waiting message should have been sent, or null if none is overdue.
+	 *
+	 * @param int $now Current time.
+	 */
+	public function oldest_overdue( int $now ): ?int {
+		global $wpdb;
+
+		$table = Schema::table();
+		$due   = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT MIN(COALESCE(next_attempt_at, created_at)) FROM {$table} WHERE status = %s AND COALESCE(next_attempt_at, created_at) <= %s",
+				Status::Pending->value,
+				gmdate( 'Y-m-d H:i:s', $now )
+			)
+		);
+
+		return is_string( $due ) ? $this->from_datetime( $due ) : null;
+	}
+
+	/**
+	 * Messages matching a filter, newest first.
+	 *
+	 * @param MessageQuery $query  Filter.
+	 * @param int          $limit  Rows per page.
+	 * @param int          $offset First row.
+	 * @return Message[]
+	 */
+	public function search( MessageQuery $query, int $limit, int $offset ): array {
+		global $wpdb;
+
+		$table                = Schema::table();
+		list( $where, $args ) = $this->where( $query );
+		$args[]               = $limit;
+		$args[]               = $offset;
+
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE {$where} ORDER BY id DESC LIMIT %d OFFSET %d", $args ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- The argument list is built together with the clauses.
+
+		return $this->hydrate_all( $rows );
+	}
+
+	/**
+	 * Number of messages matching a filter.
+	 *
+	 * @param MessageQuery $query Filter.
+	 */
+	public function count( MessageQuery $query ): int {
+		global $wpdb;
+
+		$table                = Schema::table();
+		list( $where, $args ) = $this->where( $query );
+
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$where}", $args ) ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- The placeholders are inside $where, which is built from fixed clauses.
+	}
+
+	/**
+	 * Distinct event slugs in the log, for the filter menu.
+	 *
+	 * @return string[]
+	 */
+	public function events(): array {
+		global $wpdb;
+
+		$table = Schema::table();
+		$rows  = $wpdb->get_col( "SELECT DISTINCT event FROM {$table} ORDER BY event ASC" );
+
+		return is_array( $rows ) ? array_map( 'strval', $rows ) : array();
+	}
+
+	/**
+	 * Build the WHERE clause and its arguments for a filter.
+	 *
+	 * @param MessageQuery $query Filter.
+	 * @return array{string,array<int,mixed>}
+	 */
+	private function where( MessageQuery $query ): array {
+		global $wpdb;
+
+		// The always-true first clause keeps at least one placeholder, so every query is prepared.
+		$clauses = array( '1 = %d' );
+		$args    = array( 1 );
+
+		if ( null !== $query->status ) {
+			$clauses[] = 'status = %s';
+			$args[]    = $query->status->value;
+		}
+
+		if ( '' !== $query->event ) {
+			$clauses[] = 'event = %s';
+			$args[]    = $query->event;
+		}
+
+		if ( '' !== $query->search ) {
+			$clauses[] = '(order_id = %d OR reference LIKE %s OR api_message_id = %s)';
+			$args[]    = (int) $query->search;
+			$args[]    = '%' . $wpdb->esc_like( $query->search ) . '%';
+			$args[]    = $query->search;
+		}
+
+		if ( null !== $query->from ) {
+			$clauses[] = 'created_at >= %s';
+			$args[]    = gmdate( 'Y-m-d H:i:s', $query->from );
+		}
+
+		if ( null !== $query->to ) {
+			$clauses[] = 'created_at < %s';
+			$args[]    = gmdate( 'Y-m-d H:i:s', $query->to );
+		}
+
+		return array( implode( ' AND ', $clauses ), $args );
+	}
+
+	/**
+	 * Hydrate a list of rows.
+	 *
+	 * @param mixed $rows Database rows.
+	 * @return Message[]
+	 */
+	private function hydrate_all( mixed $rows ): array {
+		return array_map( fn( array $row ): Message => $this->hydrate( $row ), is_array( $rows ) ? $rows : array() );
+	}
+
+	/**
 	 * Convert a message to column values.
 	 *
 	 * @param Message $message Message.
@@ -245,6 +468,7 @@ final class Repository implements MessageStore {
 			'segments'        => null === $message->segments ? null : (string) $message->segments,
 			'credits'         => null === $message->credits ? null : (string) $message->credits,
 			'attempts'        => $message->attempts,
+			'checks'          => $message->checks,
 			'next_attempt_at' => $this->to_datetime( $message->next_attempt_at ),
 			'created_at'      => $this->to_datetime( $message->created_at ),
 			'updated_at'      => $this->to_datetime( $message->updated_at ),
@@ -275,6 +499,7 @@ final class Repository implements MessageStore {
 		$message->segments        = null === $row['segments'] ? null : (float) $row['segments'];
 		$message->credits         = null === $row['credits'] ? null : (float) $row['credits'];
 		$message->attempts        = (int) $row['attempts'];
+		$message->checks          = (int) ( $row['checks'] ?? 0 );
 		$message->next_attempt_at = $this->from_datetime( $row['next_attempt_at'] );
 		$message->created_at      = (int) $this->from_datetime( $row['created_at'] );
 		$message->updated_at      = (int) $this->from_datetime( $row['updated_at'] );

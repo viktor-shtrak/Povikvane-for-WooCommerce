@@ -88,6 +88,29 @@ final class WpNotifier implements Notifier {
 					$message->recipient
 				);
 
+			case Notifier::NOTE_DELIVERED:
+				return sprintf(
+					/* translators: %s: recipient phone number. */
+					__( 'Povikvane: SMS to %s was delivered.', 'povikvane-for-woocommerce' ),
+					$message->recipient
+				);
+
+			case Notifier::NOTE_DELIVERY_FAILED:
+				$detail = (string) ( $params['detail'] ?? '' );
+
+				return '' === $detail
+					? sprintf(
+						/* translators: %s: recipient phone number. */
+						__( 'Povikvane: SMS to %s could not be delivered.', 'povikvane-for-woocommerce' ),
+						$message->recipient
+					)
+					: sprintf(
+						/* translators: 1: recipient phone number, 2: reason. */
+						__( 'Povikvane: SMS to %1$s could not be delivered: %2$s', 'povikvane-for-woocommerce' ),
+						$message->recipient,
+						$detail
+					);
+
 			case Notifier::NOTE_SKIPPED:
 				return sprintf(
 					/* translators: %s: reason the SMS was not sent. */

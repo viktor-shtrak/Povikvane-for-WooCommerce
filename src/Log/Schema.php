@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Schema {
 
-	public const VERSION = '1';
+	public const VERSION = '2';
 	public const OPTION  = 'povikvane_db_version';
 
 	/**
@@ -57,6 +57,7 @@ final class Schema {
   segments decimal(8,2) DEFAULT NULL,
   credits decimal(8,2) DEFAULT NULL,
   attempts smallint(5) unsigned NOT NULL DEFAULT 0,
+  checks smallint(5) unsigned NOT NULL DEFAULT 0,
   next_attempt_at datetime DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,

@@ -252,6 +252,99 @@ final class InMemoryStore implements MessageStore {
 	/**
 	 * {@inheritDoc}
 	 *
+	 * @param string $api_message_id API ID.
+	 */
+	public function find_by_api_message_id( string $api_message_id ): ?Message {
+		foreach ( $this->rows as $row ) {
+			if ( $row->api_message_id === $api_message_id ) {
+				return clone $row;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $now   Now.
+	 * @param int $limit Limit.
+	 */
+	public function due_for_check( int $now, int $limit ): array {
+		$due = array_filter(
+			$this->rows,
+			static fn( Message $row ): bool => in_array( $row->status, array( \Povikvane\WooCommerce\Messages\Status::Queued, \Povikvane\WooCommerce\Messages\Status::Unconfirmed ), true )
+				&& null !== $row->api_message_id
+				&& null !== $row->next_attempt_at
+				&& $row->next_attempt_at <= $now
+		);
+
+		return array_map( static fn( Message $row ): Message => clone $row, array_slice( array_values( $due ), 0, $limit ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $before Time.
+	 * @param int $limit  Limit.
+	 */
+	public function stuck_sending( int $before, int $limit ): array {
+		$stuck = array_filter(
+			$this->rows,
+			static fn( Message $row ): bool => \Povikvane\WooCommerce\Messages\Status::Sending === $row->status && $row->updated_at < $before
+		);
+
+		return array_map( static fn( Message $row ): Message => clone $row, array_slice( array_values( $stuck ), 0, $limit ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $before Time.
+	 */
+	public function purge_bodies( int $before ): int {
+		$count = 0;
+		foreach ( $this->rows as $row ) {
+			if ( $this->purgeable( $row, $before ) && '' !== $row->body ) {
+				$row->body = '';
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $before Time.
+	 */
+	public function delete_rows( int $before ): int {
+		$count = 0;
+		foreach ( $this->rows as $id => $row ) {
+			if ( $this->purgeable( $row, $before ) ) {
+				unset( $this->rows[ $id ] );
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Whether a row is old and finished.
+	 *
+	 * @param Message $row    Row.
+	 * @param int     $before Cutoff.
+	 */
+	private function purgeable( Message $row, int $before ): bool {
+		return $row->created_at < $before
+			&& ! in_array( $row->status, array( \Povikvane\WooCommerce\Messages\Status::Pending, \Povikvane\WooCommerce\Messages\Status::Sending, \Povikvane\WooCommerce\Messages\Status::HeldCredits ), true );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * @param int $since Unix time.
 	 */
 	public function count_created_since( int $since ): int {
@@ -498,5 +591,40 @@ final class RecordingMailer implements \Povikvane\WooCommerce\Balance\LowBalance
 	 */
 	public function send( float $available, int $threshold ): void {
 		$this->sent[] = array( $available, $threshold );
+	}
+}
+
+/**
+ * In-memory webhook activity.
+ */
+final class InMemoryActivity implements \Povikvane\WooCommerce\Webhook\WebhookActivity {
+
+	/**
+	 * Recorded requests.
+	 *
+	 * @var array<int,array{int,string}>
+	 */
+	public array $records = array();
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int    $time   Time.
+	 * @param string $result Result.
+	 */
+	public function record( int $time, string $result ): void {
+		$this->records[] = array( $time, $result );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function last(): ?array {
+		$last = end( $this->records );
+
+		return false === $last ? null : array(
+			'time'   => $last[0],
+			'result' => $last[1],
+		);
 	}
 }

@@ -17,10 +17,12 @@ defined( 'ABSPATH' ) || exit;
  */
 final class ActionSchedulerScheduler implements Scheduler {
 
-	public const SEND_HOOK    = 'povikvane_send_message';
-	public const PROBE_HOOK   = 'povikvane_probe_capabilities';
-	public const BALANCE_HOOK = 'povikvane_refresh_balance';
-	public const GROUP        = 'povikvane';
+	public const SEND_HOOK      = 'povikvane_send_message';
+	public const PROBE_HOOK     = 'povikvane_probe_capabilities';
+	public const BALANCE_HOOK   = 'povikvane_refresh_balance';
+	public const RECONCILE_HOOK = 'povikvane_reconcile';
+	public const PURGE_HOOK     = 'povikvane_purge';
+	public const GROUP          = 'povikvane';
 
 	/**
 	 * {@inheritDoc}
