@@ -4,3 +4,5 @@
  *
  * @package Povikvane\WooCommerce
  */
+
+defined( 'ABSPATH' ) || exit;

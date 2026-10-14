@@ -9,7 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Support;
 
-use const Povikvane\WooCommerce\PLUGIN_FILE;
+use const Povikvane\WooCommerce\PLUGIN_DIR;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -98,7 +98,13 @@ final class Language {
 		add_action(
 			'init',
 			static function (): void {
-				load_plugin_textdomain( self::DOMAIN, false, dirname( plugin_basename( PLUGIN_FILE ) ) . '/languages' );
+				// The bundled translations are loaded directly so the Language setting can override the site language.
+				$locale = (string) apply_filters( 'plugin_locale', determine_locale(), self::DOMAIN );
+				$file   = PLUGIN_DIR . 'languages/' . self::DOMAIN . '-' . $locale . '.mo';
+
+				if ( is_readable( $file ) ) {
+					load_textdomain( self::DOMAIN, $file, $locale );
+				}
 			},
 			0
 		);
