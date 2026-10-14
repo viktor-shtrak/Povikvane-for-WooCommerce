@@ -27,4 +27,7 @@ final class SkipReason {
 	public const STATUS_CHANGED   = 'status_changed';
 	public const ORDER_MISSING    = 'order_missing';
 	public const DISCARDED        = 'discarded';
+	public const NO_CONSENT       = 'no_consent';
+	public const FREQUENCY_CAP    = 'frequency_cap';
+	public const MARKETING_OFF    = 'marketing_off';
 }

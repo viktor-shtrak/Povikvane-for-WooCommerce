@@ -214,4 +214,28 @@ final class ClientTest extends TestCase {
 		$this->assertStringNotContainsString( 'super-secret-key', $dump );
 		$this->assertStringContainsString( 'svc-456', $dump );
 	}
+
+	/**
+	 * The error code is exposed on the result when the service sends one.
+	 */
+	public function test_error_code_is_exposed(): void {
+		$this->transport->will_return(
+			new Response(
+				422,
+				array(),
+				array(
+					'errors' => array(
+						array(
+							'code'   => 'invalid_reference',
+							'detail' => 'Bad reference',
+						),
+					),
+				)
+			)
+		);
+		$this->transport->will_return( new Response( 429, array(), array( 'errors' => array( array( 'detail' => 'No code here' ) ) ) ) );
+
+		$this->assertSame( 'invalid_reference', $this->client->send( new SendRequest( '+359888123456', 'Hi' ) )->error_code );
+		$this->assertNull( $this->client->send( new SendRequest( '+359888123456', 'Hi' ) )->error_code );
+	}
 }

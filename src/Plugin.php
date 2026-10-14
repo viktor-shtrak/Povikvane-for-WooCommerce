@@ -12,6 +12,7 @@ namespace Povikvane\WooCommerce;
 use Povikvane\WooCommerce\Admin\BalanceAjax;
 use Povikvane\WooCommerce\Admin\BalanceNotice;
 use Povikvane\WooCommerce\Admin\DeliveryPanel;
+use Povikvane\WooCommerce\Admin\MarketingSection;
 use Povikvane\WooCommerce\Admin\MessageLogPage;
 use Povikvane\WooCommerce\Admin\OrderMetabox;
 use Povikvane\WooCommerce\Admin\PauseControls;
@@ -28,6 +29,18 @@ use Povikvane\WooCommerce\Balance\WpMailer;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Log\Retention;
 use Povikvane\WooCommerce\Log\Schema;
+use Povikvane\WooCommerce\Marketing\AccountConsent;
+use Povikvane\WooCommerce\Marketing\CheckoutConsent;
+use Povikvane\WooCommerce\Marketing\Consent;
+use Povikvane\WooCommerce\Marketing\ConsentRecorder;
+use Povikvane\WooCommerce\Marketing\ConsentRepository;
+use Povikvane\WooCommerce\Marketing\FollowupHandler;
+use Povikvane\WooCommerce\Marketing\FrequencyCap;
+use Povikvane\WooCommerce\Marketing\MarketingGate;
+use Povikvane\WooCommerce\Marketing\MarketingSettings;
+use Povikvane\WooCommerce\Marketing\OptOutEndpoint;
+use Povikvane\WooCommerce\Marketing\OptOutToken;
+use Povikvane\WooCommerce\Messages\CompositeGate;
 use Povikvane\WooCommerce\Messages\DeliveryUpdater;
 use Povikvane\WooCommerce\Messages\Dispatcher;
 use Povikvane\WooCommerce\Messages\Enqueuer;
@@ -40,6 +53,7 @@ use Povikvane\WooCommerce\Orders\OrderStatusGate;
 use Povikvane\WooCommerce\Orders\StatusHooks;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
 use Povikvane\WooCommerce\Phone\Normalizer;
+use Povikvane\WooCommerce\Privacy\Privacy;
 use Povikvane\WooCommerce\Safety\SiteGuard;
 use Povikvane\WooCommerce\Safety\StormGuard;
 use Povikvane\WooCommerce\Support\ActionSchedulerScheduler;
@@ -136,13 +150,27 @@ final class Plugin {
 		( new StatusHooks(
 			$this->order_handler(),
 			$this->triggers(),
-			new OrderContext( $this->settings()->default_country() )
+			new OrderContext( $this->settings()->default_country() ),
+			$this->marketing()->enabled() ? $this->followup_handler() : null
+		) )->register();
+
+		$this->register_marketing_hooks();
+
+		( new Privacy(
+			$this->repository(),
+			new ConsentRepository(),
+			$this->consent(),
+			new Normalizer(),
+			$this->settings()->default_country()
 		) )->register();
 
 		if ( is_admin() ) {
 			$templates = new TemplatesSection( $this->triggers() );
 			$delivery  = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
 			$delivery->register();
+
+			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), get_locale() );
+			$marketing_section->register();
 
 			( new MessageLogPage( $this->repository(), $this->enqueuer(), $this->settings(), $this->state() ) )->register();
 
@@ -156,6 +184,7 @@ final class Plugin {
 				$templates,
 				new OptionBalanceStore(),
 				$delivery,
+				$marketing_section,
 				array( $this, 'run_probe' )
 			) )->register();
 
@@ -201,8 +230,9 @@ final class Plugin {
 			$this->state(),
 			$this->settings()->max_age_seconds(),
 			$this->logger(),
-			new OrderStatusGate(),
-			new BalanceTracker( new OptionBalanceStore(), new ActionSchedulerScheduler() )
+			new CompositeGate( new OrderStatusGate(), $this->marketing_gate() ),
+			new BalanceTracker( new OptionBalanceStore(), new ActionSchedulerScheduler() ),
+			$this->marketing()->quiet_hours( wp_timezone() )
 		) )->handle( (int) $message_id );
 	}
 
@@ -404,6 +434,81 @@ final class Plugin {
 			new LowBalanceAlert( $store, new WpMailer(), $clock, $this->settings()->low_balance_threshold() ),
 			$this->logger()
 		);
+	}
+
+	/**
+	 * Settings for promotional messages.
+	 */
+	public function marketing(): MarketingSettings {
+		return new MarketingSettings( get_locale() );
+	}
+
+	/**
+	 * Secret for hashing phone numbers and signing unsubscribe links. It belongs to
+	 * this installation and does not change when the WordPress salts do.
+	 */
+	private function consent_secret(): string {
+		return hash_hmac( 'sha256', 'povikvane-consent', SiteIdentity::salt() );
+	}
+
+	/**
+	 * Consent rules.
+	 */
+	private function consent(): Consent {
+		return new Consent( new ConsentRepository(), new SystemClock(), $this->consent_secret() );
+	}
+
+	/**
+	 * Last-moment checks for promotional messages.
+	 */
+	private function marketing_gate(): MarketingGate {
+		$marketing = $this->marketing();
+
+		return new MarketingGate(
+			$marketing->enabled(),
+			$this->consent(),
+			new FrequencyCap( $this->repository(), $marketing->cap_max(), $marketing->cap_days() ),
+			new SystemClock()
+		);
+	}
+
+	/**
+	 * Schedules review requests after completed orders.
+	 */
+	private function followup_handler(): FollowupHandler {
+		$clock = new SystemClock();
+
+		return new FollowupHandler(
+			$this->repository(),
+			$this->enqueuer(),
+			new Normalizer(),
+			$this->consent(),
+			new OptOutToken( $this->consent_secret() ),
+			new StormGuard( $this->repository(), $this->state(), $clock, $this->settings()->storm_threshold() ),
+			$this->state(),
+			new WpNotifier(),
+			$clock,
+			SiteIdentity::token(),
+			$this->settings()->rules(),
+			$this->marketing()->followup(),
+			home_url()
+		);
+	}
+
+	/**
+	 * The unsubscribe link always works; the checkbox and account setting only exist while promotions are on.
+	 */
+	private function register_marketing_hooks(): void {
+		( new OptOutEndpoint( $this->consent(), new OptOutToken( $this->consent_secret() ) ) )->register();
+
+		if ( ! $this->marketing()->enabled() ) {
+			return;
+		}
+
+		$recorder = new ConsentRecorder( $this->consent(), new Normalizer(), $this->marketing(), $this->settings()->default_country() );
+
+		( new CheckoutConsent( $recorder, $this->marketing() ) )->register();
+		( new AccountConsent( $this->consent(), new Normalizer(), $this->marketing(), $this->settings()->default_country() ) )->register();
 	}
 
 	/**

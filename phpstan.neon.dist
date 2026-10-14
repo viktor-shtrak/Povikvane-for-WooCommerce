@@ -1,0 +1,11 @@
+parameters:
+	level: 8
+	paths:
+		- src
+		- povikvane-for-woocommerce.php
+		- uninstall.php
+	scanFiles:
+		- vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+		- vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
+	# WordPress and WooCommerce document many types loosely, so defensive checks are kept.
+	treatPhpDocTypesAsCertain: false

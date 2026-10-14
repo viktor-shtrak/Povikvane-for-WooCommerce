@@ -237,6 +237,46 @@ final class DeliveryTest extends TestCase {
 	}
 
 	/**
+	 * The carrier status in a failure is stored and shown exactly as received, never parsed.
+	 */
+	public function test_failure_text_is_kept_verbatim(): void {
+		$id = $this->add( Status::Queued );
+
+		$this->webhook( new InMemoryActivity() )->handle(
+			$this->payload(
+				array(
+					'status' => 'failed',
+					'error'  => 'stat:REJECTD err:002 code:-1',
+				)
+			)
+		);
+
+		$this->assertSame( 'stat:REJECTD err:002 code:-1', $this->get( $id )->error_detail );
+	}
+
+	/**
+	 * With lookup enabled the webhook may carry the reference; when it has none the field is simply absent.
+	 */
+	public function test_webhook_works_with_and_without_a_reference_field(): void {
+		$with    = $this->add( Status::Queued, 'api-1', null, 1 );
+		$without = $this->add( Status::Queued, 'api-2', null, 2 );
+		$handler = $this->webhook( new InMemoryActivity() );
+
+		$handler->handle(
+			$this->payload(
+				array(
+					'id'        => 'api-1',
+					'reference' => 'woo:ab12cd34:1:completed:1',
+				)
+			)
+		);
+		$handler->handle( $this->payload( array( 'id' => 'api-2' ) ) );
+
+		$this->assertSame( Status::Delivered, $this->get( $with )->status );
+		$this->assertSame( Status::Delivered, $this->get( $without )->status );
+	}
+
+	/**
 	 * A repeated webhook changes nothing.
 	 */
 	public function test_repeated_webhook_is_ignored(): void {

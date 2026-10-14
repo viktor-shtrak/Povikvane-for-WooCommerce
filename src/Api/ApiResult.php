@@ -26,6 +26,7 @@ final class ApiResult {
 	 * @param int|null     $retry_after Seconds from the Retry-After header.
 	 * @param string|null  $request_id  X-Request-Id, for support.
 	 * @param string|null  $message_id  Message ID from `data.id`, or from the 504 error meta.
+	 * @param string|null  $error_code  Machine-readable error code, when the service sends one.
 	 */
 	public function __construct(
 		public readonly Outcome $outcome,
@@ -34,7 +35,8 @@ final class ApiResult {
 		public readonly ?string $detail = null,
 		public readonly ?int $retry_after = null,
 		public readonly ?string $request_id = null,
-		public readonly ?string $message_id = null
+		public readonly ?string $message_id = null,
+		public readonly ?string $error_code = null
 	) {}
 
 	/**

@@ -70,6 +70,7 @@ final class OrderContext {
 			'last_name'        => $order->get_billing_last_name(),
 			'shop_name'        => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
 			'order_status_url' => $order->get_checkout_order_received_url(),
+			'shop_url'         => untrailingslashit( home_url() ),
 			/**
 			 * Tracking number for the {tracking_number} placeholder.
 			 *

@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Support\Dates;
 use DateTimeImmutable;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\MessageQuery;
@@ -262,8 +263,8 @@ final class MessageLogPage {
 				'status' => $query->status?->value,
 				'event'  => $query->event,
 				's'      => $query->search,
-				'from'   => null === $query->from ? null : wp_date( 'Y-m-d', $query->from ),
-				'to'     => null === $query->to ? null : wp_date( 'Y-m-d', $query->to - DAY_IN_SECONDS ),
+				'from'   => null === $query->from ? null : Dates::format( $query->from, 'Y-m-d' ),
+				'to'     => null === $query->to ? null : Dates::format( $query->to - DAY_IN_SECONDS, 'Y-m-d' ),
 			),
 			static fn( $value ): bool => null !== $value && '' !== $value
 		);

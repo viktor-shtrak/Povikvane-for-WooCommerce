@@ -16,6 +16,7 @@ use Povikvane\WooCommerce\Api\Outcome;
 use Povikvane\WooCommerce\Api\SendRequest;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\MessageStore;
+use Povikvane\WooCommerce\Marketing\QuietHours;
 use Povikvane\WooCommerce\Support\Clock;
 use Povikvane\WooCommerce\Support\Logger;
 use Povikvane\WooCommerce\Support\NullLogger;
@@ -58,6 +59,7 @@ final class Dispatcher {
 	 * @param Logger              $logger          Diagnostic logger.
 	 * @param SendGate|null       $gate           Optional last-moment check.
 	 * @param BalanceTracker|null $balance  Optional balance tracking.
+	 * @param QuietHours|null     $quiet_hours  Optional window for promotional messages.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -69,7 +71,8 @@ final class Dispatcher {
 		private readonly int $max_age_seconds = 86400,
 		private readonly Logger $logger = new NullLogger(),
 		private readonly ?SendGate $gate = null,
-		private readonly ?BalanceTracker $balance = null
+		private readonly ?BalanceTracker $balance = null,
+		private readonly ?QuietHours $quiet_hours = null
 	) {}
 
 	/**
@@ -86,7 +89,8 @@ final class Dispatcher {
 
 		$now = $this->clock->now();
 
-		if ( $now - $message->created_at > $this->max_age_seconds ) {
+		// A delayed message ages from the moment it was due, not from when it was created.
+		if ( $now - ( $message->send_after ?? $message->created_at ) > $this->max_age_seconds ) {
 			$this->finish( $message, Status::Expired, $now );
 			$this->notifier->note( $message, Notifier::NOTE_EXPIRED );
 			$this->logger->log( Logger::WARNING, 'Message ' . $message->id . ' expired before it could be sent', array( 'reference' => $message->reference ) );
@@ -107,6 +111,16 @@ final class Dispatcher {
 				)
 			);
 			return;
+		}
+
+		if ( Kind::Marketing === $message->kind && null !== $this->quiet_hours ) {
+			$wait = $this->quiet_hours->seconds_until_open( $now );
+
+			if ( $wait > 0 ) {
+				$this->reschedule( $message, $wait, $now );
+				$this->logger->log( Logger::INFO, 'Message ' . $message->id . ' waits for quiet hours to end', array( 'seconds' => $wait ) );
+				return;
+			}
 		}
 
 		$paused = $this->state->paused_reason();

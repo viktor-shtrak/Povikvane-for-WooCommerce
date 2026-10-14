@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\MessageQuery;
 use Povikvane\WooCommerce\Log\Repository;
@@ -108,7 +109,7 @@ final class MessageListTable extends WP_List_Table {
 			);
 		}
 
-		return esc_html( wp_date( 'Y-m-d H:i', $item->created_at ) ) . $this->row_actions( $actions );
+		return esc_html( Dates::format( $item->created_at, 'Y-m-d H:i' ) ) . $this->row_actions( $actions );
 	}
 
 	/**
@@ -124,7 +125,7 @@ final class MessageListTable extends WP_List_Table {
 		$order = wc_get_order( $item->order_id );
 		$label = '#' . $item->order_id;
 
-		return $order ? sprintf( '<a href="%1$s">%2$s</a>', esc_url( $order->get_edit_order_url() ), esc_html( $label ) ) : esc_html( $label );
+		return $order instanceof \WC_Order ? sprintf( '<a href="%1$s">%2$s</a>', esc_url( $order->get_edit_order_url() ), esc_html( $label ) ) : esc_html( $label );
 	}
 
 	/**

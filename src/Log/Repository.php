@@ -41,6 +41,7 @@ final class Repository implements MessageStore {
 		'credits'         => '%s',
 		'attempts'        => '%d',
 		'checks'          => '%d',
+		'send_after'      => '%s',
 		'next_attempt_at' => '%s',
 		'created_at'      => '%s',
 		'updated_at'      => '%s',
@@ -446,6 +447,76 @@ final class Repository implements MessageStore {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $recipient Number in E.164.
+	 * @param int    $since     Unix time.
+	 */
+	public function count_marketing_since( string $recipient, int $since ): int {
+		global $wpdb;
+
+		$table = Schema::table();
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$table} WHERE kind = %s AND recipient = %s AND created_at >= %s AND status IN (%s, %s, %s, %s)",
+				Kind::Marketing->value,
+				$recipient,
+				gmdate( 'Y-m-d H:i:s', $since ),
+				Status::Queued->value,
+				Status::Delivered->value,
+				Status::Unconfirmed->value,
+				Status::Sending->value
+			)
+		);
+	}
+
+	/**
+	 * Messages for a set of orders (personal data export).
+	 *
+	 * @param int[] $order_ids Order IDs.
+	 * @return Message[]
+	 */
+	public function for_orders( array $order_ids ): array {
+		global $wpdb;
+
+		$order_ids = array_values( array_filter( array_map( 'intval', $order_ids ) ) );
+
+		if ( array() === $order_ids ) {
+			return array();
+		}
+
+		$table        = Schema::table();
+		$placeholders = implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) );
+		$rows         = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE order_id IN ({$placeholders}) ORDER BY id ASC", $order_ids ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholders are generated to match the IDs.
+
+		return $this->hydrate_all( $rows );
+	}
+
+	/**
+	 * Erase the personal data in messages for a set of orders (personal data eraser).
+	 *
+	 * @param int[] $order_ids Order IDs.
+	 * @return int Messages changed.
+	 */
+	public function anonymize_for_orders( array $order_ids ): int {
+		global $wpdb;
+
+		$order_ids = array_values( array_filter( array_map( 'intval', $order_ids ) ) );
+
+		if ( array() === $order_ids ) {
+			return 0;
+		}
+
+		$table        = Schema::table();
+		$placeholders = implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) );
+		$args         = array_merge( array( 'erased' ), $order_ids );
+		$done         = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET body = '', recipient = %s, error_detail = NULL WHERE order_id IN ({$placeholders})", $args ) ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholders are generated to match the IDs.
+
+		return false === $done ? 0 : (int) $done;
+	}
+
+	/**
 	 * Convert a message to column values.
 	 *
 	 * @param Message $message Message.
@@ -469,6 +540,7 @@ final class Repository implements MessageStore {
 			'credits'         => null === $message->credits ? null : (string) $message->credits,
 			'attempts'        => $message->attempts,
 			'checks'          => $message->checks,
+			'send_after'      => $this->to_datetime( $message->send_after ),
 			'next_attempt_at' => $this->to_datetime( $message->next_attempt_at ),
 			'created_at'      => $this->to_datetime( $message->created_at ),
 			'updated_at'      => $this->to_datetime( $message->updated_at ),
@@ -500,6 +572,7 @@ final class Repository implements MessageStore {
 		$message->credits         = null === $row['credits'] ? null : (float) $row['credits'];
 		$message->attempts        = (int) $row['attempts'];
 		$message->checks          = (int) ( $row['checks'] ?? 0 );
+		$message->send_after      = $this->from_datetime( $row['send_after'] ?? null );
 		$message->next_attempt_at = $this->from_datetime( $row['next_attempt_at'] );
 		$message->created_at      = (int) $this->from_datetime( $row['created_at'] );
 		$message->updated_at      = (int) $this->from_datetime( $row['updated_at'] );

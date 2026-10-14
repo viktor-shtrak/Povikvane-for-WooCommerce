@@ -29,6 +29,8 @@ final class Placeholders {
 		'order_status_url',
 		'tracking_number',
 		'tracking_url',
+		'shop_url',
+		'optout_link',
 	);
 
 	/**

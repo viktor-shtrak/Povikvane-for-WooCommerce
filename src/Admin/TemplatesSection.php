@@ -84,6 +84,8 @@ final class TemplatesSection {
 			'order_status_url' => home_url( '/checkout/order-received/1234/?key=wc_order_abcdefghijklm' ),
 			'tracking_number'  => 'TRK1234567890',
 			'tracking_url'     => 'https://track.example.com/TRK1234567890',
+			'shop_url'         => untrailingslashit( home_url() ),
+			'optout_link'      => home_url( '/?po=0123456789ab-0123456789ab' ),
 		);
 
 		wp_localize_script(

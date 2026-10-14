@@ -31,7 +31,7 @@ final class WpNotifier implements Notifier {
 		}
 
 		$order = wc_get_order( $message->order_id );
-		if ( ! $order ) {
+		if ( ! $order instanceof \WC_Order ) {
 			return;
 		}
 

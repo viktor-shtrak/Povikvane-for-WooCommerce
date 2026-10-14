@@ -22,6 +22,9 @@ jobs:
       - name: Coding standards
         run: composer lint
 
+      - name: Static analysis
+        run: composer analyse
+
       - name: Unit tests
         run: composer test
 

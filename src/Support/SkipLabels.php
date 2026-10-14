@@ -36,6 +36,9 @@ final class SkipLabels {
 			SkipReason::STATUS_CHANGED   => __( 'the order status changed before sending', 'povikvane-for-woocommerce' ),
 			SkipReason::ORDER_MISSING    => __( 'the order no longer exists', 'povikvane-for-woocommerce' ),
 			SkipReason::DISCARDED        => __( 'discarded by an administrator', 'povikvane-for-woocommerce' ),
+			SkipReason::NO_CONSENT       => __( 'the customer has not agreed to promotional messages', 'povikvane-for-woocommerce' ),
+			SkipReason::FREQUENCY_CAP    => __( 'the customer already received a promotional message recently', 'povikvane-for-woocommerce' ),
+			SkipReason::MARKETING_OFF    => __( 'promotional messages are switched off', 'povikvane-for-woocommerce' ),
 			default                      => $reason,
 		};
 	}

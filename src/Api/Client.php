@@ -147,6 +147,7 @@ final class Client implements Gateway {
 				'outcome'    => $result->outcome->value,
 				'ms'         => (int) round( ( microtime( true ) - $started ) * 1000 ),
 				'request_id' => $result->request_id,
+				'code'       => $result->error_code,
 				'detail'     => $result->detail,
 			)
 		);
@@ -173,7 +174,8 @@ final class Client implements Gateway {
 			$response->error_detail() ?? $response->transport_error,
 			null !== $retry && ctype_digit( $retry ) ? (int) $retry : null,
 			$response->header( 'x-request-id' ),
-			$message_id
+			$message_id,
+			$response->error_code()
 		);
 	}
 }

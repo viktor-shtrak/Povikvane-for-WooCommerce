@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Webhook\Token;
 use Povikvane\WooCommerce\Webhook\WebhookActivity;
@@ -69,7 +70,7 @@ final class DeliveryPanel {
 				: sprintf(
 					/* translators: 1: date and time, 2: result of handling it. */
 					__( '%1$s (%2$s)', 'povikvane-for-woocommerce' ),
-					wp_date( 'Y-m-d H:i', $last['time'] ),
+					Dates::format( $last['time'], 'Y-m-d H:i' ),
 					$this->result_label( $last['result'] )
 				)
 		);

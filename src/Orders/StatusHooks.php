@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Orders;
 
+use Povikvane\WooCommerce\Marketing\FollowupHandler;
 use WC_Order;
 
 defined( 'ABSPATH' ) || exit;
@@ -21,14 +22,16 @@ final class StatusHooks {
 	/**
 	 * Constructor.
 	 *
-	 * @param OrderEventHandler $handler  Decides what to do.
-	 * @param TriggerProvider   $triggers Trigger configuration.
-	 * @param OrderContext      $context  Builds order facts.
+	 * @param OrderEventHandler    $handler  Decides what to do.
+	 * @param TriggerProvider      $triggers Trigger configuration.
+	 * @param OrderContext         $context  Builds order facts.
+	 * @param FollowupHandler|null $followup Review-request scheduler, when promotions are on.
 	 */
 	public function __construct(
 		private readonly OrderEventHandler $handler,
 		private readonly TriggerProvider $triggers,
-		private readonly OrderContext $context
+		private readonly OrderContext $context,
+		private readonly ?FollowupHandler $followup = null
 	) {}
 
 	/**
@@ -47,9 +50,10 @@ final class StatusHooks {
 	 * @param mixed $order    Order object, when WooCommerce passes it.
 	 */
 	public function on_status_changed( mixed $order_id, mixed $from, mixed $to, mixed $order = null ): void {
-		$trigger = $this->triggers->for_status( (string) $to );
+		$trigger  = $this->triggers->for_status( (string) $to );
+		$followup = null !== $this->followup && 'completed' === (string) $to;
 
-		if ( ! $trigger->enabled ) {
+		if ( ! $trigger->enabled && ! $followup ) {
 			return;
 		}
 
@@ -59,6 +63,14 @@ final class StatusHooks {
 			return;
 		}
 
-		$this->handler->handle( $this->context->facts( $order, (string) $to ), $trigger );
+		$facts = $this->context->facts( $order, (string) $to );
+
+		if ( $trigger->enabled ) {
+			$this->handler->handle( $facts, $trigger );
+		}
+
+		if ( $followup ) {
+			$this->followup->handle( $facts );
+		}
 	}
 }

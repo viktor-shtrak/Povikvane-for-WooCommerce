@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,12 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 3. Enter your Povikvane API key and service ID in the plugin settings (available in a later version).
 
 == Changelog ==
+
+= 0.4.0 =
+* Promotional SMS (off by default): an unticked consent checkbox at checkout (Blocks and classic) and in My Account, an unsubscribe link in every promotional message, sending hours, a frequency limit and an optional review request after a completed order.
+* Consent is checked again just before each promotional message is sent, so a withdrawal always wins.
+* Download the list of customers who agreed, ready to import into Povikvane.
+* Privacy tools: suggested policy text, personal data export and erase.
 
 = 0.3.0 =
 * Delivery tracking: messages now become "Delivered" or "Failed" through a webhook and regular checks, with order notes.

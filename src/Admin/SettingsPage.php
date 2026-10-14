@@ -9,9 +9,11 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Balance\BalanceStore;
 use Povikvane\WooCommerce\Log\Message;
+use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Messages\Enqueuer;
 use Povikvane\WooCommerce\Messages\Reference;
@@ -65,6 +67,7 @@ final class SettingsPage {
 	 * @param TemplatesSection  $templates Template editor.
 	 * @param BalanceStore      $balances  Stored credit balance.
 	 * @param DeliveryPanel     $delivery  Delivery tracking panel.
+	 * @param MarketingSection  $marketing Promotional settings.
 	 * @param callable          $probe      Runs a capability probe.
 	 */
 	public function __construct(
@@ -77,6 +80,7 @@ final class SettingsPage {
 		private readonly TemplatesSection $templates,
 		private readonly BalanceStore $balances,
 		private readonly DeliveryPanel $delivery,
+		private readonly MarketingSection $marketing,
 		callable $probe
 	) {
 		$this->probe = $probe;
@@ -151,6 +155,17 @@ final class SettingsPage {
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( $this->triggers, 'sanitize' ),
+				'default'           => array(),
+				'show_in_rest'      => false,
+			)
+		);
+
+		register_setting(
+			self::GROUP,
+			MarketingSettings::OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this->marketing, 'sanitize' ),
 				'default'           => array(),
 				'show_in_rest'      => false,
 			)
@@ -324,6 +339,7 @@ final class SettingsPage {
 		$this->render_safety( $settings );
 		$this->render_data_settings( $settings );
 		$this->templates->render();
+		$this->marketing->render();
 
 		submit_button();
 		echo '</form>';
@@ -458,7 +474,7 @@ final class SettingsPage {
 		}
 
 		$this->row( __( 'Sending', 'povikvane-for-woocommerce' ), null === $paused ? __( 'Active', 'povikvane-for-woocommerce' ) : __( 'Paused', 'povikvane-for-woocommerce' ) );
-		$this->row( __( 'Last checked', 'povikvane-for-woocommerce' ), $checked > 0 ? wp_date( 'Y-m-d H:i', $checked ) : __( 'Never', 'povikvane-for-woocommerce' ) );
+		$this->row( __( 'Last checked', 'povikvane-for-woocommerce' ), $checked > 0 ? Dates::format( $checked, 'Y-m-d H:i' ) : __( 'Never', 'povikvane-for-woocommerce' ) );
 
 		echo '</tbody></table>';
 
@@ -509,7 +525,7 @@ final class SettingsPage {
 		foreach ( $rows as $row ) {
 			printf(
 				'<tr><td>%1$s</td><td>%2$s</td><td>%3$s</td><td>%4$s</td><td>%5$s</td><td>%6$s</td></tr>',
-				esc_html( wp_date( 'Y-m-d H:i', $row->created_at ) ),
+				esc_html( Dates::format( $row->created_at, 'Y-m-d H:i' ) ),
 				esc_html( $row->event ),
 				esc_html( Mask::phone( $row->recipient ) ),
 				esc_html( $this->status_label( $row->status ) ),

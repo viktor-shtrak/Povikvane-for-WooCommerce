@@ -47,12 +47,18 @@ final class ErrorClassifier {
 	/**
 	 * Whether a 422 is the idempotency fingerprint mismatch.
 	 *
-	 * The API gives no machine-readable code for this, so the message text is the
-	 * only signal. Ask for a stable `code` field if this ever breaks.
+	 * When the service sends an error code, that decides. Until it does, the
+	 * message text is the only signal.
 	 *
 	 * @param Response $response 422 response.
 	 */
 	private static function is_idempotency_mismatch( Response $response ): bool {
+		$code = $response->error_code();
+
+		if ( null !== $code ) {
+			return 'idempotency_key_reuse' === $code;
+		}
+
 		return str_contains( (string) $response->error_detail(), 'Idempotency-Key' );
 	}
 }

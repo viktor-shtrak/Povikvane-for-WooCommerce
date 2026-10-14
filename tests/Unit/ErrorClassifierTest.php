@@ -80,4 +80,53 @@ final class ErrorClassifierTest extends TestCase {
 	public function test_transport_failure_is_retryable(): void {
 		$this->assertSame( Outcome::Retryable, ErrorClassifier::classify( new Response( 0, array(), null, 'cURL error 28: timed out' ) ) );
 	}
+
+	/**
+	 * Once the service sends an error code it decides, whatever the text says.
+	 */
+	public function test_error_code_decides_when_present(): void {
+		$reuse = new Response(
+			422,
+			array(),
+			array(
+				'errors' => array(
+					array(
+						'code'   => 'idempotency_key_reuse',
+						'detail' => 'Something reworded',
+					),
+				),
+			)
+		);
+		$other = new Response(
+			422,
+			array(),
+			array(
+				'errors' => array(
+					array(
+						'code'   => 'invalid_reference',
+						'detail' => 'Idempotency-Key is mentioned but this is another problem',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( Outcome::IdempotencyMismatch, ErrorClassifier::classify( $reuse ), 'the code works even if the wording changes' );
+		$this->assertSame( Outcome::PermanentFailure, ErrorClassifier::classify( $other ), 'a different code is never mistaken for key reuse' );
+	}
+
+	/**
+	 * Codes on other errors do not change how their status is handled.
+	 */
+	public function test_other_codes_keep_status_handling(): void {
+		$cases = array(
+			array( 402, 'insufficient_credits', Outcome::InsufficientCredits ),
+			array( 429, 'rate_limited', Outcome::RateLimited ),
+			array( 504, 'delivery_uncertain', Outcome::Uncertain ),
+		);
+
+		foreach ( $cases as $case ) {
+			$response = new Response( $case[0], array(), array( 'errors' => array( array( 'code' => $case[1] ) ) ) );
+			$this->assertSame( $case[2], ErrorClassifier::classify( $response ), $case[1] );
+		}
+	}
 }

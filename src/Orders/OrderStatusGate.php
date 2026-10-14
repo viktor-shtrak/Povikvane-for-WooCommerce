@@ -37,6 +37,9 @@ final class OrderStatusGate implements SendGate {
 			return SkipReason::ORDER_MISSING;
 		}
 
-		return $order->get_status() === $message->event ? null : SkipReason::STATUS_CHANGED;
+		// The review request is only worth sending while the order is still completed.
+		$required = 'followup_review' === $message->event ? 'completed' : $message->event;
+
+		return $order->get_status() === $required ? null : SkipReason::STATUS_CHANGED;
 	}
 }

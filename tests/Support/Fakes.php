@@ -252,6 +252,23 @@ final class InMemoryStore implements MessageStore {
 	/**
 	 * {@inheritDoc}
 	 *
+	 * @param string $recipient Number.
+	 * @param int    $since     Time.
+	 */
+	public function count_marketing_since( string $recipient, int $since ): int {
+		$counted = array( \Povikvane\WooCommerce\Messages\Status::Queued, \Povikvane\WooCommerce\Messages\Status::Delivered, \Povikvane\WooCommerce\Messages\Status::Unconfirmed, \Povikvane\WooCommerce\Messages\Status::Sending );
+
+		return count(
+			array_filter(
+				$this->rows,
+				static fn( Message $row ): bool => \Povikvane\WooCommerce\Messages\Kind::Marketing === $row->kind && $row->recipient === $recipient && $row->created_at >= $since && in_array( $row->status, $counted, true )
+			)
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * @param string $api_message_id API ID.
 	 */
 	public function find_by_api_message_id( string $api_message_id ): ?Message {
@@ -626,5 +643,43 @@ final class InMemoryActivity implements \Povikvane\WooCommerce\Webhook\WebhookAc
 			'time'   => $last[0],
 			'result' => $last[1],
 		);
+	}
+}
+
+/**
+ * In-memory consent ledger.
+ */
+final class InMemoryLedger implements \Povikvane\WooCommerce\Marketing\ConsentLedger {
+
+	/**
+	 * Events in the order recorded.
+	 *
+	 * @var \Povikvane\WooCommerce\Marketing\ConsentEvent[]
+	 */
+	public array $events = array();
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $phone_hash Hash.
+	 */
+	public function latest( string $phone_hash ): ?\Povikvane\WooCommerce\Marketing\ConsentEvent {
+		$found = null;
+		foreach ( $this->events as $event ) {
+			if ( $event->phone_hash === $phone_hash ) {
+				$found = $event;
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param \Povikvane\WooCommerce\Marketing\ConsentEvent $event Event.
+	 */
+	public function append( \Povikvane\WooCommerce\Marketing\ConsentEvent $event ): void {
+		$this->events[] = $event;
 	}
 }

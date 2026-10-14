@@ -51,6 +51,16 @@ final class Response {
 	}
 
 	/**
+	 * Machine-readable error code, once the service provides one (for example
+	 * "idempotency_key_reuse"). Null for responses without it.
+	 */
+	public function error_code(): ?string {
+		$code = $this->body['errors'][0]['code'] ?? null;
+
+		return is_string( $code ) && '' !== $code ? $code : null;
+	}
+
+	/**
 	 * Message ID carried in the 504 error meta, if present.
 	 */
 	public function error_message_id(): ?string {

@@ -22,14 +22,18 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
 	}
 }
 
-// The table is ours and the name is built from the WordPress prefix.
-$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'povikvane_messages' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+// The tables are ours and their names are built from the WordPress prefix.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'povikvane_messages' );
+$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'povikvane_consent' );
+// phpcs:enable
 
 foreach ( array(
 	'povikvane_settings',
 	'povikvane_api_key_enc',
 	'povikvane_capabilities',
 	'povikvane_triggers',
+	'povikvane_marketing',
 	'povikvane_site_fingerprint',
 	'povikvane_balance',
 	'povikvane_balance_alert',

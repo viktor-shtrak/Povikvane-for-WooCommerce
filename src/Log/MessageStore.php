@@ -100,4 +100,12 @@ interface MessageStore {
 	 * @return int Rows deleted.
 	 */
 	public function delete_rows( int $before ): int;
+
+	/**
+	 * Promotional messages to a number that were sent (or are on their way) since a time.
+	 *
+	 * @param string $recipient Number in E.164.
+	 * @param int    $since     Unix time.
+	 */
+	public function count_marketing_since( string $recipient, int $since ): int;
 }

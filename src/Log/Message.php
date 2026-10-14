@@ -132,6 +132,13 @@ final class Message {
 	public int $attempts = 0;
 
 	/**
+	 * Earliest time the first send may happen (set when a message is delayed).
+	 *
+	 * @var int|null
+	 */
+	public ?int $send_after = null;
+
+	/**
 	 * Delivery status checks made so far.
 	 *
 	 * @var int

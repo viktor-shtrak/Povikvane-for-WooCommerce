@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Balance\Balance;
 
 defined( 'ABSPATH' ) || exit;
@@ -42,7 +43,7 @@ final class BalanceView {
 			/* translators: 1: credits, 2: time of day the balance was fetched. */
 			__( '%1$s (as of %2$s)', 'povikvane-for-woocommerce' ),
 			$amount,
-			wp_date( 'H:i', $balance->fetched_at )
+			Dates::format( $balance->fetched_at, 'H:i' )
 		);
 	}
 }

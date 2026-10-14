@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Schema {
 
-	public const VERSION = '2';
+	public const VERSION = '3';
 	public const OPTION  = 'povikvane_db_version';
 
 	/**
@@ -29,7 +29,16 @@ final class Schema {
 	}
 
 	/**
-	 * Create or update the table.
+	 * Name of the consent ledger table.
+	 */
+	public static function consent_table(): string {
+		global $wpdb;
+
+		return $wpdb->prefix . 'povikvane_consent';
+	}
+
+	/**
+	 * Create or update the tables.
 	 */
 	public static function install(): void {
 		global $wpdb;
@@ -58,6 +67,7 @@ final class Schema {
   credits decimal(8,2) DEFAULT NULL,
   attempts smallint(5) unsigned NOT NULL DEFAULT 0,
   checks smallint(5) unsigned NOT NULL DEFAULT 0,
+  send_after datetime DEFAULT NULL,
   next_attempt_at datetime DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
@@ -69,7 +79,25 @@ final class Schema {
   KEY api_message_id (api_message_id)
 ) {$charset};";
 
-		dbDelta( $sql );
+		$consent = self::consent_table();
+
+		$consent_sql = "CREATE TABLE {$consent} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  phone_hash varchar(16) NOT NULL,
+  phone varchar(20) DEFAULT NULL,
+  email varchar(190) DEFAULT NULL,
+  granted tinyint(1) NOT NULL DEFAULT 0,
+  source varchar(20) NOT NULL,
+  order_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  wording_hash varchar(16) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY phone_hash (phone_hash,id),
+  KEY email (email)
+) {$charset};";
+
+		dbDelta( array( $sql, $consent_sql ) );
 		update_option( self::OPTION, self::VERSION, false );
 	}
 
