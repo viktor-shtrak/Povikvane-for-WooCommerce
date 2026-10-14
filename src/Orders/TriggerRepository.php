@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Orders;
 
+use Povikvane\WooCommerce\Messages\Channel;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -44,7 +46,8 @@ final class TriggerRepository implements TriggerProvider {
 			$status,
 			array_key_exists( 'enabled', $row ) ? (bool) $row['enabled'] : TemplateDefaults::enabled_by_default( $status ),
 			'' !== $template ? $template : TemplateDefaults::for_status( $status, $this->locale ),
-			isset( $row['delay'] ) ? max( 0, min( self::MAX_DELAY_MINUTES, (int) $row['delay'] ) ) : 0
+			isset( $row['delay'] ) ? max( 0, min( self::MAX_DELAY_MINUTES, (int) $row['delay'] ) ) : 0,
+			Channel::from_value( $row['channel'] ?? null )->value
 		);
 	}
 
@@ -71,7 +74,7 @@ final class TriggerRepository implements TriggerProvider {
 	 * The current configuration of every status in the shape the settings form posts,
 	 * so a screen showing only some statuses can change those and leave the rest alone.
 	 *
-	 * @return array<string,array{enabled:bool,template:string,delay:int}>
+	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string}>
 	 */
 	public function current_input(): array {
 		$input = array();
@@ -82,6 +85,7 @@ final class TriggerRepository implements TriggerProvider {
 				'enabled'  => $trigger->enabled,
 				'template' => $trigger->template,
 				'delay'    => $trigger->delay_minutes,
+				'channel'  => $trigger->channel,
 			);
 		}
 
@@ -92,7 +96,7 @@ final class TriggerRepository implements TriggerProvider {
 	 * Sanitise the submitted trigger table.
 	 *
 	 * @param mixed $input Submitted value, keyed by status slug.
-	 * @return array<string,array{enabled:bool,template:string,delay:int}>
+	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string}>
 	 */
 	public function sanitize( mixed $input ): array {
 		$input = is_array( $input ) ? $input : array();
@@ -107,6 +111,7 @@ final class TriggerRepository implements TriggerProvider {
 				'enabled'  => ! empty( $row['enabled'] ),
 				'template' => function_exists( 'mb_substr' ) ? mb_substr( $template, 0, self::MAX_TEMPLATE_LENGTH ) : substr( $template, 0, self::MAX_TEMPLATE_LENGTH ),
 				'delay'    => max( 0, min( self::MAX_DELAY_MINUTES, (int) ( $row['delay'] ?? 0 ) ) ),
+				'channel'  => Channel::from_value( $row['channel'] ?? null )->value,
 			);
 		}
 

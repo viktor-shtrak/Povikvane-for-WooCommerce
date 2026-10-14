@@ -42,13 +42,16 @@ final class DeliveryUpdater {
 	/**
 	 * The handset received the message.
 	 *
-	 * @param Message $message Message.
+	 * @param Message     $message Message.
+	 * @param string|null $via     Channel that delivered it, when the service says.
 	 * @return bool Whether the message changed.
 	 */
-	public function delivered( Message $message ): bool {
+	public function delivered( Message $message, ?string $via = null ): bool {
 		if ( ! $this->can_finish( $message ) ) {
 			return false;
 		}
+
+		$message->delivered_via = null !== $via && null !== Channel::tryFrom( $via ) ? $via : $message->delivered_via;
 
 		$message->error_code   = null;
 		$message->error_detail = null;

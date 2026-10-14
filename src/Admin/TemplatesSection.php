@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Api\Capabilities;
+use Povikvane\WooCommerce\Messages\Channel;
 use Povikvane\WooCommerce\Messages\Placeholders;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
 
@@ -44,6 +46,8 @@ final class TemplatesSection {
 		}
 		echo '</p></div><div style="margin-top:12px">';
 
+		$viber = Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) );
+
 		foreach ( $this->ordered_statuses() as $slug => $label ) {
 			$trigger = $this->triggers->for_status( $slug );
 			$name    = TriggerRepository::OPTION . '[' . $slug . ']';
@@ -57,6 +61,7 @@ final class TemplatesSection {
 				(int) $trigger->delay_minutes,
 				esc_html__( 'minutes first', 'povikvane-for-woocommerce' )
 			);
+			$this->channel_field( $name, $slug, $trigger->channel, $viber );
 			echo '</div><div>';
 			printf(
 				'<label class="screen-reader-text" for="pvk-text-%1$s">%2$s</label><textarea id="pvk-text-%1$s" name="%3$s[template]" rows="3" maxlength="1000" data-povikvane-template>%4$s</textarea><div class="pvk-estimate povikvane-estimate" aria-live="polite"></div>',
@@ -75,6 +80,33 @@ final class TemplatesSection {
 		}
 
 		echo '</div><div class="pvk-card__foot">' . esc_html__( 'A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for.', 'povikvane-for-woocommerce' ) . '</div></section>';
+	}
+
+	/**
+	 * The channel choice for one status. Without Viber the stored choice is kept in a
+	 * hidden field, so saving the form never silently changes it.
+	 *
+	 * @param string $name    Field name prefix.
+	 * @param string $slug    Status slug.
+	 * @param string $channel Stored channel.
+	 * @param bool   $viber   Whether Viber is available.
+	 */
+	private function channel_field( string $name, string $slug, string $channel, bool $viber ): void {
+		if ( ! $viber ) {
+			printf( '<input type="hidden" name="%s[channel]" value="%s">', esc_attr( $name ), esc_attr( $channel ) );
+			return;
+		}
+
+		printf(
+			'<div class="pvk-trigger__delay"><label for="pvk-channel-%1$s">%2$s</label> <select id="pvk-channel-%1$s" name="%3$s[channel]"><option value="sms"%4$s>%5$s</option><option value="viber"%6$s>%7$s</option></select></div>',
+			esc_attr( $slug ),
+			esc_html__( 'Send via', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			selected( Channel::Sms->value, $channel, false ),
+			esc_html__( 'SMS', 'povikvane-for-woocommerce' ),
+			selected( Channel::Viber->value, $channel, false ),
+			esc_html__( 'Viber, SMS if not delivered', 'povikvane-for-woocommerce' )
+		);
 	}
 
 	/**

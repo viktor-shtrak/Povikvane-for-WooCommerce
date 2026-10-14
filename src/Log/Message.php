@@ -48,11 +48,19 @@ final class Message {
 	public Kind $kind = Kind::Transactional;
 
 	/**
-	 * Channel; "sms" in v1.
+	 * Channel the message was sent on: "sms" or "viber".
 	 *
 	 * @var string
 	 */
 	public string $channel = 'sms';
+
+	/**
+	 * Channel that actually delivered it, as reported by the service; null until known.
+	 * Differs from the channel when a Viber message fell back to SMS.
+	 *
+	 * @var string|null
+	 */
+	public ?string $delivered_via = null;
 
 	/**
 	 * Recipient in E.164.

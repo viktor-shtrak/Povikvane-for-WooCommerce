@@ -23,11 +23,13 @@ final class Trigger {
 	 * @param bool   $enabled       Whether the status sends a message.
 	 * @param string $template      Message template.
 	 * @param int    $delay_minutes Minutes to wait before sending (0 = immediately).
+	 * @param string $channel       Channel chosen for this status: "sms" or "viber".
 	 */
 	public function __construct(
 		public readonly string $status,
 		public readonly bool $enabled,
 		public readonly string $template,
-		public readonly int $delay_minutes = 0
+		public readonly int $delay_minutes = 0,
+		public readonly string $channel = 'sms'
 	) {}
 }

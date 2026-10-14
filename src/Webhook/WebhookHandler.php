@@ -93,7 +93,7 @@ final class WebhookHandler {
 			return self::RESULT_UNKNOWN;
 		}
 
-		$changed = 'delivered' === $status ? $this->updater->delivered( $message ) : $this->updater->failed( $message, $error );
+		$changed = 'delivered' === $status ? $this->updater->delivered( $message, isset( $data['delivered_via'] ) && is_string( $data['delivered_via'] ) ? $data['delivered_via'] : null ) : $this->updater->failed( $message, $error );
 
 		return $changed ? self::RESULT_UPDATED : self::RESULT_IGNORED;
 	}

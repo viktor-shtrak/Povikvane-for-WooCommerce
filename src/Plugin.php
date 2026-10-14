@@ -581,7 +581,8 @@ final class Plugin {
 			 * @param int    $order_id Order ID.
 			 * @param string $status   New order status slug without "wc-".
 			 */
-			static fn( OrderFacts $facts ): bool => (bool) apply_filters( 'povikvane_should_send', true, $facts->order_id, $facts->status )
+			static fn( OrderFacts $facts ): bool => (bool) apply_filters( 'povikvane_should_send', true, $facts->order_id, $facts->status ),
+			static fn(): bool => Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) )
 		);
 	}
 

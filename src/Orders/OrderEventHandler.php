@@ -11,6 +11,8 @@ namespace Povikvane\WooCommerce\Orders;
 
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\MessageStore;
+use Povikvane\WooCommerce\Messages\Channel;
+use Povikvane\WooCommerce\Messages\ChannelPlanner;
 use Povikvane\WooCommerce\Messages\Enqueuer;
 use Povikvane\WooCommerce\Messages\Placeholders;
 use Povikvane\WooCommerce\Messages\Reference;
@@ -42,18 +44,26 @@ final class OrderEventHandler {
 	private $allow;
 
 	/**
+	 * Tells whether Viber is available.
+	 *
+	 * @var callable|null
+	 */
+	private $viber_ready;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param MessageStore $store      Message log.
-	 * @param Enqueuer     $enqueuer   Queues or records messages.
-	 * @param Normalizer   $normalizer Phone normaliser.
-	 * @param StormGuard   $storm      Mass-send guard.
-	 * @param SendingState $state      Pause switch.
-	 * @param Notifier     $notifier   Order note writer.
-	 * @param Clock        $clock      Time source.
-	 * @param string       $site_token Site token used in references.
-	 * @param Rules        $rules      Eligibility rules.
-	 * @param callable     $allow      Returns false to veto a message.
+	 * @param MessageStore  $store      Message log.
+	 * @param Enqueuer      $enqueuer   Queues or records messages.
+	 * @param Normalizer    $normalizer Phone normaliser.
+	 * @param StormGuard    $storm      Mass-send guard.
+	 * @param SendingState  $state      Pause switch.
+	 * @param Notifier      $notifier   Order note writer.
+	 * @param Clock         $clock      Time source.
+	 * @param string        $site_token Site token used in references.
+	 * @param Rules         $rules      Eligibility rules.
+	 * @param callable      $allow      Returns false to veto a message.
+	 * @param callable|null $viber_ready Returns whether Viber can be used; Viber is never used without it.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -65,9 +75,11 @@ final class OrderEventHandler {
 		private readonly Clock $clock,
 		private readonly string $site_token,
 		private readonly Rules $rules,
-		callable $allow
+		callable $allow,
+		?callable $viber_ready = null
 	) {
-		$this->allow = $allow;
+		$this->allow       = $allow;
+		$this->viber_ready = $viber_ready;
 	}
 
 	/**
@@ -91,6 +103,7 @@ final class OrderEventHandler {
 		$message->order_id  = $facts->order_id;
 		$message->event     = $facts->status;
 		$message->reference = $reference;
+		$message->channel   = ChannelPlanner::plan( Channel::from_value( $trigger->channel ), null !== $this->viber_ready && (bool) ( $this->viber_ready )() )->value;
 
 		$reason = $this->skip_reason( $facts, $message );
 

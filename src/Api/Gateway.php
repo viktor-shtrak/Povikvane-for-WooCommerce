@@ -41,4 +41,9 @@ interface Gateway {
 	 * Account balance and channels (flagged endpoint).
 	 */
 	public function account(): ApiResult;
+
+	/**
+	 * Viber templates registered for the account (flagged endpoint, not yet released).
+	 */
+	public function templates(): ApiResult;
 }

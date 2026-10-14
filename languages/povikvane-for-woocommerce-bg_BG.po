@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-14 15:14+0300\n"
+"POT-Creation-Date: 2026-10-14 15:29+0300\n"
 "PO-Revision-Date: 2026-10-14 16:00+0300\n"
 "Last-Translator: Povikvane <support@povikvane.com>\n"
 "Language-Team: Bulgarian\n"
@@ -292,7 +292,7 @@ msgstr "Часове за изпращане"
 msgid "Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit."
 msgstr "Цели часове в часовата зона на магазина. Промоционалните съобщения изчакват следващото отваряне. Съобщенията за поръчки не се засягат. Еднакви часове означават без ограничение."
 
-#: src/Admin/MarketingSection.php:104 src/Admin/MessageListTable.php:206
+#: src/Admin/MarketingSection.php:104 src/Admin/MessageListTable.php:216
 msgid "From"
 msgstr "От"
 
@@ -418,19 +418,27 @@ msgstr "Да се изпрати ли това съобщение отново? 
 msgid "Resend"
 msgstr "Изпрати отново"
 
-#: src/Admin/MessageListTable.php:192
+#: src/Admin/MessageListTable.php:153
+msgid "Viber, delivered by SMS"
+msgstr "Viber, доставено по SMS"
+
+#: src/Admin/MessageListTable.php:154
+msgid "Viber"
+msgstr "Viber"
+
+#: src/Admin/MessageListTable.php:202
 msgid "All statuses"
 msgstr "Всички статуси"
 
-#: src/Admin/MessageListTable.php:198
+#: src/Admin/MessageListTable.php:208
 msgid "All events"
 msgstr "Всички събития"
 
-#: src/Admin/MessageListTable.php:208
+#: src/Admin/MessageListTable.php:218
 msgid "To"
 msgstr "До"
 
-#: src/Admin/MessageListTable.php:212
+#: src/Admin/MessageListTable.php:222
 msgid "Filter"
 msgstr "Филтрирай"
 
@@ -882,7 +890,7 @@ msgstr "Показва известие в администрацията и и�
 msgid "Warn me below"
 msgstr "Предупреждавай ме под"
 
-#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:136
+#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:168
 msgid "credits"
 msgstr "кредита"
 
@@ -1051,7 +1059,7 @@ msgstr "Изберете съобщенията си"
 msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
 msgstr "Включете новините за поръчките, които клиентите ви да получават, и променете текста, ако желаете. Всичко това може да се промени по-късно."
 
-#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:39
+#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:41
 msgid "You can use:"
 msgstr "Можете да използвате:"
 
@@ -1233,65 +1241,77 @@ msgstr "На изчакване (без кредити)"
 msgid "Expired"
 msgstr "Изтекло"
 
-#: src/Admin/TemplatesSection.php:37
+#: src/Admin/TemplatesSection.php:39
 msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
 msgstr "Изберете при кои статуси на поръчка се изпраща текстово съобщение до клиента и какво да пише в него. Тук е мястото само на информация за поръчката; за всичко промоционално използвайте раздел Промоции."
 
-#: src/Admin/TemplatesSection.php:37
+#: src/Admin/TemplatesSection.php:39
 msgid "Order messages"
 msgstr "Съобщения за поръчки"
 
-#: src/Admin/TemplatesSection.php:55
+#: src/Admin/TemplatesSection.php:59
 msgid "Wait"
 msgstr "Изчакай"
 
-#: src/Admin/TemplatesSection.php:58
+#: src/Admin/TemplatesSection.php:62
 msgid "minutes first"
 msgstr "минути преди изпращане"
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:67
+#: src/Admin/TemplatesSection.php:72
 #, php-format
 msgid "Message when an order becomes \"%s\""
 msgstr "Съобщение, когато поръчка стане „%s“"
 
-#: src/Admin/TemplatesSection.php:77
+#: src/Admin/TemplatesSection.php:82
 msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
 msgstr "Изчакването ви позволява да отмените, като смените статуса отново. Съобщението се изпраща само ако поръчката все още е със статуса, за който е създадено."
 
-#: src/Admin/TemplatesSection.php:130
+#: src/Admin/TemplatesSection.php:103
+msgid "Send via"
+msgstr "Изпращане през"
+
+#: src/Admin/TemplatesSection.php:106
+msgid "SMS"
+msgstr "SMS"
+
+#: src/Admin/TemplatesSection.php:108
+msgid "Viber, SMS if not delivered"
+msgstr "Viber, SMS ако не е доставено"
+
+#: src/Admin/TemplatesSection.php:162
 msgid "Standard SMS"
 msgstr "Стандартно SMS"
 
-#: src/Admin/TemplatesSection.php:131
+#: src/Admin/TemplatesSection.php:163
 msgid "Unicode SMS (e.g. Cyrillic)"
 msgstr "Unicode SMS (напр. кирилица)"
 
-#: src/Admin/TemplatesSection.php:132
+#: src/Admin/TemplatesSection.php:164
 msgid "characters"
 msgstr "знака"
 
-#: src/Admin/TemplatesSection.php:133
+#: src/Admin/TemplatesSection.php:165
 msgid "SMS part"
 msgstr "SMS част"
 
-#: src/Admin/TemplatesSection.php:134
+#: src/Admin/TemplatesSection.php:166
 msgid "SMS parts"
 msgstr "SMS части"
 
-#: src/Admin/TemplatesSection.php:135
+#: src/Admin/TemplatesSection.php:167
 msgid "credit"
 msgstr "кредит"
 
-#: src/Admin/TemplatesSection.php:137
+#: src/Admin/TemplatesSection.php:169
 msgid "With a Cyrillic name:"
 msgstr "С име на кирилица:"
 
-#: src/Admin/TemplatesSection.php:138
+#: src/Admin/TemplatesSection.php:170
 msgid "Unknown placeholder:"
 msgstr "Непознат параметър:"
 
-#: src/Admin/TemplatesSection.php:139
+#: src/Admin/TemplatesSection.php:171
 msgid "Empty message: nothing will be sent."
 msgstr "Празно съобщение: нищо няма да бъде изпратено."
 
@@ -1329,7 +1349,13 @@ msgid ""
 "\n"
 "This warning is sent at most once a day. You can change the level here:\n"
 "%3$s"
-msgstr "Вашият акаунт в Povikvane има още %1$s кредита (праг за предупреждение: %2$d).\n\nSMS съобщения не могат да бъдат изпращани, когато кредитите свършат. Заредете кредити във вашия акаунт в Povikvane.\n\nТова предупреждение се изпраща най-много веднъж дневно. Можете да промените нивото тук:\n%3$s"
+msgstr ""
+"Вашият акаунт в Povikvane има още %1$s кредита (праг за предупреждение: %2$d).\n"
+"\n"
+"SMS съобщения не могат да бъдат изпращани, когато кредитите свършат. Заредете кредити във вашия акаунт в Povikvane.\n"
+"\n"
+"Това предупреждение се изпраща най-много веднъж дневно. Можете да промените нивото тук:\n"
+"%3$s"
 
 #: src/Marketing/AccountConsent.php:82
 msgid "Add a mobile number to your billing address first, so we know where to send messages."

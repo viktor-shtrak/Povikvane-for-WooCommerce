@@ -29,6 +29,7 @@ final class Repository implements MessageStore {
 		'event'           => '%s',
 		'kind'            => '%s',
 		'channel'         => '%s',
+		'delivered_via'   => '%s',
 		'recipient'       => '%s',
 		'body'            => '%s',
 		'reference'       => '%s',
@@ -528,6 +529,7 @@ final class Repository implements MessageStore {
 			'event'           => $message->event,
 			'kind'            => $message->kind->value,
 			'channel'         => $message->channel,
+			'delivered_via'   => $message->delivered_via,
 			'recipient'       => $message->recipient,
 			'body'            => $message->body,
 			'reference'       => $message->reference,
@@ -560,6 +562,7 @@ final class Repository implements MessageStore {
 		$message->event           = (string) $row['event'];
 		$message->kind            = Kind::tryFrom( (string) $row['kind'] ) ?? Kind::Transactional;
 		$message->channel         = (string) $row['channel'];
+		$message->delivered_via   = isset( $row['delivered_via'] ) && is_string( $row['delivered_via'] ) && '' !== $row['delivered_via'] ? $row['delivered_via'] : null;
 		$message->recipient       = (string) $row['recipient'];
 		$message->body            = (string) $row['body'];
 		$message->reference       = (string) $row['reference'];

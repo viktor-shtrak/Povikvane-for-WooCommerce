@@ -143,7 +143,17 @@ final class MessageListTable extends WP_List_Table {
 	 * @param Message $item Row.
 	 */
 	protected function column_to( $item ): string {
-		return esc_html( Mask::phone( $item->recipient ) );
+		$phone = esc_html( Mask::phone( $item->recipient ) );
+
+		if ( 'viber' !== $item->channel ) {
+			return $phone;
+		}
+
+		$label = 'sms' === $item->delivered_via
+			? __( 'Viber, delivered by SMS', 'povikvane-for-woocommerce' )
+			: __( 'Viber', 'povikvane-for-woocommerce' );
+
+		return $phone . '<br><small>' . esc_html( $label ) . '</small>';
 	}
 
 	/**

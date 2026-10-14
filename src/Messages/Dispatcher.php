@@ -136,7 +136,7 @@ final class Dispatcher {
 		$this->store->save( $message );
 
 		$result = $this->gateway->send(
-			new SendRequest( $message->recipient, $message->body, $message->channel, $message->reference, $message->reference )
+			new SendRequest( $message->recipient, $message->body, $message->channel, $message->reference, $message->reference, ChannelPlanner::fallback_for( $message->channel ) )
 		);
 
 		$this->apply( $message, $result, $now );

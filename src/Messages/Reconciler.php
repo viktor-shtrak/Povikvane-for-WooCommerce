@@ -93,7 +93,7 @@ final class Reconciler {
 		$status     = (string) ( $attributes['status'] ?? '' );
 
 		if ( 'delivered_to_handset' === $status ) {
-			$this->updater->delivered( $message );
+			$this->updater->delivered( $message, isset( $attributes['delivered_via'] ) && is_string( $attributes['delivered_via'] ) ? $attributes['delivered_via'] : null );
 			return true;
 		}
 

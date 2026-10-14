@@ -12,6 +12,7 @@ namespace Povikvane\WooCommerce\Tests\Support;
 use LogicException;
 use Povikvane\WooCommerce\Api\ApiResult;
 use Povikvane\WooCommerce\Api\Gateway;
+use Povikvane\WooCommerce\Api\Outcome;
 use Povikvane\WooCommerce\Api\Response;
 use Povikvane\WooCommerce\Api\SendRequest;
 use Povikvane\WooCommerce\Api\Transport;
@@ -90,10 +91,11 @@ final class FakeGateway implements Gateway {
 	 * @var array<string,ApiResult[]>
 	 */
 	private array $queues = array(
-		'send'    => array(),
-		'status'  => array(),
-		'lookup'  => array(),
-		'account' => array(),
+		'send'      => array(),
+		'status'    => array(),
+		'lookup'    => array(),
+		'account'   => array(),
+		'templates' => array(),
 	);
 
 	/**
@@ -135,6 +137,12 @@ final class FakeGateway implements Gateway {
 		$this->calls[] = $operation;
 
 		$result = array_shift( $this->queues[ $operation ] );
+
+		// The templates endpoint is not released yet, so it answers "not found" unless a test says otherwise.
+		if ( null === $result && 'templates' === $operation ) {
+			return new ApiResult( Outcome::NotFound, 404 );
+		}
+
 		if ( null === $result ) {
 			throw new LogicException( "No {$operation} result queued" );
 		}
@@ -176,6 +184,13 @@ final class FakeGateway implements Gateway {
 	 */
 	public function account(): ApiResult {
 		return $this->next( 'account' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function templates(): ApiResult {
+		return $this->next( 'templates' );
 	}
 }
 
