@@ -99,7 +99,7 @@ final class Language {
 			'init',
 			static function (): void {
 				// The bundled translations are loaded directly so the Language setting can override the site language.
-				$locale = (string) apply_filters( 'plugin_locale', determine_locale(), self::DOMAIN );
+				$locale = self::resolve( self::setting(), determine_locale() );
 				$file   = PLUGIN_DIR . 'languages/' . self::DOMAIN . '-' . $locale . '.mo';
 
 				if ( is_readable( $file ) ) {
