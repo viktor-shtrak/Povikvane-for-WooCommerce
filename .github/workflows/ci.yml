@@ -7,9 +7,9 @@ on:
 
 jobs:
   lint-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -25,10 +25,24 @@ jobs:
       - name: Unit tests
         run: composer test
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript tests
+        run: node --test tests/js/*.test.js
+
   plugin-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      # Check the files that ship, in a folder named after the plugin slug,
+      # exactly as WordPress.org would see them.
+      - name: Build the plugin
+        run: bin/build-plugin.sh build
 
       - name: WordPress.org Plugin Check
         uses: WordPress/plugin-check-action@v1
+        with:
+          build-dir: build/povikvane-for-woocommerce
