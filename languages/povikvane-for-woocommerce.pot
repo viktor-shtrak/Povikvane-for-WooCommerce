@@ -1,0 +1,1564 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Povikvane SMS for WooCommerce package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
+"Report-Msgid-Bugs-To: support@povikvane.com\n"
+"POT-Creation-Date: 2026-10-14 15:14+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/Admin/BalanceNotice.php:61 src/Admin/Layout.php:40
+#: src/Admin/OrderMetabox.php:78 src/Admin/PauseControls.php:61
+#: src/Admin/SettingsPage.php:116 src/Admin/SettingsPage.php:117
+#: src/Admin/SetupNotice.php:64
+msgid "Povikvane SMS"
+msgstr ""
+
+#. translators: 1: credits left, 2: warning level.
+#: src/Admin/BalanceNotice.php:65
+#, php-format
+msgid "Only %1$s credits are left (warning level: %2$d). Top up soon so customer messages keep going out."
+msgstr ""
+
+#: src/Admin/BalanceNotice.php:71 src/Admin/PauseControls.php:74
+msgid "Open settings"
+msgstr ""
+
+#: src/Admin/BalanceView.php:29 src/Admin/BalanceView.php:70
+msgid "Not known yet"
+msgstr ""
+
+#. translators: %s: estimated credits.
+#: src/Admin/BalanceView.php:37
+#, php-format
+msgid "≈ %s (updating…)"
+msgstr ""
+
+#. translators: 1: credits, 2: time of day the balance was fetched.
+#: src/Admin/BalanceView.php:44
+#, php-format
+msgid "%1$s (as of %2$s)"
+msgstr ""
+
+#: src/Admin/BalanceView.php:74
+msgid "updating…"
+msgstr ""
+
+#. translators: %s: time of day the balance was fetched.
+#: src/Admin/BalanceView.php:79
+#, php-format
+msgid "as of %s"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:43
+msgid "Find your API key and service ID in Povikvane under Settings > API. They stay on this site, and the key is stored encrypted."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:43
+msgid "Your Povikvane account"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:45 src/Admin/SetupWizard.php:244
+#: src/Admin/SetupWizard.php:248
+msgid "API key"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:48 src/Admin/SetupWizard.php:245
+msgid "Set in wp-config.php"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:53 src/Admin/SetupWizard.php:251
+msgid "Saved. Type a new key to replace it."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:57
+msgid "The saved key can no longer be read (the site security keys changed). Enter it again."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:61
+msgid "Remove the saved key"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:67 src/Admin/SetupWizard.php:257
+msgid "Service ID"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:75 src/Admin/SetupWizard.php:203
+msgid "Open Povikvane"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:77
+msgid "Defaults"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:79
+msgid "Default country"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:79 src/Admin/SetupWizard.php:261
+msgid "Used to read phone numbers written without a country code."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:87
+msgid "Language"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:87
+msgid "Used for these screens and for the default message wording. \"Automatic\" follows the site language."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:90
+msgid "Automatic (follow the site language)"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:99
+msgid "A status message that arrives a day late is worse than none, so messages stuck longer than this are not sent."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:99
+msgid "Drop waiting messages after"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:104
+msgid "hours"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:112
+msgid "Diagnostics"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:114
+msgid "Debug logging"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:118
+msgid "Write detailed diagnostics to the WooCommerce log"
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:119
+msgid "Never includes the API key or message text; phone numbers are shortened. Warnings and errors are always logged."
+msgstr ""
+
+#: src/Admin/ConnectionPanel.php:121
+msgid "View logs"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:53 src/Admin/OverviewPanel.php:159
+#: src/Admin/OverviewPanel.php:162
+msgid "Delivery reports"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:53
+msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:55 src/Admin/SetupWizard.php:398
+msgid "Webhook address"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:59 src/Admin/SetupWizard.php:399
+msgid "Copied"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:60 src/Admin/SetupWizard.php:400
+msgid "Copy"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:66
+msgid "Last report received"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:69
+msgid "Never"
+msgstr ""
+
+#. translators: 1: date and time, 2: result of handling it.
+#: src/Admin/DeliveryPanel.php:74
+#, php-format
+msgid "%1$s (%2$s)"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:86
+msgid "Message queue"
+msgstr ""
+
+#. translators: %d: minutes.
+#: src/Admin/DeliveryPanel.php:92
+#, php-format
+msgid "Running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:97
+msgid "On time"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:103
+msgid "Need a different address?"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:112
+msgid "Create a new webhook address"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:112
+msgid "Create a new webhook address? The current one stops working and must be updated in Povikvane."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:124 src/Admin/MarketingSection.php:179
+#: src/Admin/MessageLogPage.php:284 src/Admin/OrderMetabox.php:157
+#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:368
+#: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:679
+msgid "You do not have permission to do that."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:128
+msgid "A new webhook address was created. Update it in Povikvane."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:141 src/Admin/OverviewPanel.php:257
+msgid "updated a message"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:142 src/Admin/OverviewPanel.php:258
+msgid "already known"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:143
+msgid "not one of this plugin's messages"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:144 src/Admin/OverviewPanel.php:260
+msgid "not understood"
+msgstr ""
+
+#: src/Admin/Layout.php:50
+msgid "SMS for WooCommerce"
+msgstr ""
+
+#: src/Admin/Layout.php:63
+msgid "Povikvane SMS sections"
+msgstr ""
+
+#: src/Admin/Layout.php:66
+msgid "Needs attention"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:83
+msgid "Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:83
+msgid "Promotional messages"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:85 src/Admin/MarketingSection.php:131
+#: src/Admin/MessageListTable.php:60 src/Admin/OverviewPanel.php:231
+#: src/Privacy/Privacy.php:138
+msgid "Status"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:86
+msgid "Ask customers for their agreement and allow promotional messages"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:86
+msgid "Off by default. Nothing promotional is ever sent while this is off."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:89
+msgid "Checkbox wording"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:89
+msgid "Shown next to the unticked checkbox at checkout and in My Account. A short fingerprint of the wording is stored with each agreement."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:99
+msgid "When and how often"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:101
+msgid "Sending hours"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:101
+msgid "Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:104 src/Admin/MessageListTable.php:206
+msgid "From"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:107
+msgid "Opening hour"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:108
+msgid "to"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:110
+msgid "Closing hour"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:114
+msgid "0 turns the limit off."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:114
+msgid "Frequency limit"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:119
+msgid "Messages allowed"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:120
+msgid "message(s) per phone number in"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:122
+msgid "Period in days"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:123 src/Admin/SafetyPanel.php:37
+#: src/Admin/SafetyPanel.php:83 src/Admin/SafetyPanel.php:93
+msgid "days"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:129
+msgid "Ask customers who agreed for feedback after their order is completed."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:129
+msgid "Review request"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:132
+msgid "Send a review request"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:137
+msgid "Days after completion"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:138
+msgid "days after an order is completed"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:142
+msgid "An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:142
+msgid "Message"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:154
+msgid "Customers who agreed"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:155
+msgid "Opted in"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:155
+msgid "The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data."
+msgstr ""
+
+#. translators: %d: number of customers.
+#: src/Admin/MarketingSection.php:161
+#, php-format
+msgid "%d customer has agreed to promotional messages."
+msgid_plural "%d customers have agreed to promotional messages."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/MarketingSection.php:166
+msgid "Download list (CSV)"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:56 src/Admin/OverviewPanel.php:231
+msgid "Time"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:57 src/Privacy/Privacy.php:130
+msgid "Order"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:58 src/Admin/OverviewPanel.php:231
+msgid "Event"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:59 src/Admin/OverviewPanel.php:231
+msgid "Recipient"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:61 src/Admin/OverviewPanel.php:135
+#: src/Admin/OverviewPanel.php:143 src/Admin/SafetyPanel.php:61
+msgid "Credits"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:62 src/Admin/OverviewPanel.php:231
+msgid "Detail"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:107
+msgid "Send this message again? The customer may receive it twice if the first one was actually delivered."
+msgstr ""
+
+#: src/Admin/MessageListTable.php:108
+msgid "Resend"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:192
+msgid "All statuses"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:198
+msgid "All events"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:208
+msgid "To"
+msgstr ""
+
+#: src/Admin/MessageListTable.php:212
+msgid "Filter"
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:80 src/Admin/MessageLogPage.php:81
+msgid "Povikvane messages"
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:105 src/Admin/SettingsPage.php:204
+#: src/Admin/SetupWizard.php:166
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:117 src/Admin/Navigation.php:56
+#: src/Admin/SettingsPage.php:240
+msgid "Message log"
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:121
+msgid "Export CSV"
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:126
+msgid "Search order number, reference or message ID"
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:145
+msgid "This message cannot be sent again."
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:150 src/Admin/OrderMetabox.php:176
+msgid "This site is not confirmed as the live shop yet. Confirm it first."
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:169 src/Admin/OrderMetabox.php:199
+msgid "Another message was just queued. Wait a second and try again."
+msgstr ""
+
+#: src/Admin/MessageLogPage.php:171
+msgid "The message was queued again."
+msgstr ""
+
+#: src/Admin/Navigation.php:31 src/Admin/SettingsPage.php:219
+msgid "Overview"
+msgstr ""
+
+#: src/Admin/Navigation.php:36 src/Admin/OverviewPanel.php:118
+#: src/Admin/SettingsPage.php:223
+msgid "Connection"
+msgstr ""
+
+#: src/Admin/Navigation.php:41 src/Admin/SettingsPage.php:228
+#: src/Admin/SetupWizard.php:620
+msgid "Messages"
+msgstr ""
+
+#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:232
+msgid "Promotions"
+msgstr ""
+
+#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:236
+msgid "Safety & data"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:104
+msgid "Sending…"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:105
+msgid "The message could not be queued. Reload the page and try again."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:126
+msgid "No messages for this order yet."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:144
+msgid "Send a message about this order to the customer:"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:146
+msgid "Send SMS"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:164
+msgid "Order not found."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:168
+msgid "Write a message first."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:172 src/Admin/TestSender.php:49
+msgid "Enter and save your API key and service ID first."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:183
+msgid "The order has no valid phone number."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:202
+msgid "Queued. It will appear in the order notes once accepted."
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:212
+msgid "waiting"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:213
+msgid "sending"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:214
+msgid "accepted"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:215
+msgid "delivered"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:216
+msgid "failed"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:217
+msgid "unconfirmed"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:218
+msgid "not sent"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:219
+msgid "on hold"
+msgstr ""
+
+#: src/Admin/OrderMetabox.php:220
+msgid "expired"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:54
+msgid "A few steps and your customers get their order updates by text message."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:54
+msgid "Finish setting up"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:59
+msgid "Setup progress"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:72
+msgid "Optional"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:74 src/Admin/SetupWizard.php:456
+#: src/Admin/SetupWizard.php:623
+msgid "Done"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:74
+msgid "Open"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:81
+msgid "Run the setup wizard"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:93 src/Admin/SetupWizard.php:230
+msgid "Connect your Povikvane account"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:93
+msgid "Enter your API key and service ID."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:94
+msgid "Choose which orders send a message"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:94
+msgid "Only \"Completed\" is switched on by default."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:95
+msgid "Check that a real SMS reaches your phone."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:95 src/Admin/OverviewPanel.php:208
+msgid "Send a test message"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:96
+msgid "Add the webhook address in Povikvane to see \"Delivered\" as it happens."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:96
+msgid "Get delivery reports"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:110
+msgid "Connected"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:111
+msgid "Key rejected"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:112
+msgid "Unreachable"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:113
+msgid "Check service ID"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:114
+msgid "Not set up"
+msgstr ""
+
+#. translators: %s: date and time.
+#: src/Admin/OverviewPanel.php:123
+#, php-format
+msgid "Checked %s"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:126
+msgid "Not checked yet"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:139
+msgid "Low"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:143
+msgid "Your balance is not available from the service yet."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:148
+msgid "Active"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:148
+msgid "Messages go out as orders change."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:149
+msgid "No credits: messages wait for a top-up."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:149
+msgid "On hold"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:150 src/Admin/OverviewPanel.php:151
+#: src/Admin/OverviewPanel.php:152
+msgid "Paused"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:150
+msgid "This site's address changed: confirm it is the live shop."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:151
+msgid "Many messages at once: review and release them."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:152 src/Admin/SettingsPage.php:388
+msgid "The API key or service ID was rejected."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:155 src/Admin/StatusView.php:29
+msgid "Sending"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:159
+msgid "Messages are still checked regularly. Add the webhook for instant results."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:159
+msgid "None yet"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:163
+msgid "Working"
+msgstr ""
+
+#. translators: 1: date and time, 2: what the report did.
+#: src/Admin/OverviewPanel.php:166
+#, php-format
+msgid "Last: %1$s (%2$s)"
+msgstr ""
+
+#. translators: %d: minutes.
+#: src/Admin/OverviewPanel.php:186
+#, php-format
+msgid "The message queue is running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:200
+msgid "Sends one real SMS and uses message credits."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:200
+msgid "Try it"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:205 src/Admin/SetupWizard.php:350
+msgid "Your phone number"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:207 src/Admin/SetupWizard.php:351
+msgid "Your phone, e.g. 0888 123 456"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:210
+msgid "Check connection"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:222
+msgid "Latest messages"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:223
+msgid "View all"
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:226
+msgid "No messages yet. They appear here as soon as an order changes status or you send a test."
+msgstr ""
+
+#: src/Admin/OverviewPanel.php:259
+msgid "another message"
+msgstr ""
+
+#: src/Admin/PauseControls.php:65
+msgid "This is the live site"
+msgstr ""
+
+#: src/Admin/PauseControls.php:69
+msgid "Send these messages"
+msgstr ""
+
+#: src/Admin/PauseControls.php:70
+msgid "Discard waiting messages"
+msgstr ""
+
+#: src/Admin/PauseControls.php:88
+msgid "Sending resumed."
+msgstr ""
+
+#: src/Admin/PauseControls.php:100
+msgid "Thanks. This site is now confirmed and sending is active."
+msgstr ""
+
+#. translators: %d: number of messages.
+#: src/Admin/PauseControls.php:118
+#, php-format
+msgid "%d waiting message was discarded. Sending resumed."
+msgid_plural "%d waiting messages were discarded. Sending resumed."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/PauseControls.php:133
+msgid "The account has no credits, so messages are on hold. Top up your credits; held messages are sent automatically once credits are available, unless they become too old."
+msgstr ""
+
+#: src/Admin/PauseControls.php:136
+msgid "This site's address is different from the one the plugin was set up on (for example a staging copy of the shop). Sending is off so customers are not messaged by mistake, and orders are skipped. If this is the real shop, confirm it below."
+msgstr ""
+
+#. translators: %d: number of waiting messages.
+#: src/Admin/PauseControls.php:144
+#, php-format
+msgid "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard it."
+msgid_plural "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard them."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/PauseControls.php:149
+msgid "The API key or service ID was rejected, so no messages are being sent. Check the connection settings."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:29
+msgid "Keep messages from going to the wrong people or in the wrong amounts."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:29
+msgid "Protections"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:31
+msgid "Old orders"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:31
+msgid "Protects against messages for old orders after imports or bulk changes. 0 means no limit."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:34
+msgid "Do not message orders older than"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:41
+msgid "Landline numbers"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:42
+msgid "A message to a landline is charged but cannot be delivered."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:42
+msgid "Skip numbers that are not mobile (checked for Bulgaria)"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:45
+msgid "Orders created in the admin"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:46
+msgid "Do not send automatic messages for orders created by hand"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:49
+msgid "Bursts of messages"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:49
+msgid "Stops accidental mass messaging, for example after changing many orders at once. The messages are kept for you to send or discard. 0 turns this off."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:52
+msgid "Pause when more than"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:55
+msgid "messages are created within 10 minutes"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:63
+msgid "Low credits warning"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:63
+msgid "Shows a notice in the admin and sends the site administrator one email a day while credits stay below this level. 0 turns the warning off."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:66
+msgid "Warn me below"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:136
+msgid "credits"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:75
+msgid "Data and privacy"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:75
+msgid "Message text is personal data, so it is erased after a while. Records are kept longer for billing questions."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:77
+msgid "0 keeps it forever."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:77
+msgid "Message text"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:80
+msgid "Erase after"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:87
+msgid "Message records"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:87
+msgid "Order, status, credits and phone number. 0 keeps them forever."
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:90
+msgid "Delete after"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:97
+msgid "CSV export"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:98
+msgid "Include full phone numbers in the message log export"
+msgstr ""
+
+#: src/Admin/SafetyPanel.php:98
+msgid "Otherwise numbers are shortened."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:272
+msgid "Save changes"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:273
+msgid "You have unsaved changes"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:274
+msgid "All changes saved"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:387
+msgid "Connected."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:389
+msgid "The service could not be reached."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:390
+msgid "The service rejected the request; check the service ID."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:391
+msgid "Not checked yet."
+msgstr ""
+
+#. translators: 1: steps done, 2: total steps.
+#: src/Admin/SetupNotice.php:68
+#, php-format
+msgid "is almost ready: %1$d of %2$d steps done. Finish setting up so your customers get their order messages."
+msgstr ""
+
+#: src/Admin/SetupNotice.php:74
+msgid "Continue setup"
+msgstr ""
+
+#: src/Admin/SetupNotice.php:78
+msgid "Dismiss"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:116 src/Admin/SetupWizard.php:117
+msgid "Povikvane SMS setup"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:154 src/Admin/SetupWizard.php:364
+msgid "Waiting for the result…"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:155
+msgid "Still waiting. You can carry on; the result will appear in the message log."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:199
+msgid "Let's get your order messages going"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:200
+msgid "In a few minutes your customers can get a text message when their order is completed. This takes about five minutes."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:202
+msgid "What you will need"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:203
+msgid "A Povikvane account with message credits."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:204
+msgid "Your API key and service ID, found in Povikvane under Settings > API."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:205
+msgid "Your own phone, to receive a test message."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:213
+msgid "Skip setup"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:215
+msgid "Start"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:231
+msgid "Paste your API key and service ID. The key is stored encrypted on this site."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:235
+msgid "Already connected. You can continue, or enter new details below to change them."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:261
+msgid "Your country"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:276 src/Admin/SetupWizard.php:328
+#: src/Admin/SetupWizard.php:374 src/Admin/SetupWizard.php:423
+#: src/Admin/SetupWizard.php:473
+msgid "Back"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:277 src/Admin/SetupWizard.php:378
+#: src/Admin/SetupWizard.php:426
+msgid "Continue"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:279
+msgid "Save and test connection"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:292
+msgid "Choose your messages"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:292
+msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:39
+msgid "You can use:"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:330
+msgid "Save and continue"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:343
+msgid "Send yourself a test message"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:344
+msgid "This sends one real SMS and uses message credits. Use your own number."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:352
+msgid "Send another"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:352
+msgid "Send test message"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:365
+msgid "Did it arrive? If nothing shows up within a minute, check the number, your credits and the Message log."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:376
+msgid "Skip"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:390
+msgid "See deliveries as they happen"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:391
+msgid "Optional. Povikvane can tell this shop the moment a message is delivered. Without it the plugin still finds out by checking regularly, only a little later."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:393
+msgid "Open Povikvane and go to Settings > API."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:393
+msgid "Paste this address into the Webhook URL box and save."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:405
+msgid "No report has arrived yet. After a test message is delivered, reload this page to see it here."
+msgstr ""
+
+#. translators: %s: date and time.
+#: src/Admin/SetupWizard.php:410
+#, php-format
+msgid "It works: the last delivery report arrived %s."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:425
+msgid "Skip for now"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:439
+msgid "Almost there"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:439
+msgid "You are all set"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:440
+msgid "A few things are still open. You can finish them from the Overview."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:440
+msgid "Your customers will now get the messages you switched on."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:445
+msgid "Account connected"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:446
+msgid "Order messages chosen"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:447
+msgid "Test message sent"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:448
+msgid "Delivery reports (optional)"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:456
+msgid "Not done"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:461
+msgid "Good to know"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:462
+msgid "Promotional messages are off. They need your customers' agreement, and you can switch them on under Promotions."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:463
+msgid "Safety rules are active: no messages for old orders or landline numbers, and a pause if many messages are created at once."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:474
+msgid "Go to Overview"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:507
+msgid "Connected. Your account details work."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:514
+msgid "The service could not be reached. Check your internet connection and try again."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:515
+msgid "Those details were not accepted. Check the API key and service ID in Povikvane under Settings > API."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:545
+msgid "Your messages are saved."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:618
+msgid "Welcome"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:619
+msgid "Connect"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:621
+msgid "Test"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:622
+msgid "Reports"
+msgstr ""
+
+#: src/Admin/SetupWizard.php:628
+msgid "Setup steps"
+msgstr ""
+
+#: src/Admin/StatusView.php:28
+msgid "Waiting"
+msgstr ""
+
+#: src/Admin/StatusView.php:30
+msgid "Accepted"
+msgstr ""
+
+#: src/Admin/StatusView.php:31
+msgid "Delivered"
+msgstr ""
+
+#: src/Admin/StatusView.php:32
+msgid "Failed"
+msgstr ""
+
+#: src/Admin/StatusView.php:33
+msgid "Unconfirmed"
+msgstr ""
+
+#: src/Admin/StatusView.php:34
+msgid "Skipped"
+msgstr ""
+
+#: src/Admin/StatusView.php:35
+msgid "On hold (no credits)"
+msgstr ""
+
+#: src/Admin/StatusView.php:36
+msgid "Expired"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:37
+msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:37
+msgid "Order messages"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:55
+msgid "Wait"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:58
+msgid "minutes first"
+msgstr ""
+
+#. translators: %s: order status name.
+#: src/Admin/TemplatesSection.php:67
+#, php-format
+msgid "Message when an order becomes \"%s\""
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:77
+msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:130
+msgid "Standard SMS"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:131
+msgid "Unicode SMS (e.g. Cyrillic)"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:132
+msgid "characters"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:133
+msgid "SMS part"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:134
+msgid "SMS parts"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:135
+msgid "credit"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:137
+msgid "With a Cyrillic name:"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:138
+msgid "Unknown placeholder:"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:139
+msgid "Empty message: nothing will be sent."
+msgstr ""
+
+#: src/Admin/TestSender.php:55
+msgid "That phone number does not look valid."
+msgstr ""
+
+#. translators: %s: shop name.
+#: src/Admin/TestSender.php:64
+#, php-format
+msgid "Test message from %s, sent with Povikvane."
+msgstr ""
+
+#: src/Admin/TestSender.php:71
+msgid "A test message was just sent. Wait a second and try again."
+msgstr ""
+
+#: src/Admin/TestSender.php:76
+msgid "Test message queued. It should reach your phone within a minute."
+msgstr ""
+
+#. translators: %s: shop name.
+#: src/Balance/WpMailer.php:32
+#, php-format
+msgid "[%s] Low SMS credits"
+msgstr ""
+
+#. translators: 1: credits left, 2: warning threshold, 3: settings page URL.
+#: src/Balance/WpMailer.php:37
+#, php-format
+msgid ""
+"Your Povikvane account has %1$s credits left (warning level: %2$d).\n"
+"\n"
+"SMS messages cannot be sent when the credits run out. Top up your credits in your Povikvane account.\n"
+"\n"
+"This warning is sent at most once a day. You can change the level here:\n"
+"%3$s"
+msgstr ""
+
+#: src/Marketing/AccountConsent.php:82
+msgid "Add a mobile number to your billing address first, so we know where to send messages."
+msgstr ""
+
+#: src/Marketing/OptOutEndpoint.php:54
+msgid "This unsubscribe link is not valid."
+msgstr ""
+
+#: src/Marketing/OptOutEndpoint.php:54
+msgid "Unsubscribe"
+msgstr ""
+
+#. translators: %s: shop name.
+#: src/Marketing/OptOutEndpoint.php:63
+#, php-format
+msgid "You have been unsubscribed from promotional SMS messages from %s. You will still receive messages about your orders."
+msgstr ""
+
+#: src/Marketing/OptOutEndpoint.php:67
+msgid "Unsubscribed"
+msgstr ""
+
+#. translators: %s: minimum required WooCommerce version.
+#: src/Plugin.php:401
+#, php-format
+msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
+msgstr ""
+
+#: src/Privacy/Privacy.php:66 src/Privacy/Privacy.php:122
+msgid "SMS messages"
+msgstr ""
+
+#: src/Privacy/Privacy.php:67
+msgid "Suggested wording. Review and adapt it to how you use the plugin."
+msgstr ""
+
+#: src/Privacy/Privacy.php:68
+msgid "When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them, so your phone number and the message text are passed to that service."
+msgstr ""
+
+#: src/Privacy/Privacy.php:69
+msgid "If you agreed to it, we also send occasional promotional text messages. You can withdraw your agreement at any time using the link in each message or in your account. We keep a record of your agreement and of any withdrawal."
+msgstr ""
+
+#: src/Privacy/Privacy.php:70
+msgid "We keep the text of messages for a limited time and the record of each message (order, status, phone number) for longer, as set in the plugin settings."
+msgstr ""
+
+#: src/Privacy/Privacy.php:126 src/Privacy/Privacy.php:160
+msgid "Date"
+msgstr ""
+
+#: src/Privacy/Privacy.php:134
+msgid "Type"
+msgstr ""
+
+#: src/Privacy/Privacy.php:142 src/Privacy/Privacy.php:172
+msgid "Phone number"
+msgstr ""
+
+#: src/Privacy/Privacy.php:146
+msgid "Text"
+msgstr ""
+
+#: src/Privacy/Privacy.php:156
+msgid "SMS promotional consent"
+msgstr ""
+
+#: src/Privacy/Privacy.php:164
+msgid "Decision"
+msgstr ""
+
+#: src/Privacy/Privacy.php:165
+msgid "Agreed"
+msgstr ""
+
+#: src/Privacy/Privacy.php:165
+msgid "Withdrew"
+msgstr ""
+
+#: src/Privacy/Privacy.php:168
+msgid "Where"
+msgstr ""
+
+#: src/Privacy/Privacy.php:176
+msgid "Email"
+msgstr ""
+
+#: src/Privacy/Privacy.php:204
+msgid "SMS opt-in and opt-out decisions were kept without the phone number and email, so that a withdrawal stays in force."
+msgstr ""
+
+#: src/Support/SkipLabels.php:28
+msgid "the order has no phone number"
+msgstr ""
+
+#: src/Support/SkipLabels.php:29
+msgid "the phone number is not valid"
+msgstr ""
+
+#: src/Support/SkipLabels.php:30
+msgid "the number is not a mobile number"
+msgstr ""
+
+#: src/Support/SkipLabels.php:31
+msgid "the order is too old for automatic messages"
+msgstr ""
+
+#: src/Support/SkipLabels.php:32
+msgid "the order was created in the admin"
+msgstr ""
+
+#: src/Support/SkipLabels.php:33
+msgid "the site address changed and sending is not confirmed"
+msgstr ""
+
+#: src/Support/SkipLabels.php:34
+msgid "stopped by a site rule"
+msgstr ""
+
+#: src/Support/SkipLabels.php:35
+msgid "the message text was empty"
+msgstr ""
+
+#: src/Support/SkipLabels.php:36
+msgid "the order status changed before sending"
+msgstr ""
+
+#: src/Support/SkipLabels.php:37
+msgid "the order no longer exists"
+msgstr ""
+
+#: src/Support/SkipLabels.php:38
+msgid "discarded by an administrator"
+msgstr ""
+
+#: src/Support/SkipLabels.php:39
+msgid "the customer has not agreed to promotional messages"
+msgstr ""
+
+#: src/Support/SkipLabels.php:40
+msgid "the customer already received a promotional message recently"
+msgstr ""
+
+#: src/Support/SkipLabels.php:41
+msgid "promotional messages are switched off"
+msgstr ""
+
+#. translators: %s: recipient phone number.
+#: src/Support/WpNotifier.php:59
+#, php-format
+msgid "Povikvane: SMS to %s accepted for delivery."
+msgstr ""
+
+#. translators: 1: recipient phone number, 2: credits charged.
+#: src/Support/WpNotifier.php:64
+#, php-format
+msgid "Povikvane: SMS to %1$s accepted for delivery (%2$s credits)."
+msgstr ""
+
+#. translators: 1: recipient phone number, 2: reason.
+#: src/Support/WpNotifier.php:72
+#, php-format
+msgid "Povikvane: SMS to %1$s was not sent: %2$s"
+msgstr ""
+
+#: src/Support/WpNotifier.php:74
+msgid "unknown error"
+msgstr ""
+
+#. translators: %s: recipient phone number.
+#: src/Support/WpNotifier.php:80
+#, php-format
+msgid "Povikvane: delivery of the SMS to %s could not be confirmed. Check the message log before sending it again."
+msgstr ""
+
+#. translators: %s: recipient phone number.
+#: src/Support/WpNotifier.php:87
+#, php-format
+msgid "Povikvane: SMS to %s is on hold because the account has no credits."
+msgstr ""
+
+#. translators: %s: recipient phone number.
+#: src/Support/WpNotifier.php:94
+#, php-format
+msgid "Povikvane: SMS to %s was delivered."
+msgstr ""
+
+#. translators: %s: recipient phone number.
+#: src/Support/WpNotifier.php:104
+#, php-format
+msgid "Povikvane: SMS to %s could not be delivered."
+msgstr ""
+
+#. translators: 1: recipient phone number, 2: reason.
+#: src/Support/WpNotifier.php:109
+#, php-format
+msgid "Povikvane: SMS to %1$s could not be delivered: %2$s"
+msgstr ""
+
+#. translators: %s: reason the SMS was not sent.
+#: src/Support/WpNotifier.php:117
+#, php-format
+msgid "Povikvane: no SMS was sent because %s."
+msgstr ""
+
+#. translators: %s: recipient phone number.
+#: src/Support/WpNotifier.php:124
+#, php-format
+msgid "Povikvane: SMS to %s was not sent because it waited too long."
+msgstr ""
+
+#: src/Webhook/RestController.php:70
+msgid "No route was found matching the URL and request method."
+msgstr ""
+
+#: src/Webhook/RestController.php:84
+msgid "Too many requests."
+msgstr ""
+
+#: src/Webhook/RestController.php:88
+msgid "Request too large."
+msgstr ""
+
+#: src/Webhook/RestController.php:94
+msgid "Expected a JSON body."
+msgstr ""
