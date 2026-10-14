@@ -1,0 +1,14 @@
+/vendor/
+/node_modules/
+/build/
+/dist/
+*.zip
+.env
+.env.*
+.phpunit.result.cache
+.phpcs.xml
+phpcs.xml
+phpunit.xml
+.DS_Store
+.idea/
+.vscode/
