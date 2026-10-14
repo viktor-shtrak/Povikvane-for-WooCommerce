@@ -50,7 +50,7 @@ final class Settings {
 	/**
 	 * All settings with defaults applied.
 	 *
-	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int}
+	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int}
 	 */
 	public function all(): array {
 		$stored = get_option( self::OPTION, array() );
@@ -103,6 +103,13 @@ final class Settings {
 	 */
 	public function storm_threshold(): int {
 		return max( 0, $this->all()['storm_threshold'] );
+	}
+
+	/**
+	 * Credits below which the administrator is warned (0 = no warning).
+	 */
+	public function low_balance_threshold(): int {
+		return max( 0, $this->all()['low_balance_threshold'] );
 	}
 
 	/**

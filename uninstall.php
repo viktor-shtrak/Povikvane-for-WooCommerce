@@ -17,7 +17,7 @@ if ( 'yes' !== get_option( 'povikvane_delete_data_on_uninstall', 'no' ) ) {
 global $wpdb;
 
 if ( function_exists( 'as_unschedule_all_actions' ) ) {
-	foreach ( array( 'povikvane_send_message', 'povikvane_probe_capabilities' ) as $povikvane_hook ) {
+	foreach ( array( 'povikvane_send_message', 'povikvane_probe_capabilities', 'povikvane_refresh_balance' ) as $povikvane_hook ) {
 		as_unschedule_all_actions( $povikvane_hook, array(), 'povikvane' );
 	}
 }
@@ -29,6 +29,10 @@ foreach ( array(
 	'povikvane_settings',
 	'povikvane_api_key_enc',
 	'povikvane_capabilities',
+	'povikvane_triggers',
+	'povikvane_site_fingerprint',
+	'povikvane_balance',
+	'povikvane_balance_alert',
 	'povikvane_paused',
 	'povikvane_install_salt',
 	'povikvane_db_version',

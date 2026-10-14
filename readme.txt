@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 3. Enter your Povikvane API key and service ID in the plugin settings (available in a later version).
 
 == Changelog ==
+
+= 0.2.1 =
+* The credit balance now stays current: it drops as messages are sent, is refreshed from the service shortly afterwards and every 15 minutes, and updates in the background when you open the settings page.
+* New low-credits warning: an admin notice and a daily email when credits fall below a level you choose.
 
 = 0.2.0 =
 * Order status messages: choose which statuses send a text, edit the text with placeholders and see the SMS length and credit estimate while typing.

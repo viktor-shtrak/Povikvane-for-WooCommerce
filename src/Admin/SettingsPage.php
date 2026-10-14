@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Api\Capabilities;
+use Povikvane\WooCommerce\Balance\BalanceStore;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Messages\Enqueuer;
@@ -62,6 +63,7 @@ final class SettingsPage {
 	 * @param Normalizer        $normalizer Phone normaliser.
 	 * @param TriggerRepository $triggers  Trigger configuration.
 	 * @param TemplatesSection  $templates Template editor.
+	 * @param BalanceStore      $balances  Stored credit balance.
 	 * @param callable          $probe      Runs a capability probe.
 	 */
 	public function __construct(
@@ -72,6 +74,7 @@ final class SettingsPage {
 		private readonly Normalizer $normalizer,
 		private readonly TriggerRepository $triggers,
 		private readonly TemplatesSection $templates,
+		private readonly BalanceStore $balances,
 		callable $probe
 	) {
 		$this->probe = $probe;
@@ -110,6 +113,17 @@ final class SettingsPage {
 	public function enqueue_assets( string $hook_suffix ): void {
 		if ( '' !== $this->hook_suffix && $hook_suffix === $this->hook_suffix ) {
 			$this->templates->enqueue();
+
+			wp_enqueue_script( 'povikvane-status', plugins_url( 'assets/js/status.js', \Povikvane\WooCommerce\PLUGIN_FILE ), array(), \Povikvane\WooCommerce\VERSION, true );
+			wp_localize_script(
+				'povikvane-status',
+				'povikvaneStatus',
+				array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( BalanceAjax::NONCE ),
+					'maxAge'  => 300,
+				)
+			);
 		}
 	}
 
@@ -180,14 +194,15 @@ final class SettingsPage {
 		}
 
 		return array(
-			'service_id'         => $service_id,
-			'default_country'    => $country,
-			'max_age_hours'      => min( 168, max( 1, $max_age ) ),
-			'debug_log'          => ! empty( $input['debug_log'] ),
-			'max_order_age_days' => min( 365, max( 0, (int) ( $input['max_order_age_days'] ?? $current['max_order_age_days'] ) ) ),
-			'skip_admin_created' => ! empty( $input['skip_admin_created'] ),
-			'mobile_only'        => ! empty( $input['mobile_only'] ),
-			'storm_threshold'    => min( 10000, max( 0, (int) ( $input['storm_threshold'] ?? $current['storm_threshold'] ) ) ),
+			'service_id'            => $service_id,
+			'default_country'       => $country,
+			'max_age_hours'         => min( 168, max( 1, $max_age ) ),
+			'debug_log'             => ! empty( $input['debug_log'] ),
+			'max_order_age_days'    => min( 365, max( 0, (int) ( $input['max_order_age_days'] ?? $current['max_order_age_days'] ) ) ),
+			'skip_admin_created'    => ! empty( $input['skip_admin_created'] ),
+			'mobile_only'           => ! empty( $input['mobile_only'] ),
+			'storm_threshold'       => min( 10000, max( 0, (int) ( $input['storm_threshold'] ?? $current['storm_threshold'] ) ) ),
+			'low_balance_threshold' => min( 1000000, max( 0, (int) ( $input['low_balance_threshold'] ?? $current['low_balance_threshold'] ) ) ),
 		);
 	}
 
@@ -351,6 +366,15 @@ final class SettingsPage {
 			esc_html__( 'Stops accidental mass messaging, for example after changing many orders at once. The messages are kept for you to send or discard. 0 turns this off.', 'povikvane-for-woocommerce' )
 		);
 
+		printf(
+			'<tr><th scope="row"><label for="povikvane_low_balance">%1$s</label></th><td><input type="number" id="povikvane_low_balance" name="%2$s[low_balance_threshold]" value="%3$d" min="0" class="small-text"> %4$s<p class="description">%5$s</p></td></tr>',
+			esc_html__( 'Warn me when credits fall below', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			(int) $settings['low_balance_threshold'],
+			esc_html__( 'credits', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Shows a notice in the admin and sends the site administrator one email a day while credits stay below this level. 0 turns the warning off.', 'povikvane-for-woocommerce' )
+		);
+
 		echo '</table>';
 	}
 
@@ -361,7 +385,7 @@ final class SettingsPage {
 	 */
 	private function render_connection( array $caps ): void {
 		$connection = (string) ( $caps['connection'] ?? 'none' );
-		$balance    = is_array( $caps['balance'] ?? null ) ? $caps['balance'] : null;
+		$balance    = $this->balances->get();
 		$checked    = isset( $caps['checked_at'] ) ? (int) $caps['checked_at'] : 0;
 		$paused     = $this->state->paused_reason();
 
@@ -369,8 +393,14 @@ final class SettingsPage {
 
 		$this->row( __( 'Connection', 'povikvane-for-woocommerce' ), $this->connection_label( $connection ) );
 
-		if ( null !== $balance && isset( $balance['credits-available'] ) ) {
-			$this->row( __( 'Credits available', 'povikvane-for-woocommerce' ), number_format_i18n( (float) $balance['credits-available'], 1 ) );
+		if ( true === ( $caps['account'] ?? null ) ) {
+			printf(
+				'<tr><th scope="row" style="width:40%%">%1$s</th><td><span id="povikvane-balance" data-refresh="1" data-age="%2$d" data-estimated="%3$d">%4$s</span></td></tr>',
+				esc_html__( 'Credits available', 'povikvane-for-woocommerce' ),
+				(int) ( null === $balance ? -1 : max( 0, time() - $balance->fetched_at ) ),
+				null !== $balance && $balance->estimated ? 1 : 0,
+				esc_html( BalanceView::text( $balance ) )
+			);
 		} elseif ( Capabilities::CONNECTION_OK === $connection ) {
 			$this->row( __( 'Credits available', 'povikvane-for-woocommerce' ), __( 'Not available from the service yet', 'povikvane-for-woocommerce' ) );
 		}

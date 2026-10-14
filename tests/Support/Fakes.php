@@ -317,6 +317,22 @@ final class RecordingScheduler implements Scheduler {
 	public function schedule_send( int $message_id, int $delay_seconds = 0 ): void {
 		$this->runs[] = array( $message_id, $delay_seconds );
 	}
+
+	/**
+	 * Delays of requested balance refreshes.
+	 *
+	 * @var int[]
+	 */
+	public array $balance_refreshes = array();
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $delay_seconds Delay.
+	 */
+	public function schedule_balance_refresh( int $delay_seconds ): void {
+		$this->balance_refreshes[] = $delay_seconds;
+	}
 }
 
 /**
@@ -400,5 +416,87 @@ final class RecordingLogger implements \Povikvane\WooCommerce\Support\Logger {
 	 */
 	public function log( string $level, string $message, array $context = array() ): void {
 		$this->lines[] = $level . ': ' . \Povikvane\WooCommerce\Support\LogFormatter::format( $message, $context );
+	}
+}
+
+/**
+ * In-memory balance store.
+ */
+final class InMemoryBalanceStore implements \Povikvane\WooCommerce\Balance\BalanceStore {
+
+	/**
+	 * Stored balance.
+	 *
+	 * @var \Povikvane\WooCommerce\Balance\Balance|null
+	 */
+	public ?\Povikvane\WooCommerce\Balance\Balance $balance = null;
+
+	/**
+	 * When the last low-balance alert went out.
+	 *
+	 * @var int|null
+	 */
+	public ?int $alert_at = null;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get(): ?\Povikvane\WooCommerce\Balance\Balance {
+		return $this->balance;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param \Povikvane\WooCommerce\Balance\Balance $balance Balance.
+	 */
+	public function save( \Povikvane\WooCommerce\Balance\Balance $balance ): void {
+		$this->balance = $balance;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function alert_sent_at(): ?int {
+		return $this->alert_at;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $time Time.
+	 */
+	public function mark_alert_sent( int $time ): void {
+		$this->alert_at = $time;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function clear_alert(): void {
+		$this->alert_at = null;
+	}
+}
+
+/**
+ * Mailer recording low-balance emails.
+ */
+final class RecordingMailer implements \Povikvane\WooCommerce\Balance\LowBalanceMailer {
+
+	/**
+	 * Sent emails as [available, threshold].
+	 *
+	 * @var array<int,array{float,int}>
+	 */
+	public array $sent = array();
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param float $available Credits left.
+	 * @param int   $threshold Warning threshold.
+	 */
+	public function send( float $available, int $threshold ): void {
+		$this->sent[] = array( $available, $threshold );
 	}
 }

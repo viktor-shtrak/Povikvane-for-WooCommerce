@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce;
 
+use Povikvane\WooCommerce\Admin\BalanceAjax;
+use Povikvane\WooCommerce\Admin\BalanceNotice;
 use Povikvane\WooCommerce\Admin\OrderMetabox;
 use Povikvane\WooCommerce\Admin\PauseControls;
 use Povikvane\WooCommerce\Admin\SettingsPage;
@@ -16,6 +18,11 @@ use Povikvane\WooCommerce\Admin\TemplatesSection;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Api\Client;
 use Povikvane\WooCommerce\Api\WpTransport;
+use Povikvane\WooCommerce\Balance\BalanceRefresher;
+use Povikvane\WooCommerce\Balance\BalanceTracker;
+use Povikvane\WooCommerce\Balance\LowBalanceAlert;
+use Povikvane\WooCommerce\Balance\OptionBalanceStore;
+use Povikvane\WooCommerce\Balance\WpMailer;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Log\Schema;
 use Povikvane\WooCommerce\Messages\Dispatcher;
@@ -106,6 +113,7 @@ final class Plugin {
 
 		add_action( ActionSchedulerScheduler::SEND_HOOK, array( $this, 'run_send_job' ) );
 		add_action( ActionSchedulerScheduler::PROBE_HOOK, array( $this, 'run_probe' ) );
+		add_action( ActionSchedulerScheduler::BALANCE_HOOK, array( $this, 'run_balance_refresh' ) );
 		add_action( 'action_scheduler_init', array( $this, 'schedule_recurring_jobs' ) );
 
 		( new StatusHooks(
@@ -125,8 +133,13 @@ final class Plugin {
 				new Normalizer(),
 				$this->triggers(),
 				$templates,
+				new OptionBalanceStore(),
 				array( $this, 'run_probe' )
 			) )->register();
+
+			( new BalanceNotice( new OptionBalanceStore(), $this->settings(), $this->state() ) )->register();
+
+			( new BalanceAjax( new OptionBalanceStore(), fn() => $this->balance_refresher()->refresh() ) )->register();
 
 			( new PauseControls( $this->state(), new SiteGuard( $this->state() ), $this->repository() ) )->register();
 
@@ -166,7 +179,8 @@ final class Plugin {
 			$this->state(),
 			$this->settings()->max_age_seconds(),
 			$this->logger(),
-			new OrderStatusGate()
+			new OrderStatusGate(),
+			new BalanceTracker( new OptionBalanceStore(), new ActionSchedulerScheduler() )
 		) )->handle( (int) $message_id );
 	}
 
@@ -213,17 +227,37 @@ final class Plugin {
 			$this->state()->pause( SendingState::REASON_AUTH );
 		} elseif ( SendingState::REASON_AUTH === $paused && Capabilities::CONNECTION_OK === $caps['connection'] ) {
 			$this->state()->resume();
-		} elseif ( SendingState::REASON_CREDITS === $paused && (float) ( $caps['balance']['credits-available'] ?? 0 ) > 0 ) {
-			$this->state()->resume();
+		}
+
+		// The probe already fetched the balance; store it without a second call.
+		if ( true === $caps['account'] && is_array( $caps['balance'] ) ) {
+			$this->balance_refresher()->apply( $caps['balance'] );
 		}
 	}
 
 	/**
-	 * Keep a daily capability probe scheduled.
+	 * Action Scheduler job: refresh the credit balance.
+	 */
+	public function run_balance_refresh(): void {
+		$caps = get_option( Capabilities::OPTION, array() );
+
+		if ( ! $this->settings()->credentials()->is_complete() || ! is_array( $caps ) || true !== ( $caps['account'] ?? null ) ) {
+			return;
+		}
+
+		$this->balance_refresher()->refresh();
+	}
+
+	/**
+	 * Keep a daily capability probe and a regular balance refresh scheduled.
 	 */
 	public function schedule_recurring_jobs(): void {
 		if ( false === as_has_scheduled_action( ActionSchedulerScheduler::PROBE_HOOK, array(), ActionSchedulerScheduler::GROUP ) ) {
 			as_schedule_recurring_action( time() + 120, DAY_IN_SECONDS, ActionSchedulerScheduler::PROBE_HOOK, array(), ActionSchedulerScheduler::GROUP );
+		}
+
+		if ( false === as_has_scheduled_action( ActionSchedulerScheduler::BALANCE_HOOK, array(), ActionSchedulerScheduler::GROUP ) ) {
+			as_schedule_recurring_action( time() + 300, 15 * MINUTE_IN_SECONDS, ActionSchedulerScheduler::BALANCE_HOOK, array(), ActionSchedulerScheduler::GROUP );
 		}
 	}
 
@@ -292,6 +326,23 @@ final class Plugin {
 	 */
 	private function logger(): Logger {
 		return new WcLogger( $this->settings() );
+	}
+
+	/**
+	 * Refreshes the credit balance and raises the low-balance alert.
+	 */
+	private function balance_refresher(): BalanceRefresher {
+		$store = new OptionBalanceStore();
+		$clock = new SystemClock();
+
+		return new BalanceRefresher(
+			$this->client(),
+			$store,
+			$this->state(),
+			$clock,
+			new LowBalanceAlert( $store, new WpMailer(), $clock, $this->settings()->low_balance_threshold() ),
+			$this->logger()
+		);
 	}
 
 	/**

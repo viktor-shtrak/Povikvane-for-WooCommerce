@@ -12,6 +12,9 @@ namespace Povikvane\WooCommerce\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use Povikvane\WooCommerce\Api\ApiResult;
 use Povikvane\WooCommerce\Api\Outcome;
+use Povikvane\WooCommerce\Balance\Balance;
+use Povikvane\WooCommerce\Balance\BalanceTracker;
+use Povikvane\WooCommerce\Tests\Support\InMemoryBalanceStore;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Messages\Dispatcher;
 use Povikvane\WooCommerce\Messages\SendGate;
@@ -396,5 +399,51 @@ final class DispatcherTest extends TestCase {
 		$this->assertCount( 0, $this->gateway->sent );
 		$this->assertSame( Status::Pending, $this->message()->status );
 		$this->assertSame( array( 900, 900 ), array_column( $this->scheduler->runs, 1 ) );
+	}
+
+	/**
+	 * Accepted messages lower the tracked balance; a refusal for credits zeroes it.
+	 */
+	public function test_dispatcher_keeps_the_balance_current(): void {
+		$balances = new InMemoryBalanceStore();
+		$balances->save( new Balance( 10.0, 0.0, array(), 1 ) );
+		$tracker = new BalanceTracker( $balances, $this->scheduler, 60 );
+
+		$dispatcher = new Dispatcher( $this->store, $this->gateway, $this->scheduler, $this->clock, $this->notifier, $this->state, 86400, new NullLogger(), null, $tracker );
+
+		$this->gateway->will_return(
+			$this->api_result(
+				Outcome::Success,
+				200,
+				array(
+					'attributes' => array(
+						'segments'        => 1,
+						'credits-charged' => 1,
+					),
+				),
+				null,
+				null,
+				'api-id-1'
+			)
+		);
+		$dispatcher->handle( $this->id );
+
+		$this->assertSame( 9.0, $balances->get()->available );
+		$this->assertSame( array( 60 ), $this->scheduler->balance_refreshes );
+
+		$second             = new Message();
+		$second->order_id   = 2;
+		$second->event      = 'completed';
+		$second->recipient  = '+359888123457';
+		$second->body       = 'Hi';
+		$second->reference  = 'woo:ab12cd34:2:completed:1';
+		$second->created_at = $this->clock->time;
+		$second_id          = (int) $this->store->create( $second );
+
+		$this->gateway->will_return( $this->api_result( Outcome::InsufficientCredits, 402 ) );
+		$dispatcher->handle( $second_id );
+
+		$this->assertSame( 0.0, $balances->get()->available );
+		$this->assertCount( 2, $this->scheduler->balance_refreshes );
 	}
 }

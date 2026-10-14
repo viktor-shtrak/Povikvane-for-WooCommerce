@@ -23,4 +23,12 @@ interface Scheduler {
 	 * @param int $delay_seconds Seconds from now; 0 means as soon as possible.
 	 */
 	public function schedule_send( int $message_id, int $delay_seconds = 0 ): void;
+
+	/**
+	 * Refresh the credit balance after a delay. Repeated calls while one refresh
+	 * is already waiting must not queue another, so a burst of sends costs one call.
+	 *
+	 * @param int $delay_seconds Seconds from now.
+	 */
+	public function schedule_balance_refresh( int $delay_seconds ): void;
 }

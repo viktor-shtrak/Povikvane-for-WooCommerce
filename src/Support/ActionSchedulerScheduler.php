@@ -17,9 +17,10 @@ defined( 'ABSPATH' ) || exit;
  */
 final class ActionSchedulerScheduler implements Scheduler {
 
-	public const SEND_HOOK  = 'povikvane_send_message';
-	public const PROBE_HOOK = 'povikvane_probe_capabilities';
-	public const GROUP      = 'povikvane';
+	public const SEND_HOOK    = 'povikvane_send_message';
+	public const PROBE_HOOK   = 'povikvane_probe_capabilities';
+	public const BALANCE_HOOK = 'povikvane_refresh_balance';
+	public const GROUP        = 'povikvane';
 
 	/**
 	 * {@inheritDoc}
@@ -34,5 +35,15 @@ final class ActionSchedulerScheduler implements Scheduler {
 		}
 
 		as_schedule_single_action( time() + $delay_seconds, self::SEND_HOOK, array( $message_id ), self::GROUP );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $delay_seconds Seconds from now.
+	 */
+	public function schedule_balance_refresh( int $delay_seconds ): void {
+		// The last argument makes the action unique: a refresh already waiting is enough.
+		as_schedule_single_action( time() + max( 0, $delay_seconds ), self::BALANCE_HOOK, array(), self::GROUP, true );
 	}
 }

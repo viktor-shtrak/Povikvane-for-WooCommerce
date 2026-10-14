@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace Povikvane\WooCommerce\Messages;
 
 use Povikvane\WooCommerce\Api\ApiResult;
+use Povikvane\WooCommerce\Balance\BalanceTracker;
 use Povikvane\WooCommerce\Api\Gateway;
 use Povikvane\WooCommerce\Api\Outcome;
 use Povikvane\WooCommerce\Api\SendRequest;
@@ -47,15 +48,16 @@ final class Dispatcher {
 	/**
 	 * Constructor.
 	 *
-	 * @param MessageStore  $store           Message log.
-	 * @param Gateway       $gateway         API gateway.
-	 * @param Scheduler     $scheduler       Job scheduler.
-	 * @param Clock         $clock           Time source.
-	 * @param Notifier      $notifier        Order note writer.
-	 * @param SendingState  $state           Global pause switch.
-	 * @param int           $max_age_seconds Messages older than this are dropped, not sent late.
-	 * @param Logger        $logger          Diagnostic logger.
-	 * @param SendGate|null $gate           Optional last-moment check.
+	 * @param MessageStore        $store           Message log.
+	 * @param Gateway             $gateway         API gateway.
+	 * @param Scheduler           $scheduler       Job scheduler.
+	 * @param Clock               $clock           Time source.
+	 * @param Notifier            $notifier        Order note writer.
+	 * @param SendingState        $state           Global pause switch.
+	 * @param int                 $max_age_seconds Messages older than this are dropped, not sent late.
+	 * @param Logger              $logger          Diagnostic logger.
+	 * @param SendGate|null       $gate           Optional last-moment check.
+	 * @param BalanceTracker|null $balance  Optional balance tracking.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -66,7 +68,8 @@ final class Dispatcher {
 		private readonly SendingState $state,
 		private readonly int $max_age_seconds = 86400,
 		private readonly Logger $logger = new NullLogger(),
-		private readonly ?SendGate $gate = null
+		private readonly ?SendGate $gate = null,
+		private readonly ?BalanceTracker $balance = null
 	) {}
 
 	/**
@@ -187,6 +190,7 @@ final class Dispatcher {
 				$message->error_code     = null;
 				$message->error_detail   = null;
 				$this->finish( $message, Status::Queued, $now );
+				$this->balance?->record_spent( (float) $message->credits );
 				$this->notifier->note(
 					$message,
 					Notifier::NOTE_QUEUED,
@@ -205,6 +209,7 @@ final class Dispatcher {
 
 			case Outcome::InsufficientCredits:
 				$this->state->pause( SendingState::REASON_CREDITS );
+				$this->balance?->record_exhausted();
 				$this->uncount_attempt( $message );
 				$message->status = Status::Sending; // So the hold below counts as the first note.
 				$this->hold_for_credits( $message, $now );
