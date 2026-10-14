@@ -11,13 +11,19 @@ namespace Povikvane\WooCommerce;
 
 use Povikvane\WooCommerce\Admin\BalanceAjax;
 use Povikvane\WooCommerce\Admin\BalanceNotice;
+use Povikvane\WooCommerce\Admin\ConnectionPanel;
 use Povikvane\WooCommerce\Admin\DeliveryPanel;
 use Povikvane\WooCommerce\Admin\MarketingSection;
 use Povikvane\WooCommerce\Admin\MessageLogPage;
 use Povikvane\WooCommerce\Admin\OrderMetabox;
+use Povikvane\WooCommerce\Admin\OverviewPanel;
 use Povikvane\WooCommerce\Admin\PauseControls;
+use Povikvane\WooCommerce\Admin\SafetyPanel;
 use Povikvane\WooCommerce\Admin\SettingsPage;
+use Povikvane\WooCommerce\Admin\SetupNotice;
+use Povikvane\WooCommerce\Admin\SetupWizard;
 use Povikvane\WooCommerce\Admin\TemplatesSection;
+use Povikvane\WooCommerce\Admin\TestSender;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Api\Client;
 use Povikvane\WooCommerce\Api\WpTransport;
@@ -57,12 +63,17 @@ use Povikvane\WooCommerce\Privacy\Privacy;
 use Povikvane\WooCommerce\Safety\SiteGuard;
 use Povikvane\WooCommerce\Safety\StormGuard;
 use Povikvane\WooCommerce\Support\ActionSchedulerScheduler;
+use Povikvane\WooCommerce\Setup\ActivationRedirect;
+use Povikvane\WooCommerce\Setup\SetupProgress;
+use Povikvane\WooCommerce\Setup\SetupState;
 use Povikvane\WooCommerce\Support\Crypto;
+use Povikvane\WooCommerce\Support\Language;
 use Povikvane\WooCommerce\Support\Logger;
 use Povikvane\WooCommerce\Support\OptionSendingState;
 use Povikvane\WooCommerce\Support\SendingState;
 use Povikvane\WooCommerce\Support\SiteIdentity;
 use Povikvane\WooCommerce\Support\Settings;
+use Povikvane\WooCommerce\Support\SettingsSanitizer;
 use Povikvane\WooCommerce\Support\SystemClock;
 use Povikvane\WooCommerce\Support\WcLogger;
 use Povikvane\WooCommerce\Support\WpNotifier;
@@ -126,6 +137,8 @@ final class Plugin {
 	 * Register hooks if the environment is supported.
 	 */
 	public function boot(): void {
+		Language::register();
+
 		if ( ! $this->woocommerce_is_compatible() ) {
 			add_action( 'admin_notices', array( $this, 'render_incompatible_notice' ) );
 			return;
@@ -169,24 +182,51 @@ final class Plugin {
 			$delivery  = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
 			$delivery->register();
 
-			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), get_locale() );
+			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), Language::content_locale() );
 			$marketing_section->register();
 
 			( new MessageLogPage( $this->repository(), $this->enqueuer(), $this->settings(), $this->state() ) )->register();
 
+			$activity   = new OptionActivity();
+			$progress   = new SetupProgress( $this->triggers(), $this->repository(), $activity );
+			$sanitizer  = new SettingsSanitizer( $this->settings(), $this->state() );
+			$tester     = new TestSender( $this->settings(), new Normalizer(), $this->enqueuer() );
+			$setup_flag = new SetupState();
+
 			( new SettingsPage(
 				$this->settings(),
 				$this->repository(),
-				$this->enqueuer(),
 				$this->state(),
-				new Normalizer(),
 				$this->triggers(),
 				$templates,
 				new OptionBalanceStore(),
-				$delivery,
 				$marketing_section,
+				new OverviewPanel(),
+				new ConnectionPanel( $this->settings(), $delivery ),
+				new SafetyPanel(),
+				$activity,
+				$tester,
+				$sanitizer,
+				$progress,
 				array( $this, 'run_probe' )
 			) )->register();
+
+			( new SetupWizard(
+				$this->settings(),
+				$sanitizer,
+				$this->triggers(),
+				$this->repository(),
+				$tester,
+				$setup_flag,
+				$progress,
+				new Token(),
+				$activity,
+				$templates,
+				array( $this, 'run_probe' )
+			) )->register();
+
+			( new SetupNotice( $setup_flag, $progress ) )->register();
+			( new ActivationRedirect( $setup_flag ) )->register();
 
 			( new BalanceNotice( new OptionBalanceStore(), $this->settings(), $this->state() ) )->register();
 
@@ -440,7 +480,7 @@ final class Plugin {
 	 * Settings for promotional messages.
 	 */
 	public function marketing(): MarketingSettings {
-		return new MarketingSettings( get_locale() );
+		return new MarketingSettings( Language::content_locale() );
 	}
 
 	/**
@@ -515,7 +555,7 @@ final class Plugin {
 	 * Trigger configuration.
 	 */
 	private function triggers(): TriggerRepository {
-		return new TriggerRepository( get_locale() );
+		return new TriggerRepository( Language::content_locale() );
 	}
 
 	/**

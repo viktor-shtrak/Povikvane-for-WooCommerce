@@ -1,0 +1,894 @@
+/**
+ * Povikvane SMS for WooCommerce: admin styles.
+ *
+ * Everything is scoped under .pvk so it cannot leak into other admin screens.
+ * Brand tokens come from the Povikvane app (primary hsl(217 91% 60%), 0.4rem radius).
+ * Buttons use the darker blue-600 because white text on the brand blue is below
+ * the 4.5:1 contrast WCAG asks for.
+ */
+
+.pvk {
+	--pvk-blue: #3b82f6;
+	--pvk-blue-600: #2563eb;
+	--pvk-blue-700: #1d4ed8;
+	--pvk-blue-50: #eff6ff;
+	--pvk-blue-100: #dbeafe;
+	--pvk-ink: #0f172a;
+	--pvk-muted: #64748b;
+	--pvk-line: #e2e8f0;
+	--pvk-bg: #f8fafc;
+	--pvk-card: #fff;
+	--pvk-ok: #15803d;
+	--pvk-ok-bg: #dcfce7;
+	--pvk-warn: #b45309;
+	--pvk-warn-bg: #fef3c7;
+	--pvk-bad: #b91c1c;
+	--pvk-bad-bg: #fee2e2;
+	--pvk-radius: 8px;
+	--pvk-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+
+	box-sizing: border-box;
+	max-width: 1080px;
+	margin: 20px 20px 48px 0;
+	color: var(--pvk-ink);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.pvk *,
+.pvk *::before,
+.pvk *::after {
+	box-sizing: border-box;
+}
+
+.pvk h1,
+.pvk h2,
+.pvk h3,
+.pvk p {
+	margin: 0;
+	color: inherit;
+}
+
+/* Plain links only: buttons and tabs that happen to be anchors keep their own colours. */
+.pvk a:not(.pvk-btn):not(.pvk-tab) {
+	color: var(--pvk-blue-600);
+}
+
+.pvk a:not(.pvk-btn):not(.pvk-tab):hover {
+	color: var(--pvk-blue-700);
+}
+
+.pvk :focus-visible {
+	outline: 2px solid var(--pvk-blue);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+
+.pvk code,
+.pvk .pvk-mono {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+}
+
+/* ---------- Header and tabs ---------- */
+
+.pvk-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 16px;
+	padding: 16px 20px;
+	background: var(--pvk-card);
+	border: 1px solid var(--pvk-line);
+	border-bottom: 0;
+	border-radius: var(--pvk-radius) var(--pvk-radius) 0 0;
+}
+
+.pvk-header__logo {
+	display: block;
+	height: 24px;
+	width: auto;
+}
+
+.pvk-header__product {
+	padding-left: 16px;
+	border-left: 1px solid var(--pvk-line);
+	color: var(--pvk-muted);
+	font-weight: 500;
+}
+
+.pvk-header__version {
+	margin-left: auto;
+	color: var(--pvk-muted);
+	font-size: 12px;
+}
+
+.pvk-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+	padding: 0 12px;
+	background: var(--pvk-card);
+	border: 1px solid var(--pvk-line);
+	border-top: 0;
+	border-radius: 0 0 var(--pvk-radius) var(--pvk-radius);
+	margin-bottom: 20px;
+	box-shadow: var(--pvk-shadow);
+}
+
+.pvk-tab {
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 12px 14px;
+	background: none;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	color: var(--pvk-muted);
+	font: inherit;
+	font-weight: 500;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.pvk-tab:hover {
+	color: var(--pvk-ink);
+}
+
+.pvk-tab[aria-selected="true"],
+.pvk-tab.is-current {
+	color: var(--pvk-blue-600);
+	border-bottom-color: var(--pvk-blue-600);
+}
+
+.pvk-tab__dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--pvk-warn);
+}
+
+/* ---------- Panels, cards, fields ---------- */
+
+.pvk.pvk-js .pvk-panel {
+	display: none;
+}
+
+.pvk.pvk-js .pvk-panel.is-active {
+	display: block;
+}
+
+.pvk-panel > * + * {
+	margin-top: 16px;
+}
+
+.pvk-card {
+	background: var(--pvk-card);
+	border: 1px solid var(--pvk-line);
+	border-radius: var(--pvk-radius);
+	box-shadow: var(--pvk-shadow);
+}
+
+.pvk-card__head {
+	padding: 18px 20px 0;
+}
+
+.pvk-card__title {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.pvk-card__intro {
+	margin-top: 4px;
+	color: var(--pvk-muted);
+}
+
+.pvk-card__body {
+	padding: 8px 20px 20px;
+}
+
+.pvk-card__foot {
+	padding: 12px 20px;
+	background: var(--pvk-bg);
+	border-top: 1px solid var(--pvk-line);
+	border-radius: 0 0 var(--pvk-radius) var(--pvk-radius);
+	color: var(--pvk-muted);
+}
+
+.pvk-card--accent {
+	border-color: var(--pvk-blue-100);
+	background: linear-gradient(180deg, var(--pvk-blue-50), var(--pvk-card) 60%);
+}
+
+.pvk-field {
+	display: grid;
+	grid-template-columns: 240px minmax(0, 1fr);
+	gap: 6px 24px;
+	padding: 16px 0;
+	border-top: 1px solid var(--pvk-line);
+}
+
+.pvk-card__body > .pvk-field:first-child {
+	border-top: 0;
+}
+
+.pvk-field__label {
+	font-weight: 600;
+}
+
+.pvk-field__label label {
+	font-weight: inherit;
+}
+
+.pvk-field__hint {
+	margin-top: 4px;
+	color: var(--pvk-muted);
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.pvk-field__control > * + * {
+	margin-top: 8px;
+}
+
+/* Each control sits on its own line inside a field. */
+.pvk-field__control > input,
+.pvk-field__control > select,
+.pvk-field__control > textarea,
+.pvk-field__control > .pvk-switch {
+	display: flex;
+}
+
+.pvk-field__control > input,
+.pvk-field__control > select,
+.pvk-field__control > textarea {
+	display: block;
+}
+
+.pvk input[type="text"],
+.pvk input[type="password"],
+.pvk input[type="number"],
+.pvk input[type="date"],
+.pvk input[type="tel"],
+.pvk select,
+.pvk textarea {
+	width: 100%;
+	max-width: 440px;
+	min-height: 36px;
+	padding: 6px 10px;
+	background: var(--pvk-card);
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	color: var(--pvk-ink);
+	font: inherit;
+	box-shadow: none;
+}
+
+.pvk input[type="number"] {
+	width: 96px;
+}
+
+.pvk textarea {
+	max-width: none;
+	resize: vertical;
+}
+
+.pvk input:focus,
+.pvk select:focus,
+.pvk textarea:focus {
+	border-color: var(--pvk-blue);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+	outline: none;
+}
+
+.pvk input[readonly] {
+	background: var(--pvk-bg);
+}
+
+.pvk-inline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.pvk-inline input[type="text"],
+.pvk-inline input[type="password"],
+.pvk-inline input[type="tel"] {
+	flex: 1 1 260px;
+}
+
+/* ---------- Buttons ---------- */
+
+.pvk-btn {
+	appearance: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 36px;
+	margin: 0;
+	padding: 6px 14px;
+	background: var(--pvk-card);
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	color: var(--pvk-ink);
+	font: inherit;
+	font-weight: 500;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.pvk-btn:hover {
+	background: var(--pvk-bg);
+	border-color: #94a3b8;
+	color: var(--pvk-ink);
+}
+
+.pvk-btn--primary {
+	background: var(--pvk-blue-600);
+	border-color: var(--pvk-blue-600);
+	color: #fff;
+}
+
+.pvk-btn--primary:hover {
+	background: var(--pvk-blue-700);
+	border-color: var(--pvk-blue-700);
+	color: #fff;
+}
+
+.pvk-btn--danger {
+	color: var(--pvk-bad);
+	border-color: #fecaca;
+}
+
+.pvk-btn--danger:hover {
+	background: var(--pvk-bad-bg);
+	border-color: #fca5a5;
+	color: var(--pvk-bad);
+}
+
+.pvk-btn--link {
+	min-height: 0;
+	padding: 0;
+	background: none;
+	border: 0;
+	color: var(--pvk-blue-600);
+}
+
+.pvk-btn--link:hover {
+	background: none;
+	text-decoration: underline;
+}
+
+.pvk-btn[disabled],
+.pvk-btn.is-busy {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.pvk-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* ---------- Switch ---------- */
+
+.pvk-switch {
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 10px;
+	cursor: pointer;
+}
+
+.pvk-switch input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	opacity: 0;
+}
+
+.pvk-switch__track {
+	position: relative;
+	flex: none;
+	width: 38px;
+	height: 22px;
+	margin-top: 1px;
+	background: #cbd5e1;
+	border-radius: 999px;
+	transition: background 0.15s;
+}
+
+.pvk-switch__track::after {
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 18px;
+	height: 18px;
+	background: #fff;
+	border-radius: 50%;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.3);
+	transition: transform 0.15s;
+}
+
+.pvk-switch input:checked + .pvk-switch__track {
+	background: var(--pvk-blue-600);
+}
+
+.pvk-switch input:checked + .pvk-switch__track::after {
+	transform: translateX(16px);
+}
+
+.pvk-switch input:focus-visible + .pvk-switch__track {
+	outline: 2px solid var(--pvk-blue);
+	outline-offset: 2px;
+}
+
+.pvk-switch__text {
+	font-weight: 500;
+}
+
+.pvk-switch__hint {
+	display: block;
+	color: var(--pvk-muted);
+	font-weight: 400;
+	font-size: 13px;
+}
+
+/* ---------- Pills, tiles, progress ---------- */
+
+.pvk-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 2px 9px;
+	border-radius: 999px;
+	background: #f1f5f9;
+	color: #334155;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.pvk-pill--ok {
+	background: var(--pvk-ok-bg);
+	color: var(--pvk-ok);
+}
+
+.pvk-pill--warn {
+	background: var(--pvk-warn-bg);
+	color: var(--pvk-warn);
+}
+
+.pvk-pill--bad {
+	background: var(--pvk-bad-bg);
+	color: var(--pvk-bad);
+}
+
+.pvk-pill--info {
+	background: var(--pvk-blue-100);
+	color: var(--pvk-blue-700);
+}
+
+.pvk-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 16px;
+}
+
+.pvk-tile {
+	padding: 16px 18px;
+	background: var(--pvk-card);
+	border: 1px solid var(--pvk-line);
+	border-radius: var(--pvk-radius);
+	box-shadow: var(--pvk-shadow);
+}
+
+.pvk-tile__label {
+	color: var(--pvk-muted);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.pvk-tile__value {
+	margin-top: 6px;
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.pvk-tile__hint {
+	margin-top: 6px;
+	color: var(--pvk-muted);
+	font-size: 13px;
+}
+
+.pvk-progress {
+	height: 8px;
+	background: var(--pvk-blue-100);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.pvk-progress > span {
+	display: block;
+	height: 100%;
+	background: var(--pvk-blue-600);
+	border-radius: 999px;
+}
+
+/* ---------- Checklist, tables, notices ---------- */
+
+.pvk-checklist {
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pvk-checklist li {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 0;
+	border-top: 1px solid var(--pvk-line);
+}
+
+.pvk-checklist li:first-child {
+	border-top: 0;
+}
+
+.pvk-check {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	border: 2px solid #cbd5e1;
+	border-radius: 50%;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.pvk-check.is-done {
+	background: var(--pvk-ok);
+	border-color: var(--pvk-ok);
+}
+
+.pvk-checklist__text {
+	flex: 1;
+}
+
+.pvk-checklist__text small {
+	display: block;
+	color: var(--pvk-muted);
+}
+
+.pvk-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.pvk-table th,
+.pvk-table td {
+	padding: 10px 12px;
+	text-align: left;
+	border-top: 1px solid var(--pvk-line);
+	vertical-align: middle;
+}
+
+.pvk-table thead th {
+	border-top: 0;
+	color: var(--pvk-muted);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.pvk-empty {
+	padding: 28px 20px;
+	color: var(--pvk-muted);
+	text-align: center;
+}
+
+.pvk-note {
+	display: flex;
+	gap: 10px;
+	padding: 12px 14px;
+	background: var(--pvk-blue-50);
+	border: 1px solid var(--pvk-blue-100);
+	border-radius: 6px;
+	color: #1e3a8a;
+}
+
+.pvk-note--warn {
+	background: var(--pvk-warn-bg);
+	border-color: #fde68a;
+	color: #78350f;
+}
+
+.pvk-note--bad {
+	background: var(--pvk-bad-bg);
+	border-color: #fecaca;
+	color: #7f1d1d;
+}
+
+.pvk-note--ok {
+	background: var(--pvk-ok-bg);
+	border-color: #bbf7d0;
+	color: #14532d;
+}
+
+/* ---------- Order status rows (Messages tab) ---------- */
+
+.pvk-trigger {
+	display: grid;
+	grid-template-columns: 220px minmax(0, 1fr);
+	gap: 8px 24px;
+	padding: 16px 20px;
+	border-top: 1px solid var(--pvk-line);
+}
+
+.pvk-trigger:first-child {
+	border-top: 0;
+}
+
+.pvk-trigger__delay {
+	margin-top: 10px;
+	color: var(--pvk-muted);
+	font-size: 13px;
+}
+
+.pvk-trigger__delay input {
+	margin: 0 4px;
+}
+
+.pvk-estimate {
+	margin-top: 4px;
+	color: var(--pvk-muted);
+	font-size: 12.5px;
+}
+
+.pvk-trigger:not(.is-on) textarea {
+	background: var(--pvk-bg);
+	color: var(--pvk-muted);
+}
+
+/* ---------- Save bar ---------- */
+
+.pvk-savebar {
+	position: sticky;
+	bottom: 0;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 20px;
+	padding: 12px 20px;
+	background: rgba(255, 255, 255, 0.96);
+	border: 1px solid var(--pvk-line);
+	border-radius: var(--pvk-radius);
+	box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.pvk-savebar[hidden] {
+	display: none;
+}
+
+.pvk-savebar__status {
+	color: var(--pvk-muted);
+}
+
+.pvk-savebar.is-dirty .pvk-savebar__status {
+	color: var(--pvk-warn);
+	font-weight: 600;
+}
+
+/* ---------- Setup wizard ---------- */
+
+.pvk-wizard {
+	max-width: 760px;
+	margin: 24px auto 48px;
+}
+
+.pvk-wizard .pvk-header {
+	justify-content: space-between;
+}
+
+.pvk-stepper {
+	display: flex;
+	gap: 6px;
+	margin: 0;
+	padding: 14px 20px;
+	list-style: none;
+	background: var(--pvk-card);
+	border: 1px solid var(--pvk-line);
+	border-top: 0;
+	border-radius: 0 0 var(--pvk-radius) var(--pvk-radius);
+}
+
+.pvk-stepper li {
+	flex: 1;
+	min-width: 0;
+	color: var(--pvk-muted);
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+}
+
+.pvk-stepper li::before {
+	content: attr(data-n);
+	display: grid;
+	place-items: center;
+	width: 26px;
+	height: 26px;
+	margin: 0 auto 4px;
+	background: #e2e8f0;
+	border-radius: 50%;
+	color: #475569;
+}
+
+.pvk-stepper li.is-done::before {
+	content: "\2713";
+	background: var(--pvk-ok);
+	color: #fff;
+}
+
+.pvk-stepper li.is-current {
+	color: var(--pvk-blue-700);
+}
+
+.pvk-stepper li.is-current::before {
+	background: var(--pvk-blue-600);
+	color: #fff;
+}
+
+.pvk-step {
+	margin-top: 20px;
+}
+
+.pvk-wizard .pvk-field {
+	grid-template-columns: 150px minmax(0, 1fr);
+}
+
+.pvk-step .pvk-card__body {
+	padding-top: 18px;
+}
+
+.pvk-step__title {
+	font-size: 20px;
+	font-weight: 600;
+}
+
+.pvk-step__lead {
+	margin-top: 6px;
+	color: var(--pvk-muted);
+	font-size: 15px;
+}
+
+.pvk-step__nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.pvk-need {
+	margin: 16px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pvk-need li {
+	display: flex;
+	gap: 10px;
+	padding: 8px 0;
+}
+
+.pvk-need li::before {
+	content: "\2192";
+	color: var(--pvk-blue-600);
+	font-weight: 700;
+}
+
+.pvk-result {
+	margin-top: 12px;
+}
+
+.pvk-status-line {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.pvk-spinner {
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--pvk-blue-100);
+	border-top-color: var(--pvk-blue-600);
+	border-radius: 50%;
+	animation: pvk-spin 0.8s linear infinite;
+}
+
+@keyframes pvk-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pvk-spinner {
+		animation: none;
+	}
+
+	.pvk-switch__track,
+	.pvk-switch__track::after {
+		transition: none;
+	}
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 782px) {
+	.pvk {
+		margin-right: 10px;
+	}
+
+	.pvk-field,
+	.pvk-trigger {
+		grid-template-columns: 1fr;
+	}
+
+	.pvk-header__product {
+		padding-left: 0;
+		border-left: 0;
+	}
+
+	.pvk-header__version {
+		margin-left: 0;
+	}
+
+	.pvk-savebar {
+		flex-wrap: wrap;
+	}
+
+	.pvk-stepper li span {
+		display: none;
+	}
+}
+
+/* ---------- Message log (WordPress list table inside a card) ---------- */
+
+.pvk .wp-list-table {
+	border: 1px solid var(--pvk-line);
+	border-radius: 6px;
+	box-shadow: none;
+}
+
+.pvk .wp-list-table thead th,
+.pvk .wp-list-table tfoot th {
+	color: var(--pvk-muted);
+	font-weight: 600;
+}
+
+.pvk .search-box {
+	margin-bottom: 8px;
+}
+
+.pvk .tablenav .actions select,
+.pvk .tablenav .actions input[type="date"] {
+	width: auto;
+	max-width: none;
+}

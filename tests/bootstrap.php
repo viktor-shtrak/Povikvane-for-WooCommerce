@@ -56,6 +56,31 @@ if ( ! function_exists( 'update_option' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_locale' ) ) {
+	/**
+	 * Minimal get_locale().
+	 *
+	 * @return string
+	 */
+	function get_locale(): string {
+		return $GLOBALS['povikvane_test_locale'] ?? 'en_US';
+	}
+}
+
+if ( ! function_exists( 'delete_option' ) ) {
+	/**
+	 * Minimal delete_option().
+	 *
+	 * @param string $name Option name.
+	 * @return bool
+	 */
+	function delete_option( string $name ): bool {
+		unset( $GLOBALS['povikvane_test_options'][ $name ] );
+
+		return true;
+	}
+}
+
 // Stand-in for the WordPress JSON helper used by the API client.
 if ( ! function_exists( 'wp_json_encode' ) ) {
 	/**

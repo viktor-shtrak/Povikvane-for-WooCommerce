@@ -68,6 +68,27 @@ final class TriggerRepository implements TriggerProvider {
 	}
 
 	/**
+	 * The current configuration of every status in the shape the settings form posts,
+	 * so a screen showing only some statuses can change those and leave the rest alone.
+	 *
+	 * @return array<string,array{enabled:bool,template:string,delay:int}>
+	 */
+	public function current_input(): array {
+		$input = array();
+
+		foreach ( array_keys( $this->statuses() ) as $slug ) {
+			$trigger        = $this->for_status( $slug );
+			$input[ $slug ] = array(
+				'enabled'  => $trigger->enabled,
+				'template' => $trigger->template,
+				'delay'    => $trigger->delay_minutes,
+			);
+		}
+
+		return $input;
+	}
+
+	/**
 	 * Sanitise the submitted trigger table.
 	 *
 	 * @param mixed $input Submitted value, keyed by status slug.

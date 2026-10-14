@@ -152,7 +152,7 @@ final class MessageListTable extends WP_List_Table {
 	 * @param Message $item Row.
 	 */
 	protected function column_status( $item ): string {
-		return esc_html( self::status_label( $item->status ) );
+		return StatusView::pill( $item->status );
 	}
 
 	/**
@@ -191,7 +191,7 @@ final class MessageListTable extends WP_List_Table {
 
 		echo '<select name="status"><option value="">' . esc_html__( 'All statuses', 'povikvane-for-woocommerce' ) . '</option>';
 		foreach ( Status::cases() as $status ) {
-			printf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $status->value ), selected( $this->query->status?->value, $status->value, false ), esc_html( self::status_label( $status ) ) );
+			printf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $status->value ), selected( $this->query->status?->value, $status->value, false ), esc_html( StatusView::label( $status ) ) );
 		}
 		echo '</select> ';
 
@@ -221,24 +221,5 @@ final class MessageListTable extends WP_List_Table {
 	 */
 	private function can_resend( Message $message ): bool {
 		return in_array( $message->status, array( Status::Failed, Status::Unconfirmed ), true ) && '' !== $message->body;
-	}
-
-	/**
-	 * Human label for a status.
-	 *
-	 * @param Status $status Status.
-	 */
-	public static function status_label( Status $status ): string {
-		return match ( $status ) {
-			Status::Pending     => __( 'Waiting', 'povikvane-for-woocommerce' ),
-			Status::Sending     => __( 'Sending', 'povikvane-for-woocommerce' ),
-			Status::Queued      => __( 'Accepted', 'povikvane-for-woocommerce' ),
-			Status::Delivered   => __( 'Delivered', 'povikvane-for-woocommerce' ),
-			Status::Failed      => __( 'Failed', 'povikvane-for-woocommerce' ),
-			Status::Unconfirmed => __( 'Unconfirmed', 'povikvane-for-woocommerce' ),
-			Status::Skipped     => __( 'Skipped', 'povikvane-for-woocommerce' ),
-			Status::HeldCredits => __( 'On hold (no credits)', 'povikvane-for-woocommerce' ),
-			Status::Expired     => __( 'Expired', 'povikvane-for-woocommerce' ),
-		};
 	}
 }

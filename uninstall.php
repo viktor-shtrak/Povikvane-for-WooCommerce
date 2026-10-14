@@ -34,6 +34,7 @@ foreach ( array(
 	'povikvane_capabilities',
 	'povikvane_triggers',
 	'povikvane_marketing',
+	'povikvane_setup',
 	'povikvane_site_fingerprint',
 	'povikvane_balance',
 	'povikvane_balance_alert',

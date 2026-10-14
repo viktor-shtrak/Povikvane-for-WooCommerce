@@ -34,38 +34,61 @@ final class TemplatesSection {
 	 * Print the editor. Must be called inside the settings form.
 	 */
 	public function render(): void {
-		echo '<h2>' . esc_html__( 'Messages', 'povikvane-for-woocommerce' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; do not use these messages for promotions.', 'povikvane-for-woocommerce' ) . '</p>';
+		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-card__title">' . esc_html__( 'Order messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-card__intro">' . esc_html__( 'Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional.', 'povikvane-for-woocommerce' ) . '</p>';
 
-		echo '<p>' . esc_html__( 'Placeholders:', 'povikvane-for-woocommerce' ) . ' ';
+		echo '<p class="pvk-card__intro">' . esc_html__( 'You can use:', 'povikvane-for-woocommerce' ) . ' ';
 		foreach ( Placeholders::NAMES as $name ) {
-			echo '<code>{' . esc_html( $name ) . '}</code> ';
+			if ( 'optout_link' !== $name ) {
+				echo '<code>{' . esc_html( $name ) . '}</code> ';
+			}
 		}
-		echo '</p>';
+		echo '</p></div><div style="margin-top:12px">';
 
-		echo '<table class="widefat striped" id="povikvane-templates"><thead><tr>';
-		foreach ( array( __( 'Order status', 'povikvane-for-woocommerce' ), __( 'Send', 'povikvane-for-woocommerce' ), __( 'Delay (minutes)', 'povikvane-for-woocommerce' ), __( 'Message', 'povikvane-for-woocommerce' ) ) as $heading ) {
-			echo '<th>' . esc_html( $heading ) . '</th>';
-		}
-		echo '</tr></thead><tbody>';
-
-		foreach ( $this->triggers->statuses() as $slug => $label ) {
+		foreach ( $this->ordered_statuses() as $slug => $label ) {
 			$trigger = $this->triggers->for_status( $slug );
 			$name    = TriggerRepository::OPTION . '[' . $slug . ']';
 
+			echo '<div class="pvk-trigger' . ( $trigger->enabled ? ' is-on' : '' ) . '"><div>';
+			Ui::toggle( $name . '[enabled]', $trigger->enabled, $label );
 			printf(
-				'<tr><th scope="row">%1$s</th><td><input type="checkbox" name="%2$s[enabled]" value="1"%3$s aria-label="%4$s"></td><td><input type="number" name="%2$s[delay]" value="%5$d" min="0" max="1440" class="small-text"></td><td><textarea name="%2$s[template]" rows="3" maxlength="1000" class="large-text" data-povikvane-template>%6$s</textarea><div class="povikvane-estimate description" aria-live="polite"></div></td></tr>',
-				esc_html( $label ),
+				'<div class="pvk-trigger__delay"><label>%1$s <input type="number" name="%2$s[delay]" value="%3$d" min="0" max="1440"> %4$s</label></div>',
+				esc_html__( 'Wait', 'povikvane-for-woocommerce' ),
 				esc_attr( $name ),
-				checked( $trigger->enabled, true, false ),
-				esc_attr( sprintf( /* translators: %s: order status name. */ __( 'Send a message when an order becomes "%s"', 'povikvane-for-woocommerce' ), $label ) ),
 				(int) $trigger->delay_minutes,
+				esc_html__( 'minutes first', 'povikvane-for-woocommerce' )
+			);
+			echo '</div><div>';
+			printf(
+				'<label class="screen-reader-text" for="pvk-text-%1$s">%2$s</label><textarea id="pvk-text-%1$s" name="%3$s[template]" rows="3" maxlength="1000" data-povikvane-template>%4$s</textarea><div class="pvk-estimate povikvane-estimate" aria-live="polite"></div>',
+				esc_attr( $slug ),
+				esc_html(
+					sprintf(
+						/* translators: %s: order status name. */
+						__( 'Message when an order becomes "%s"', 'povikvane-for-woocommerce' ),
+						$label
+					)
+				),
+				esc_attr( $name ),
 				esc_textarea( $trigger->template )
 			);
+			echo '</div></div>';
 		}
 
-		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__( 'A delay lets you cancel by changing the status again; a message is only sent if the order still has the status it was created for.', 'povikvane-for-woocommerce' ) . '</p>';
+		echo '</div><div class="pvk-card__foot">' . esc_html__( 'A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for.', 'povikvane-for-woocommerce' ) . '</div></section>';
+	}
+
+	/**
+	 * Statuses with the common ones first, so the list starts with what most shops use.
+	 *
+	 * @return array<string,string>
+	 */
+	private function ordered_statuses(): array {
+		$statuses = $this->triggers->statuses();
+		$priority = array_flip( array( 'processing', 'completed', 'on-hold', 'cancelled', 'refunded', 'failed' ) );
+
+		uksort( $statuses, static fn( string $a, string $b ): int => ( $priority[ $a ] ?? 99 ) <=> ( $priority[ $b ] ?? 99 ) );
+
+		return $statuses;
 	}
 
 	/**
@@ -109,6 +132,7 @@ final class TemplatesSection {
 					'characters' => __( 'characters', 'povikvane-for-woocommerce' ),
 					'segment'    => __( 'SMS part', 'povikvane-for-woocommerce' ),
 					'segments'   => __( 'SMS parts', 'povikvane-for-woocommerce' ),
+					'credit'     => __( 'credit', 'povikvane-for-woocommerce' ),
 					'credits'    => __( 'credits', 'povikvane-for-woocommerce' ),
 					'cyrillic'   => __( 'With a Cyrillic name:', 'povikvane-for-woocommerce' ),
 					'unknown'    => __( 'Unknown placeholder:', 'povikvane-for-woocommerce' ),

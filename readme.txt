@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,12 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 3. Enter your Povikvane API key and service ID in the plugin settings (available in a later version).
 
 == Changelog ==
+
+= 0.5.0 =
+* New setup wizard: connect your account, choose messages, send a test message and watch it arrive, and add the webhook. It opens after activation, and a reminder and an Overview checklist stay until setup is done.
+* Redesigned settings: one page with tabs (Overview, Connection, Messages, Promotions, Safety & data), status at a glance, and a message log that matches.
+* The Settings saved confirmation now shows, and the page remembers which tab you were on.
+* Bulgarian translation included. The plugin follows the site language, and a Language setting lets you choose Bulgarian or English; default message texts follow it too.
 
 = 0.4.0 =
 * Promotional SMS (off by default): an unticked consent checkbox at checkout (Blocks and classic) and in My Account, an unsubscribe link in every promotional message, sending hours, a frequency limit and an optional review request after a completed order.

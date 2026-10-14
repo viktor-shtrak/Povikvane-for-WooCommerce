@@ -52,6 +52,7 @@ final class SettingsTest extends TestCase {
 				'retention_body_days'   => 90,
 				'retention_row_days'    => 365,
 				'export_full_numbers'   => false,
+				'plugin_language'       => 'auto',
 			),
 			$all
 		);

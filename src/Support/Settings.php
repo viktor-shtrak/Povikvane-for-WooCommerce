@@ -42,6 +42,7 @@ final class Settings {
 		'retention_body_days'   => 90,
 		'retention_row_days'    => 365,
 		'export_full_numbers'   => false,
+		'plugin_language'       => 'auto',
 	);
 
 	/**
@@ -54,7 +55,7 @@ final class Settings {
 	/**
 	 * All settings with defaults applied.
 	 *
-	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int,retention_body_days:int,retention_row_days:int,export_full_numbers:bool}
+	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int,retention_body_days:int,retention_row_days:int,export_full_numbers:bool,plugin_language:string}
 	 */
 	public function all(): array {
 		$stored = get_option( self::OPTION, array() );
@@ -74,6 +75,7 @@ final class Settings {
 			'retention_body_days'   => (int) $value( 'retention_body_days' ),
 			'retention_row_days'    => (int) $value( 'retention_row_days' ),
 			'export_full_numbers'   => (bool) $value( 'export_full_numbers' ),
+			'plugin_language'       => Language::normalize( (string) $value( 'plugin_language' ) ),
 		);
 	}
 
@@ -140,6 +142,13 @@ final class Settings {
 	 */
 	public function export_full_numbers(): bool {
 		return $this->all()['export_full_numbers'];
+	}
+
+	/**
+	 * The Language setting: "auto", "bg_BG" or "en_US".
+	 */
+	public function plugin_language(): string {
+		return $this->all()['plugin_language'];
 	}
 
 	/**

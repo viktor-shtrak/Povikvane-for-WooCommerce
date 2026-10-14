@@ -60,7 +60,9 @@
 		var label = 'ucs2' === info.encoding ? config.i18n.ucs2 : config.i18n.gsm7;
 		var parts = 1 === info.segments ? config.i18n.segment : config.i18n.segments;
 
-		return label + ': ' + info.units + ' ' + config.i18n.characters + ', ' + info.segments + ' ' + parts + ' (' + info.segments + ' ' + config.i18n.credits + ')';
+		var credits = 1 === info.segments ? config.i18n.credit : config.i18n.credits;
+
+		return label + ': ' + info.units + ' ' + config.i18n.characters + ', ' + info.segments + ' ' + parts + ' (' + info.segments + ' ' + credits + ')';
 	}
 
 	/**

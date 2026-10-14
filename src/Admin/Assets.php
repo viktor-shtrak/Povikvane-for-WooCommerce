@@ -20,6 +20,13 @@ defined( 'ABSPATH' ) || exit;
 final class Assets {
 
 	/**
+	 * The stylesheet shared by every Povikvane screen.
+	 */
+	public static function base(): void {
+		wp_enqueue_style( 'povikvane-admin', plugins_url( 'assets/css/admin.css', PLUGIN_FILE ), array(), VERSION );
+	}
+
+	/**
 	 * Ask "are you sure?" before links and buttons marked with data-povikvane-confirm.
 	 */
 	public static function confirm(): void {

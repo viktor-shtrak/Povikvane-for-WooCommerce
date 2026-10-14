@@ -47,59 +47,71 @@ final class DeliveryPanel {
 	}
 
 	/**
-	 * Print the panel.
+	 * Print the panel as a card. Must be called inside the settings form.
 	 */
 	public function render(): void {
-		echo '<h2>' . esc_html__( 'Delivery reports', 'povikvane-for-woocommerce' ) . '</h2>';
-		echo '<p>' . esc_html__( 'To see whether messages were delivered, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later.', 'povikvane-for-woocommerce' ) . '</p>';
+		Ui::card_open( __( 'Delivery reports', 'povikvane-for-woocommerce' ), __( 'To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later.', 'povikvane-for-woocommerce' ) );
 
+		Ui::field_open( __( 'Webhook address', 'povikvane-for-woocommerce' ), 'povikvane-webhook-url' );
 		printf(
-			'<p><input type="text" id="povikvane-webhook-url" class="large-text code" readonly value="%1$s"> <button type="button" class="button" data-povikvane-copy="#povikvane-webhook-url" data-copied="%2$s">%3$s</button></p>',
+			'<div class="pvk-inline"><input type="text" id="povikvane-webhook-url" class="pvk-mono" readonly value="%1$s"> <button type="button" class="pvk-btn" data-povikvane-copy="#povikvane-webhook-url" data-copied="%2$s">%3$s</button></div>',
 			esc_attr( $this->token->url() ),
 			esc_attr__( 'Copied', 'povikvane-for-woocommerce' ),
 			esc_html__( 'Copy', 'povikvane-for-woocommerce' )
 		);
-
-		echo '<table class="widefat striped" style="max-width:640px"><tbody>';
+		Ui::field_close();
 
 		$last = $this->activity->last();
-		$this->row(
-			__( 'Last delivery report received', 'povikvane-for-woocommerce' ),
-			null === $last
-				? __( 'Never', 'povikvane-for-woocommerce' )
-				: sprintf(
+
+		Ui::field_open( __( 'Last report received', 'povikvane-for-woocommerce' ) );
+
+		if ( null === $last ) {
+			echo Ui::pill( __( 'Never', 'povikvane-for-woocommerce' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+		} else {
+			echo esc_html(
+				sprintf(
 					/* translators: 1: date and time, 2: result of handling it. */
 					__( '%1$s (%2$s)', 'povikvane-for-woocommerce' ),
 					Dates::format( $last['time'], 'Y-m-d H:i' ),
 					$this->result_label( $last['result'] )
 				)
-		);
+			);
+		}
+
+		Ui::field_close();
 
 		$overdue = $this->repository->oldest_overdue( time() );
 		$late    = null === $overdue ? 0 : time() - $overdue;
 
-		$this->row(
-			__( 'Message queue', 'povikvane-for-woocommerce' ),
-			$late > self::QUEUE_WARNING_SECONDS
-				? sprintf(
+		Ui::field_open( __( 'Message queue', 'povikvane-for-woocommerce' ) );
+
+		if ( $late > self::QUEUE_WARNING_SECONDS ) {
+			echo esc_html(
+				sprintf(
 					/* translators: %d: minutes. */
 					__( 'Running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly.', 'povikvane-for-woocommerce' ),
 					(int) floor( $late / 60 )
 				)
-				: __( 'On time', 'povikvane-for-woocommerce' )
-		);
+			);
+		} else {
+			echo Ui::pill( __( 'On time', 'povikvane-for-woocommerce' ), 'ok' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+		}
 
-		echo '</tbody></table>';
+		Ui::field_close();
 
-		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:8px">';
-		echo '<input type="hidden" name="action" value="povikvane_regenerate_token">';
-		wp_nonce_field( 'povikvane_regenerate_token' );
-		printf(
-			'<button type="submit" class="button button-link-delete" data-povikvane-confirm="%1$s">%2$s</button>',
-			esc_attr__( 'Create a new webhook address? The current one stops working and must be updated in Povikvane.', 'povikvane-for-woocommerce' ),
-			esc_html__( 'Create a new webhook address', 'povikvane-for-woocommerce' )
+		Ui::card_close(
+			esc_html__( 'Need a different address?', 'povikvane-for-woocommerce' ) . ' ' . $this->regenerate_button()
 		);
-		echo '</form>';
+	}
+
+	/**
+	 * The button that creates a new webhook address, as HTML.
+	 */
+	private function regenerate_button(): string {
+		ob_start();
+		Layout::action_button( __( 'Create a new webhook address', 'povikvane-for-woocommerce' ), 'povikvane_regenerate_token', array(), 'pvk-btn pvk-btn--link', __( 'Create a new webhook address? The current one stops working and must be updated in Povikvane.', 'povikvane-for-woocommerce' ) );
+
+		return (string) ob_get_clean();
 	}
 
 	/**
@@ -117,16 +129,6 @@ final class DeliveryPanel {
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG ) );
 		exit;
-	}
-
-	/**
-	 * One table row.
-	 *
-	 * @param string $label Label.
-	 * @param string $value Value.
-	 */
-	private function row( string $label, string $value ): void {
-		printf( '<tr><th scope="row" style="width:40%%">%1$s</th><td>%2$s</td></tr>', esc_html( $label ), esc_html( $value ) );
 	}
 
 	/**

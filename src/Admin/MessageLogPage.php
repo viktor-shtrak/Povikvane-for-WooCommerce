@@ -92,6 +92,7 @@ final class MessageLogPage {
 	 */
 	public function enqueue( string $hook_suffix ): void {
 		if ( '' !== $this->hook_suffix && $hook_suffix === $this->hook_suffix ) {
+			Assets::base();
 			Assets::confirm();
 		}
 	}
@@ -110,20 +111,23 @@ final class MessageLogPage {
 		$table = new MessageListTable( $this->repository, $query );
 		$table->prepare_items();
 
-		echo '<div class="wrap"><h1 class="wp-heading-inline">' . esc_html__( 'Povikvane messages', 'povikvane-for-woocommerce' ) . '</h1> ';
+		Layout::open();
+		Layout::tabs( Navigation::for_log_page(), 'log' );
+
+		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px"><h2 class="pvk-card__title">' . esc_html__( 'Message log', 'povikvane-for-woocommerce' ) . '</h2>';
 		printf(
-			'<a class="page-title-action" href="%1$s">%2$s</a><hr class="wp-header-end">',
+			'<a class="pvk-btn" href="%1$s">%2$s</a></div><div class="pvk-card__body">',
 			esc_url( $this->export_url( $query ) ),
 			esc_html__( 'Export CSV', 'povikvane-for-woocommerce' )
 		);
-
-		Flash::render();
 
 		echo '<form method="get">';
 		printf( '<input type="hidden" name="page" value="%s">', esc_attr( self::SLUG ) );
 		$table->search_box( __( 'Search order number, reference or message ID', 'povikvane-for-woocommerce' ), 'povikvane-message' );
 		$table->display();
-		echo '</form></div>';
+		echo '</form></div></section>';
+
+		Layout::close();
 	}
 
 	/**

@@ -64,6 +64,11 @@ final class BalanceAjax {
 			$balance = ( $this->refresh )() ?? $balance;
 		}
 
-		wp_send_json_success( array( 'text' => BalanceView::text( $balance ) ) );
+		wp_send_json_success(
+			array(
+				'amount' => BalanceView::amount( $balance ),
+				'hint'   => BalanceView::hint( $balance ),
+			)
+		);
 	}
 }

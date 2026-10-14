@@ -27,6 +27,7 @@ final class Activator {
 	public static function activate(): void {
 		Schema::install();
 		SiteIdentity::salt();
+		ActivationRedirect::mark();
 
 		if ( ! is_string( get_option( SiteGuard::OPTION ) ) || '' === get_option( SiteGuard::OPTION ) ) {
 			update_option( SiteGuard::OPTION, Fingerprint::of( home_url() ), false );

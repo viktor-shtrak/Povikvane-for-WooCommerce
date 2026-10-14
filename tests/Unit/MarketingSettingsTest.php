@@ -17,6 +17,7 @@ use Povikvane\WooCommerce\Log\Schema;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
 use Povikvane\WooCommerce\Safety\SiteGuard;
+use Povikvane\WooCommerce\Setup\SetupState;
 use Povikvane\WooCommerce\Support\OptionSendingState;
 use Povikvane\WooCommerce\Support\Settings;
 use Povikvane\WooCommerce\Support\SiteIdentity;
@@ -125,6 +126,7 @@ final class MarketingSettingsTest extends TestCase {
 			Capabilities::OPTION,
 			TriggerRepository::OPTION,
 			MarketingSettings::OPTION,
+			SetupState::OPTION,
 			SiteGuard::OPTION,
 			OptionBalanceStore::OPTION,
 			OptionBalanceStore::ALERT_OPTION,

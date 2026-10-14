@@ -80,66 +80,81 @@ final class MarketingSection {
 		$all  = $this->settings->all();
 		$name = MarketingSettings::OPTION;
 
-		echo '<h2>' . esc_html__( 'Promotional messages', 'povikvane-for-woocommerce' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on.', 'povikvane-for-woocommerce' ) . '</p>';
+		Ui::card_open( __( 'Promotional messages', 'povikvane-for-woocommerce' ), __( 'Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on.', 'povikvane-for-woocommerce' ), $all['enabled'] ? '' : 'pvk-card--accent' );
 
-		echo '<table class="form-table" role="presentation">';
+		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
+		Ui::toggle( $name . '[enabled]', $all['enabled'], __( 'Ask customers for their agreement and allow promotional messages', 'povikvane-for-woocommerce' ), __( 'Off by default. Nothing promotional is ever sent while this is off.', 'povikvane-for-woocommerce' ) );
+		Ui::field_close();
 
+		Ui::field_open( __( 'Checkbox wording', 'povikvane-for-woocommerce' ), 'povikvane_consent_text', __( 'Shown next to the unticked checkbox at checkout and in My Account. A short fingerprint of the wording is stored with each agreement.', 'povikvane-for-woocommerce' ) );
 		printf(
-			'<tr><th scope="row">%1$s</th><td><label><input type="checkbox" name="%2$s[enabled]" value="1"%3$s> %4$s</label></td></tr>',
-			esc_html__( 'Promotional messages', 'povikvane-for-woocommerce' ),
+			'<textarea id="povikvane_consent_text" name="%1$s[consent_text]" rows="3" maxlength="400">%2$s</textarea>',
 			esc_attr( $name ),
-			checked( $all['enabled'], true, false ),
-			esc_html__( 'Ask customers for their agreement and allow promotional messages', 'povikvane-for-woocommerce' )
+			esc_textarea( $this->settings->consent_text() )
 		);
+		Ui::field_close();
 
-		printf(
-			'<tr><th scope="row"><label for="povikvane_consent_text">%1$s</label></th><td><textarea id="povikvane_consent_text" name="%2$s[consent_text]" rows="3" maxlength="400" class="large-text">%3$s</textarea><p class="description">%4$s</p></td></tr>',
-			esc_html__( 'Checkbox wording', 'povikvane-for-woocommerce' ),
-			esc_attr( $name ),
-			esc_textarea( $this->settings->consent_text() ),
-			esc_html__( 'Shown next to the unticked checkbox at checkout and in My Account. A short fingerprint of the wording is stored with each agreement.', 'povikvane-for-woocommerce' )
-		);
+		Ui::card_close();
 
+		Ui::card_open( __( 'When and how often', 'povikvane-for-woocommerce' ) );
+
+		Ui::field_open( __( 'Sending hours', 'povikvane-for-woocommerce' ), '', __( 'Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit.', 'povikvane-for-woocommerce' ) );
 		printf(
-			'<tr><th scope="row">%1$s</th><td>%2$s <input type="number" name="%3$s[quiet_open]" value="%4$d" min="0" max="23" class="small-text"> %5$s <input type="number" name="%3$s[quiet_close]" value="%6$d" min="0" max="23" class="small-text"><p class="description">%7$s</p></td></tr>',
-			esc_html__( 'Sending hours', 'povikvane-for-woocommerce' ),
-			esc_html__( 'from', 'povikvane-for-woocommerce' ),
+			'<div class="pvk-inline"><span>%1$s</span> <input type="number" name="%2$s[quiet_open]" value="%3$d" min="0" max="23" aria-label="%4$s"> <span>%5$s</span> <input type="number" name="%2$s[quiet_close]" value="%6$d" min="0" max="23" aria-label="%7$s"></div>',
+			esc_html__( 'From', 'povikvane-for-woocommerce' ),
 			esc_attr( $name ),
 			(int) $all['quiet_open'],
+			esc_attr__( 'Opening hour', 'povikvane-for-woocommerce' ),
 			esc_html__( 'to', 'povikvane-for-woocommerce' ),
 			(int) $all['quiet_close'],
-			esc_html__( 'Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit.', 'povikvane-for-woocommerce' )
+			esc_attr__( 'Closing hour', 'povikvane-for-woocommerce' )
 		);
+		Ui::field_close();
 
+		Ui::field_open( __( 'Frequency limit', 'povikvane-for-woocommerce' ), '', __( '0 turns the limit off.', 'povikvane-for-woocommerce' ) );
 		printf(
-			'<tr><th scope="row">%1$s</th><td><input type="number" name="%2$s[cap_max]" value="%3$d" min="0" max="100" class="small-text"> %4$s <input type="number" name="%2$s[cap_days]" value="%5$d" min="0" max="365" class="small-text"> %6$s<p class="description">%7$s</p></td></tr>',
-			esc_html__( 'Frequency limit', 'povikvane-for-woocommerce' ),
+			'<div class="pvk-inline"><input type="number" name="%1$s[cap_max]" value="%2$d" min="0" max="100" aria-label="%3$s"> <span>%4$s</span> <input type="number" name="%1$s[cap_days]" value="%5$d" min="0" max="365" aria-label="%6$s"> <span>%7$s</span></div>',
 			esc_attr( $name ),
 			(int) $all['cap_max'],
+			esc_attr__( 'Messages allowed', 'povikvane-for-woocommerce' ),
 			esc_html__( 'message(s) per phone number in', 'povikvane-for-woocommerce' ),
 			(int) $all['cap_days'],
-			esc_html__( 'days', 'povikvane-for-woocommerce' ),
-			esc_html__( '0 turns the limit off.', 'povikvane-for-woocommerce' )
+			esc_attr__( 'Period in days', 'povikvane-for-woocommerce' ),
+			esc_html__( 'days', 'povikvane-for-woocommerce' )
 		);
+		Ui::field_close();
 
+		Ui::card_close();
+
+		Ui::card_open( __( 'Review request', 'povikvane-for-woocommerce' ), __( 'Ask customers who agreed for feedback after their order is completed.', 'povikvane-for-woocommerce' ) );
+
+		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
+		Ui::toggle( $name . '[followup_enabled]', $all['followup_enabled'], __( 'Send a review request', 'povikvane-for-woocommerce' ) );
 		printf(
-			'<tr><th scope="row">%1$s</th><td><label><input type="checkbox" name="%2$s[followup_enabled]" value="1"%3$s> %4$s <input type="number" name="%2$s[followup_days]" value="%5$d" min="1" max="60" class="small-text"> %6$s</label><p><textarea name="%2$s[followup_template]" rows="3" maxlength="600" class="large-text" data-povikvane-template>%7$s</textarea><span class="povikvane-estimate description" aria-live="polite"></span></p><p class="description">%8$s</p></td></tr>',
-			esc_html__( 'Review request', 'povikvane-for-woocommerce' ),
+			'<div class="pvk-inline"><input type="number" name="%1$s[followup_days]" value="%2$d" min="1" max="60" aria-label="%3$s"> <span>%4$s</span></div>',
 			esc_attr( $name ),
-			checked( $all['followup_enabled'], true, false ),
-			esc_html__( 'Send a message', 'povikvane-for-woocommerce' ),
 			(int) $all['followup_days'],
-			esc_html__( 'days after an order is completed, to customers who agreed', 'povikvane-for-woocommerce' ),
-			esc_textarea( $this->settings->followup()->template ),
-			esc_html__( 'An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length.', 'povikvane-for-woocommerce' )
+			esc_attr__( 'Days after completion', 'povikvane-for-woocommerce' ),
+			esc_html__( 'days after an order is completed', 'povikvane-for-woocommerce' )
 		);
+		Ui::field_close();
 
-		echo '</table>';
+		Ui::field_open( __( 'Message', 'povikvane-for-woocommerce' ), 'povikvane_followup_template', __( 'An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length.', 'povikvane-for-woocommerce' ) );
+		printf(
+			'<textarea id="povikvane_followup_template" name="%1$s[followup_template]" rows="3" maxlength="600" data-povikvane-template>%2$s</textarea><div class="pvk-estimate povikvane-estimate" aria-live="polite"></div>',
+			esc_attr( $name ),
+			esc_textarea( $this->settings->followup()->template )
+		);
+		Ui::field_close();
+
+		Ui::card_close();
 
 		$count = $this->ledger->count_opted_in();
+
+		Ui::card_open( __( 'Customers who agreed', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'Opted in', 'povikvane-for-woocommerce' ), '', __( 'The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data.', 'povikvane-for-woocommerce' ) );
 		printf(
-			'<p>%1$s <a class="button" href="%2$s">%3$s</a></p><p class="description">%4$s</p>',
+			'<p><strong>%1$s</strong></p><p><a class="pvk-btn" href="%2$s">%3$s</a></p>',
 			esc_html(
 				sprintf(
 					/* translators: %d: number of customers. */
@@ -148,9 +163,10 @@ final class MarketingSection {
 				)
 			),
 			esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=povikvane_export_consents' ), 'povikvane_export_consents' ) ),
-			esc_html__( 'Download list (CSV)', 'povikvane-for-woocommerce' ),
-			esc_html__( 'The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data.', 'povikvane-for-woocommerce' )
+			esc_html__( 'Download list (CSV)', 'povikvane-for-woocommerce' )
 		);
+		Ui::field_close();
+		Ui::card_close();
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /**
- * Settings page helpers: copy buttons and a fresh "Credits available" figure.
+ * Settings screen helpers: copy buttons and a fresh "Credits" figure.
  */
 ( function () {
 	'use strict';
@@ -41,14 +41,15 @@
 	 */
 	function initBalance() {
 		var config = window.povikvaneStatus;
-		var target = document.getElementById( 'povikvane-balance' );
+		var amount = document.getElementById( 'povikvane-balance' );
+		var hint = document.getElementById( 'povikvane-balance-hint' );
 
-		if ( ! config || ! target || '1' !== target.getAttribute( 'data-refresh' ) ) {
+		if ( ! config || ! amount || '1' !== amount.getAttribute( 'data-refresh' ) ) {
 			return;
 		}
 
-		var age = parseInt( target.getAttribute( 'data-age' ), 10 );
-		var estimated = '1' === target.getAttribute( 'data-estimated' );
+		var age = parseInt( amount.getAttribute( 'data-age' ), 10 );
+		var estimated = '1' === amount.getAttribute( 'data-estimated' );
 
 		// Fresh enough: nothing to do.
 		if ( ! estimated && age >= 0 && age < config.maxAge ) {
@@ -64,8 +65,12 @@
 				return response.json();
 			} )
 			.then( function ( json ) {
-				if ( json && json.success && json.data && json.data.text ) {
-					target.textContent = json.data.text;
+				if ( json && json.success && json.data ) {
+					amount.textContent = json.data.amount;
+
+					if ( hint ) {
+						hint.textContent = json.data.hint;
+					}
 				}
 			} )
 			.catch( function () {
