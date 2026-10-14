@@ -30,8 +30,27 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<!-- The bootstrap defines WordPress stand-ins for unit tests. -->
+		<exclude-pattern>/tests/bootstrap.php</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.WP.AlternativeFunctions">
 		<!-- Tests read local fixture files. -->
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Test doubles share a file, and tests do not need exhaustive docblocks. -->
+	<rule ref="Generic.Files.OneObjectStructurePerFile">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionCommentThrowTag">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment">
 		<exclude-pattern>/tests/*</exclude-pattern>
 	</rule>
 

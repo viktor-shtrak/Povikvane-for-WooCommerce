@@ -1,0 +1,105 @@
+<?php
+/**
+ * Connection check and capability detection.
+ *
+ * @package Povikvane\WooCommerce
+ */
+
+declare( strict_types=1 );
+
+namespace Povikvane\WooCommerce\Api;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Finds out whether the credentials work and which optional endpoints exist.
+ *
+ * Optional endpoints (balance, lookup by reference) are behind flags on the
+ * Povikvane side and answer 404 while off, so a 404 means "not available", not
+ * an error. A failed probe (network trouble) keeps the previous knowledge.
+ */
+final class Capabilities {
+
+	public const OPTION = 'povikvane_capabilities';
+
+	public const CONNECTION_OK          = 'ok';
+	public const CONNECTION_AUTH        = 'auth';
+	public const CONNECTION_UNREACHABLE = 'unreachable';
+	public const CONNECTION_CONFIG      = 'config';
+	public const CONNECTION_UNKNOWN     = 'unknown';
+
+	/**
+	 * A UUID that never exists. A valid key answers 404 for it; a bad key answers 401.
+	 */
+	private const PROBE_MESSAGE_ID = '00000000-0000-0000-0000-000000000000';
+
+	/**
+	 * A reference no message has.
+	 */
+	private const PROBE_REFERENCE = 'povikvane:capability-probe';
+
+	/**
+	 * Check credentials and probe optional endpoints.
+	 *
+	 * @param Gateway             $gateway  API gateway.
+	 * @param array<string,mixed> $previous Previously stored result, kept where a probe is inconclusive.
+	 * @param int                 $now      Current time.
+	 * @return array{checked_at:int,connection:string,account:?bool,lookup:?bool,balance:?array<string,mixed>}
+	 */
+	public static function evaluate( Gateway $gateway, array $previous, int $now ): array {
+		$caps = array(
+			'checked_at' => $now,
+			'connection' => self::check_connection( $gateway ),
+			'account'    => self::bool_or_null( $previous['account'] ?? null ),
+			'lookup'     => self::bool_or_null( $previous['lookup'] ?? null ),
+			'balance'    => is_array( $previous['balance'] ?? null ) ? $previous['balance'] : null,
+		);
+
+		if ( self::CONNECTION_OK !== $caps['connection'] ) {
+			return $caps;
+		}
+
+		$account = $gateway->account();
+		if ( Outcome::Success === $account->outcome ) {
+			$caps['account'] = true;
+			$caps['balance'] = $account->attributes();
+		} elseif ( Outcome::NotFound === $account->outcome ) {
+			$caps['account'] = false;
+			$caps['balance'] = null;
+		}
+
+		$lookup = $gateway->find_by_reference( self::PROBE_REFERENCE );
+		if ( Outcome::Success === $lookup->outcome ) {
+			$caps['lookup'] = true;
+		} elseif ( Outcome::NotFound === $lookup->outcome ) {
+			$caps['lookup'] = false;
+		}
+
+		return $caps;
+	}
+
+	/**
+	 * Check that the credentials are accepted, without sending anything.
+	 *
+	 * @param Gateway $gateway API gateway.
+	 * @return string One of the CONNECTION_* constants.
+	 */
+	public static function check_connection( Gateway $gateway ): string {
+		return match ( $gateway->message_status( self::PROBE_MESSAGE_ID )->outcome ) {
+			Outcome::NotFound, Outcome::Success => self::CONNECTION_OK,
+			Outcome::AuthFailure                => self::CONNECTION_AUTH,
+			Outcome::Retryable, Outcome::Uncertain, Outcome::RateLimited, Outcome::InFlight => self::CONNECTION_UNREACHABLE,
+			Outcome::PermanentFailure           => self::CONNECTION_CONFIG,
+			default                             => self::CONNECTION_UNKNOWN,
+		};
+	}
+
+	/**
+	 * Coerce a stored value to bool or null.
+	 *
+	 * @param mixed $value Stored value.
+	 */
+	private static function bool_or_null( mixed $value ): ?bool {
+		return is_bool( $value ) ? $value : null;
+	}
+}

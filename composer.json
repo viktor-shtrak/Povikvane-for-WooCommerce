@@ -28,5 +28,10 @@
 		"lint": "phpcs",
 		"lint:fix": "phpcbf",
 		"test": "phpunit"
+	},
+	"autoload": {
+		"psr-4": {
+			"Povikvane\\WooCommerce\\": "src/"
+		}
 	}
 }

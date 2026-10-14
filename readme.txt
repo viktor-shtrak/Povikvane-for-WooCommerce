@@ -1,10 +1,10 @@
 === Povikvane SMS for WooCommerce ===
-Contributors: TODO-wordpress-org-username
+Contributors: shtrakbg
 Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.3
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 3. Enter your Povikvane API key and service ID in the plugin settings (available in a later version).
 
 == Changelog ==
+
+= 0.1.1 =
+* Added optional debug logging to WooCommerce > Status > Logs.
+* Settings page now shows whether the balance and lookup endpoints are enabled on the service.
 
 = 0.1.0 =
 * Initial development skeleton.
