@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce;
 
+defined( 'ABSPATH' ) || exit;
+
 use Povikvane\WooCommerce\Admin\BalanceAjax;
 use Povikvane\WooCommerce\Admin\BalanceNotice;
 use Povikvane\WooCommerce\Admin\ConnectionPanel;
@@ -81,8 +83,6 @@ use Povikvane\WooCommerce\Webhook\OptionActivity;
 use Povikvane\WooCommerce\Webhook\RestController;
 use Povikvane\WooCommerce\Webhook\Token;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
-
-defined( 'ABSPATH' ) || exit;
 
 /**
  * Wires the plugin together once WooCommerce is available and compatible.
