@@ -12,20 +12,31 @@ Send order status SMS notifications and opt-in marketing messages from WooCommer
 
 == Description ==
 
-Povikvane SMS for WooCommerce sends text messages to your customers when their order changes status, using your own Povikvane account.
+Povikvane SMS for WooCommerce sends text messages to your customers when their order changes status, using your own Povikvane account. A Povikvane account with message credits is required; the plugin does not work without one.
 
-A Povikvane account with message credits is required. The plugin does not work without one.
+**What it does**
 
-This is an early development version; features are being added.
+* Order messages: choose which statuses send a text (processing, completed, on hold, and more), edit the wording with placeholders such as the customer's name, order number and tracking link, and see the SMS length and credit estimate while you type.
+* Delivery tracking: each message is marked Delivered or Failed through a webhook and regular checks, with a note on the order.
+* Promotions (off by default): optional marketing messages to customers who agree at checkout or in My Account. Every promotional message carries an unsubscribe link, respects sending hours and a frequency limit, and checks consent again just before it is sent.
+* Message log: every message with its status, the reason when one was skipped, and a CSV export.
+* Credits: your balance is shown and kept current, with a warning when it runs low.
+* Safety: no messages for old orders, landline numbers or copied sites, and sending pauses if many messages are created at once.
+* Privacy tools: suggested policy text, and personal data export and erase for customers.
+* Works with the WooCommerce Blocks checkout, the classic checkout and High-Performance Order Storage.
+* Bulgarian and English are included. The plugin follows your site language, and you can choose another in the settings.
+
+A setup wizard opens after activation and walks you through connecting your account, choosing messages and sending a test.
 
 == External services ==
 
-This plugin connects to the Povikvane messaging API, operated by the provider of Povikvane, to send SMS messages and to check their delivery status. A Povikvane account is required.
+This plugin connects to the Povikvane messaging API, operated by the provider of Povikvane, to send messages and to check their delivery status. A Povikvane account is required.
 
 * Service: Povikvane messaging API (https://app.povikvane.com).
-* What is sent: the recipient phone number, the message text, and an order reference, for every message you configure the plugin to send. Delivery status requests send only the message identifier.
-* When it is sent: only when an enabled order event occurs, when an administrator sends a message or a test message manually, and when the plugin checks the delivery status of messages it has sent. Marketing messages are only sent to customers who gave consent.
-* Your API key and service ID are stored in your site database (encrypted) and are sent to the service to authenticate each request.
+* What is sent: the recipient phone number, the message text and an order reference, for every message you configure the plugin to send. Delivery status requests send only the message identifier. Balance requests send only your credentials.
+* When it is sent: only when an enabled order event occurs, when an administrator sends a message or a test message manually, when the plugin checks the delivery status of messages it has sent, and when it refreshes your credit balance. Promotional messages are only sent to customers who gave consent.
+* Your API key and service ID are stored in your site database (the key is encrypted) and are sent to the service to authenticate each request.
+* The service sends delivery reports back to your site at a secret address shown in the plugin settings. No customer data is sent to the service by this.
 * Terms of Service: TODO add URL.
 * Privacy Policy: TODO add URL.
 
@@ -33,7 +44,29 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it from the Plugins screen.
 2. Activate the plugin. WooCommerce 11.0 or newer is required.
-3. Enter your Povikvane API key and service ID in the plugin settings (available in a later version).
+3. Follow the setup wizard that opens, or go to WooCommerce > Povikvane SMS. Enter your Povikvane API key and service ID, choose your messages and send a test.
+
+== Frequently Asked Questions ==
+
+= Do I need a Povikvane account? =
+
+Yes. The plugin sends messages through your own Povikvane account and uses its credits.
+
+= Will customers get promotional messages without asking? =
+
+No. Promotions are off by default, and only customers who tick the consent box, at checkout or in My Account, receive them. Order status messages are separate and describe the customer's own order.
+
+= How do customers unsubscribe? =
+
+Every promotional message contains an unsubscribe link. A customer can also change their choice in My Account.
+
+= What happens when my credits run out? =
+
+Messages wait and are sent once credits are available, and you see a notice in the admin. A message that waits too long is dropped rather than sent late.
+
+= Can I send in Bulgarian? =
+
+Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
 

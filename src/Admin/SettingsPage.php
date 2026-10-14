@@ -102,6 +102,8 @@ final class SettingsPage {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		// options.php asks for manage_options by default; shop managers use this page too.
+		add_filter( 'option_page_capability_' . self::GROUP, static fn(): string => self::CAPABILITY );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_post_povikvane_check_connection', array( $this, 'handle_check_connection' ) );
 		add_action( 'admin_post_povikvane_send_test', array( $this, 'handle_send_test' ) );
