@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-14 15:29+0300\n"
+"POT-Creation-Date: 2026-10-14 15:42+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/Admin/BalanceNotice.php:61 src/Admin/Layout.php:40
 #: src/Admin/OrderMetabox.php:78 src/Admin/PauseControls.php:61
-#: src/Admin/SettingsPage.php:116 src/Admin/SettingsPage.php:117
+#: src/Admin/SettingsPage.php:118 src/Admin/SettingsPage.php:119
 #: src/Admin/SetupNotice.php:64
 msgid "Povikvane SMS"
 msgstr ""
@@ -217,7 +217,7 @@ msgstr ""
 
 #: src/Admin/DeliveryPanel.php:124 src/Admin/MarketingSection.php:179
 #: src/Admin/MessageLogPage.php:284 src/Admin/OrderMetabox.php:157
-#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:368
+#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:370
 #: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:679
 msgid "You do not have permission to do that."
 msgstr ""
@@ -450,13 +450,13 @@ msgstr ""
 msgid "Povikvane messages"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:105 src/Admin/SettingsPage.php:204
+#: src/Admin/MessageLogPage.php:105 src/Admin/SettingsPage.php:206
 #: src/Admin/SetupWizard.php:166
 msgid "You do not have permission to access this page."
 msgstr ""
 
 #: src/Admin/MessageLogPage.php:117 src/Admin/Navigation.php:56
-#: src/Admin/SettingsPage.php:240
+#: src/Admin/SettingsPage.php:242
 msgid "Message log"
 msgstr ""
 
@@ -484,25 +484,25 @@ msgstr ""
 msgid "The message was queued again."
 msgstr ""
 
-#: src/Admin/Navigation.php:31 src/Admin/SettingsPage.php:219
+#: src/Admin/Navigation.php:31 src/Admin/SettingsPage.php:221
 msgid "Overview"
 msgstr ""
 
 #: src/Admin/Navigation.php:36 src/Admin/OverviewPanel.php:118
-#: src/Admin/SettingsPage.php:223
+#: src/Admin/SettingsPage.php:225
 msgid "Connection"
 msgstr ""
 
-#: src/Admin/Navigation.php:41 src/Admin/SettingsPage.php:228
+#: src/Admin/Navigation.php:41 src/Admin/SettingsPage.php:230
 #: src/Admin/SetupWizard.php:620
 msgid "Messages"
 msgstr ""
 
-#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:232
+#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:234
 msgid "Promotions"
 msgstr ""
 
-#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:236
+#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:238
 msgid "Safety & data"
 msgstr ""
 
@@ -710,7 +710,7 @@ msgstr ""
 msgid "Many messages at once: review and release them."
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:152 src/Admin/SettingsPage.php:388
+#: src/Admin/OverviewPanel.php:152 src/Admin/SettingsPage.php:390
 msgid "The API key or service ID was rejected."
 msgstr ""
 
@@ -942,31 +942,31 @@ msgstr ""
 msgid "Otherwise numbers are shortened."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:272
+#: src/Admin/SettingsPage.php:274
 msgid "Save changes"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:273
+#: src/Admin/SettingsPage.php:275
 msgid "You have unsaved changes"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:274
+#: src/Admin/SettingsPage.php:276
 msgid "All changes saved"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:387
+#: src/Admin/SettingsPage.php:389
 msgid "Connected."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:389
+#: src/Admin/SettingsPage.php:391
 msgid "The service could not be reached."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:390
+#: src/Admin/SettingsPage.php:392
 msgid "The service rejected the request; check the service ID."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:391
+#: src/Admin/SettingsPage.php:393
 msgid "Not checked yet."
 msgstr ""
 
@@ -1392,7 +1392,7 @@ msgid "Suggested wording. Review and adapt it to how you use the plugin."
 msgstr ""
 
 #: src/Privacy/Privacy.php:68
-msgid "When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them, so your phone number and the message text are passed to that service."
+msgid "When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them on our behalf, so your phone number and the message text are passed to that service."
 msgstr ""
 
 #: src/Privacy/Privacy.php:69

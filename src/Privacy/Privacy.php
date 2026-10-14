@@ -65,7 +65,7 @@ final class Privacy {
 
 		$text  = '<h2>' . esc_html__( 'SMS messages', 'povikvane-for-woocommerce' ) . '</h2>';
 		$text .= '<p class="privacy-policy-tutorial">' . esc_html__( 'Suggested wording. Review and adapt it to how you use the plugin.', 'povikvane-for-woocommerce' ) . '</p>';
-		$text .= '<p>' . esc_html__( 'When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them, so your phone number and the message text are passed to that service.', 'povikvane-for-woocommerce' ) . '</p>';
+		$text .= '<p>' . esc_html__( 'When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them on our behalf, so your phone number and the message text are passed to that service.', 'povikvane-for-woocommerce' ) . '</p>';
 		$text .= '<p>' . esc_html__( 'If you agreed to it, we also send occasional promotional text messages. You can withdraw your agreement at any time using the link in each message or in your account. We keep a record of your agreement and of any withdrawal.', 'povikvane-for-woocommerce' ) . '</p>';
 		$text .= '<p>' . esc_html__( 'We keep the text of messages for a limited time and the record of each message (order, status, phone number) for longer, as set in the plugin settings.', 'povikvane-for-woocommerce' ) . '</p>';
 

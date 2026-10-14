@@ -12,7 +12,7 @@ Send order status SMS notifications and opt-in marketing messages from WooCommer
 
 == Description ==
 
-Povikvane SMS for WooCommerce sends text messages to your customers when their order changes status, using your own Povikvane account. A Povikvane account with message credits is required; the plugin does not work without one.
+Povikvane SMS for WooCommerce sends text messages to your customers when their order changes status, using your own Povikvane account. A Povikvane account with message credits is required; the plugin does not work without one. Povikvane accounts are for businesses (companies and sole traders in the EU).
 
 **What it does**
 
@@ -35,10 +35,11 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 * Service: Povikvane messaging API (https://app.povikvane.com).
 * What is sent: the recipient phone number, the message text and an order reference, for every message you configure the plugin to send. Delivery status requests send only the message identifier. Balance requests send only your credentials.
 * When it is sent: only when an enabled order event occurs, when an administrator sends a message or a test message manually, when the plugin checks the delivery status of messages it has sent, and when it refreshes your credit balance. Promotional messages are only sent to customers who gave consent.
+* Your customers' phone numbers belong to your shop, which decides why and how they are used. Povikvane sends the messages on your behalf and keeps a record of them for up to 12 months; see its Privacy Policy.
 * Your API key and service ID are stored in your site database (the key is encrypted) and are sent to the service to authenticate each request.
 * The service sends delivery reports back to your site at a secret address shown in the plugin settings. No customer data is sent to the service by this.
-* Terms of Service: TODO add URL.
-* Privacy Policy: TODO add URL.
+* Terms of Service: https://app.povikvane.com/terms
+* Privacy Policy: https://app.povikvane.com/privacy
 
 == Installation ==
 
@@ -50,7 +51,7 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 
 = Do I need a Povikvane account? =
 
-Yes. The plugin sends messages through your own Povikvane account and uses its credits.
+Yes. The plugin sends messages through your own Povikvane account and uses its credits. Povikvane is offered to businesses registered in Bulgaria or another EU country.
 
 = Will customers get promotional messages without asking? =
 
