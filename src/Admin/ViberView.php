@@ -28,7 +28,6 @@ final class ViberView {
 		return match ( $status ) {
 			Capabilities::VIBER_READY            => __( 'Viber is available on your account.', 'povikvane-for-woocommerce' ),
 			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_NO_SENDER        => __( 'Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS.', 'povikvane-for-woocommerce' ),
 			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day.', 'povikvane-for-woocommerce' ),
 			default                              => __( 'Viber has not been checked yet. Open the Connection tab and press "Check connection".', 'povikvane-for-woocommerce' ),
 		};

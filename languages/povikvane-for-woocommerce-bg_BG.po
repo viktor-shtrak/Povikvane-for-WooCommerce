@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-15 13:43+0300\n"
+"POT-Creation-Date: 2026-10-15 13:57+0300\n"
 "PO-Revision-Date: 2026-10-14 16:00+0300\n"
 "Last-Translator: Povikvane <support@povikvane.com>\n"
 "Language-Team: Bulgarian\n"
@@ -1384,8 +1384,8 @@ msgid "Test message queued. It should reach your phone within a minute."
 msgstr "Тестовото съобщение е добавено в опашката. Трябва да стигне до телефона ви до минута."
 
 #: src/Admin/ViberPanel.php:39
-msgid "Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs a Viber sender on your Povikvane account and an approved transactional template."
-msgstr "Изпращайте известия за поръчки през Viber, с автоматичен SMS, ако Viber не може да достави съобщението. Нужни са Viber изпращач във вашия акаунт в Povikvane и одобрен транзакционен шаблон."
+msgid "Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs an approved transactional template in your Povikvane account."
+msgstr "Изпращайте известия за поръчки през Viber, с автоматичен SMS, ако Viber не може да достави съобщението. Нужен е одобрен транзакционен шаблон във вашия акаунт в Povikvane."
 
 #: src/Admin/ViberPanel.php:42
 msgid "Available"
@@ -1424,30 +1424,26 @@ msgid "Viber is not available yet: Viber templates are not switched on for your 
 msgstr "Viber още не е наличен: шаблоните за Viber не са включени за вашия акаунт в Povikvane. Съобщенията за поръчки се изпращат като SMS. Тази страница ще предложи Viber, щом стане наличен."
 
 #: src/Admin/ViberView.php:31
-msgid "Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS."
-msgstr "Viber още не е наличен: вашият акаунт в Povikvane няма Viber изпращач. Съобщенията за поръчки се изпращат като SMS."
-
-#: src/Admin/ViberView.php:32
 msgid "Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day."
 msgstr "Viber е на пауза: Povikvane още не е включил резервния SMS за вашия акаунт, затова съобщенията за поръчки се изпращат като SMS. Добавката опитва отново всеки ден."
 
-#: src/Admin/ViberView.php:33
+#: src/Admin/ViberView.php:32
 msgid "Viber has not been checked yet. Open the Connection tab and press \"Check connection\"."
 msgstr "Viber още не е проверен. Отворете раздел „Връзка“ и натиснете „Провери връзката“."
 
-#: src/Admin/ViberView.php:44
+#: src/Admin/ViberView.php:43
 msgid "awaiting approval"
 msgstr "чака одобрение"
 
-#: src/Admin/ViberView.php:45
+#: src/Admin/ViberView.php:44
 msgid "not transactional"
 msgstr "не е транзакционен"
 
-#: src/Admin/ViberView.php:46
+#: src/Admin/ViberView.php:45
 msgid "has a variable the plugin cannot fill"
 msgstr "има променлива, която добавката не може да попълни"
 
-#: src/Admin/ViberView.php:47
+#: src/Admin/ViberView.php:46
 msgid "contains a link"
 msgstr "съдържа връзка"
 

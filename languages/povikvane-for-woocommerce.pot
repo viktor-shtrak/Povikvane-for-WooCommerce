@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.6.2\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-15 13:44+0300\n"
+"POT-Creation-Date: 2026-10-15 13:57+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1388,7 +1388,7 @@ msgid "Test message queued. It should reach your phone within a minute."
 msgstr ""
 
 #: src/Admin/ViberPanel.php:39
-msgid "Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs a Viber sender on your Povikvane account and an approved transactional template."
+msgid "Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs an approved transactional template in your Povikvane account."
 msgstr ""
 
 #: src/Admin/ViberPanel.php:42
@@ -1428,30 +1428,26 @@ msgid "Viber is not available yet: Viber templates are not switched on for your 
 msgstr ""
 
 #: src/Admin/ViberView.php:31
-msgid "Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS."
-msgstr ""
-
-#: src/Admin/ViberView.php:32
 msgid "Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day."
 msgstr ""
 
-#: src/Admin/ViberView.php:33
+#: src/Admin/ViberView.php:32
 msgid "Viber has not been checked yet. Open the Connection tab and press \"Check connection\"."
 msgstr ""
 
-#: src/Admin/ViberView.php:44
+#: src/Admin/ViberView.php:43
 msgid "awaiting approval"
 msgstr ""
 
-#: src/Admin/ViberView.php:45
+#: src/Admin/ViberView.php:44
 msgid "not transactional"
 msgstr ""
 
-#: src/Admin/ViberView.php:46
+#: src/Admin/ViberView.php:45
 msgid "has a variable the plugin cannot fill"
 msgstr ""
 
-#: src/Admin/ViberView.php:47
+#: src/Admin/ViberView.php:46
 msgid "contains a link"
 msgstr ""
 

@@ -357,7 +357,7 @@ final class ViberTest extends TestCase {
 	// ---- Availability ----
 
 	/**
-	 * Viber needs a Viber sender, the templates endpoint and no refusal of the fallback.
+	 * Viber needs the templates endpoint and no refusal of the fallback; the sender list does not matter.
 	 */
 	public function test_viber_ready(): void {
 		$ready = array(
@@ -370,7 +370,8 @@ final class ViberTest extends TestCase {
 		$this->assertFalse( Capabilities::viber_ready( array_merge( $ready, array( 'fallback' => false ) ) ) );
 		$this->assertFalse( Capabilities::viber_ready( array_merge( $ready, array( 'templates' => false ) ) ) );
 		$this->assertFalse( Capabilities::viber_ready( array_merge( $ready, array( 'templates' => null ) ) ) );
-		$this->assertFalse( Capabilities::viber_ready( array_merge( $ready, array( 'balance' => array( 'channels' => array( 'sms' ) ) ) ) ) );
+		$this->assertTrue( Capabilities::viber_ready( array_merge( $ready, array( 'balance' => array( 'channels' => array( 'sms' ) ) ) ) ), 'shared sender' );
+		$this->assertTrue( Capabilities::viber_ready( array( 'templates' => true ) ), 'no account data needed' );
 		$this->assertFalse( Capabilities::viber_ready( '' ) );
 	}
 
@@ -430,16 +431,7 @@ final class ViberTest extends TestCase {
 		$this->assertSame( Capabilities::VIBER_NOT_CHECKED, Capabilities::viber_status( '' ) );
 		$this->assertSame( Capabilities::VIBER_NOT_CHECKED, Capabilities::viber_status( array( 'templates' => null ) ) );
 		$this->assertSame( Capabilities::VIBER_TEMPLATES_OFF, Capabilities::viber_status( array( 'templates' => false ) + $channels ) );
-		$this->assertSame( Capabilities::VIBER_NOT_CHECKED, Capabilities::viber_status( array( 'templates' => true ) ) );
-		$this->assertSame(
-			Capabilities::VIBER_NO_SENDER,
-			Capabilities::viber_status(
-				array(
-					'templates' => true,
-					'balance'   => array( 'channels' => array( 'sms' ) ),
-				)
-			)
-		);
+		$this->assertSame( Capabilities::VIBER_READY, Capabilities::viber_status( array( 'templates' => true ) ) );
 		$this->assertSame(
 			Capabilities::VIBER_FALLBACK_REFUSED,
 			Capabilities::viber_status(

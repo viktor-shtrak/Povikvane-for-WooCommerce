@@ -91,12 +91,12 @@ final class Capabilities {
 	public const VIBER_READY            = 'ready';
 	public const VIBER_NOT_CHECKED      = 'not_checked';
 	public const VIBER_TEMPLATES_OFF    = 'templates_off';
-	public const VIBER_NO_SENDER        = 'no_sender';
 	public const VIBER_FALLBACK_REFUSED = 'fallback_refused';
 
 	/**
-	 * Whether Viber can be used: the account has a Viber sender, the API offers the
-	 * templates endpoint, and the service has not refused the SMS fallback.
+	 * Whether Viber can be used: the API offers the templates endpoint and the service
+	 * has not refused the SMS fallback. The account's own sender list is not consulted,
+	 * because accounts without their own originator send through Povikvane's.
 	 *
 	 * @param mixed $stored The stored capabilities option.
 	 */
@@ -117,16 +117,6 @@ final class Capabilities {
 
 		if ( true !== $stored['templates'] ) {
 			return self::VIBER_TEMPLATES_OFF;
-		}
-
-		if ( ! is_array( $stored['balance'] ?? null ) ) {
-			return self::VIBER_NOT_CHECKED;
-		}
-
-		$channels = $stored['balance']['channels'] ?? null;
-
-		if ( ! is_array( $channels ) || ! in_array( 'viber', $channels, true ) ) {
-			return self::VIBER_NO_SENDER;
 		}
 
 		return false === ( $stored['fallback'] ?? null ) ? self::VIBER_FALLBACK_REFUSED : self::VIBER_READY;

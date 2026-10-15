@@ -36,7 +36,7 @@ final class ViberPanel {
 		$status    = Capabilities::viber_status( get_option( Capabilities::OPTION, array() ) );
 		$templates = $this->catalog->all();
 
-		Ui::card_open( __( 'Viber', 'povikvane-for-woocommerce' ), __( 'Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs a Viber sender on your Povikvane account and an approved transactional template.', 'povikvane-for-woocommerce' ) );
+		Ui::card_open( __( 'Viber', 'povikvane-for-woocommerce' ), __( 'Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs an approved transactional template in your Povikvane account.', 'povikvane-for-woocommerce' ) );
 
 		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
 		echo Ui::pill( Capabilities::VIBER_READY === $status ? __( 'Available', 'povikvane-for-woocommerce' ) : __( 'Not available', 'povikvane-for-woocommerce' ), Capabilities::VIBER_READY === $status ? 'ok' : 'warn' ) . ' ' . esc_html( ViberView::reason( $status ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html().
