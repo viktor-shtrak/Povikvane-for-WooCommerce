@@ -11,6 +11,7 @@ namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Balance\BalanceStore;
+use Povikvane\WooCommerce\Reports\DeliveryReport;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
@@ -41,7 +42,15 @@ final class SettingsPage {
 	/**
 	 * Tab IDs, in order.
 	 */
-	private const TABS = array( 'overview', 'connection', 'messages', 'promotions', 'safety' );
+	private const TABS = array( 'overview', 'messages', 'promotions', 'settings', 'advanced' );
+
+	/**
+	 * Old tab IDs that still work in bookmarks and links.
+	 */
+	private const TAB_ALIASES = array(
+		'connection' => 'settings',
+		'safety'     => 'advanced',
+	);
 
 	/**
 	 * Runs a capability probe now.
@@ -69,7 +78,7 @@ final class SettingsPage {
 	 * @param MarketingSection  $marketing  Promotional settings.
 	 * @param OverviewPanel     $overview   Overview tab.
 	 * @param ConnectionPanel   $connection Connection tab.
-	 * @param SafetyPanel       $safety     Safety and data tab.
+	 * @param AdvancedPanel     $advanced   Advanced tab.
 	 * @param WebhookActivity   $activity   Last delivery report.
 	 * @param TestSender        $tester     Sends test messages.
 	 * @param SettingsSanitizer $sanitizer  Validates submitted settings.
@@ -86,7 +95,7 @@ final class SettingsPage {
 		private readonly MarketingSection $marketing,
 		private readonly OverviewPanel $overview,
 		private readonly ConnectionPanel $connection,
-		private readonly SafetyPanel $safety,
+		private readonly AdvancedPanel $advanced,
 		private readonly WebhookActivity $activity,
 		private readonly TestSender $tester,
 		private readonly SettingsSanitizer $sanitizer,
@@ -220,11 +229,7 @@ final class SettingsPage {
 				array(
 					'id'    => 'overview',
 					'label' => __( 'Overview', 'povikvane-for-woocommerce' ),
-				),
-				array(
-					'id'    => 'connection',
-					'label' => __( 'Connection', 'povikvane-for-woocommerce' ),
-					'dot'   => Capabilities::CONNECTION_OK !== $data->connection,
+					'dot'   => array() !== $data->attention,
 				),
 				array(
 					'id'    => 'messages',
@@ -235,8 +240,13 @@ final class SettingsPage {
 					'label' => __( 'Promotions', 'povikvane-for-woocommerce' ),
 				),
 				array(
-					'id'    => 'safety',
-					'label' => __( 'Safety & data', 'povikvane-for-woocommerce' ),
+					'id'    => 'settings',
+					'label' => __( 'Settings', 'povikvane-for-woocommerce' ),
+					'dot'   => Capabilities::CONNECTION_OK !== $data->connection,
+				),
+				array(
+					'id'    => 'advanced',
+					'label' => __( 'Advanced', 'povikvane-for-woocommerce' ),
 				),
 				array(
 					'id'    => 'log',
@@ -254,10 +264,6 @@ final class SettingsPage {
 		$this->overview->render( $data );
 		echo '</div>';
 
-		$this->panel_open( 'connection' );
-		$this->connection->render( $values );
-		echo '</div>';
-
 		$this->panel_open( 'messages' );
 		$this->templates->render();
 		echo '</div>';
@@ -266,8 +272,12 @@ final class SettingsPage {
 		$this->marketing->render();
 		echo '</div>';
 
-		$this->panel_open( 'safety' );
-		$this->safety->render( $values );
+		$this->panel_open( 'settings' );
+		$this->connection->render( $values );
+		echo '</div>';
+
+		$this->panel_open( 'advanced' );
+		$this->advanced->render( $values );
 		echo '</div>';
 
 		printf(
@@ -303,7 +313,19 @@ final class SettingsPage {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only choice of which tab to show.
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
 
+		$tab = self::TAB_ALIASES[ $tab ] ?? $tab;
+
 		return in_array( $tab, self::TABS, true ) ? $tab : 'overview';
+	}
+
+	/**
+	 * The reporting period chosen on the Overview, in days.
+	 */
+	private function requested_range(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only choice of the reporting period.
+		$days = isset( $_GET['range'] ) ? absint( wp_unslash( $_GET['range'] ) ) : 30;
+
+		return in_array( $days, array( 7, 30, 90 ), true ) ? $days : 30;
 	}
 
 	/**
@@ -316,6 +338,9 @@ final class SettingsPage {
 
 		$last_report = $this->activity->last();
 		$overdue     = $this->repository->oldest_overdue( time() );
+		$balance     = $this->balances->get();
+		$days        = $this->requested_range();
+		$report      = DeliveryReport::from_rows( $this->repository->summary( time() - $days * DAY_IN_SECONDS ) );
 
 		return new OverviewData(
 			$connection,
@@ -329,8 +354,38 @@ final class SettingsPage {
 			$this->repository->recent( 5 ),
 			$this->progress->checklist(),
 			admin_url( 'admin.php?page=' . SetupWizard::SLUG ),
-			admin_url( 'admin.php?page=' . MessageLogPage::SLUG )
+			admin_url( 'admin.php?page=' . MessageLogPage::SLUG ),
+			'',
+			$report,
+			AttentionItems::build(
+				$connection,
+				$this->state->paused_reason(),
+				null === $balance ? null : $balance->available,
+				$this->settings->low_balance_threshold(),
+				null === $overdue ? 0 : time() - $overdue,
+				$report,
+				null !== $last_report,
+				$this->templates->viber_fallback_count(),
+				Capabilities::viber_status( $caps ),
+				array(
+					'settings' => $this->tab_url( 'settings' ),
+					'messages' => $this->tab_url( 'messages' ),
+					'failed'   => add_query_arg( 'view', 'attention', admin_url( 'admin.php?page=' . MessageLogPage::SLUG ) ),
+					'app'      => 'https://app.povikvane.com/',
+				)
+			),
+			$days,
+			$this->tab_url( 'overview' )
 		);
+	}
+
+	/**
+	 * Address of one tab.
+	 *
+	 * @param string $tab Tab ID.
+	 */
+	private function tab_url( string $tab ): string {
+		return admin_url( 'admin.php?page=' . self::SLUG . '&tab=' . $tab );
 	}
 
 	/**

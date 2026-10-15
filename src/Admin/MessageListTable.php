@@ -13,6 +13,7 @@ use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\MessageQuery;
 use Povikvane\WooCommerce\Log\Repository;
+use Povikvane\WooCommerce\Messages\ErrorExplainer;
 use Povikvane\WooCommerce\Messages\Status;
 use Povikvane\WooCommerce\Support\Mask;
 use Povikvane\WooCommerce\Support\SkipLabels;
@@ -53,6 +54,7 @@ final class MessageListTable extends WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
+			'cb'      => '<input type="checkbox" aria-label="' . esc_attr__( 'Select all messages that can be sent again', 'povikvane-for-woocommerce' ) . '">',
 			'created' => __( 'Time', 'povikvane-for-woocommerce' ),
 			'order'   => __( 'Order', 'povikvane-for-woocommerce' ),
 			'event'   => __( 'Event', 'povikvane-for-woocommerce' ),
@@ -90,6 +92,15 @@ final class MessageListTable extends WP_List_Table {
 	 */
 	protected function column_default( $item, $column_name ): string {
 		return '';
+	}
+
+	/**
+	 * Checkbox column: only messages that can be sent again get one.
+	 *
+	 * @param Message $item Row.
+	 */
+	protected function column_cb( $item ): string {
+		return $this->can_resend( $item ) ? '<input type="checkbox" name="ids[]" value="' . (int) $item->id . '" aria-label="' . esc_attr__( 'Select this message', 'povikvane-for-woocommerce' ) . '">' : '';
 	}
 
 	/**
@@ -184,6 +195,10 @@ final class MessageListTable extends WP_List_Table {
 			return esc_html( SkipLabels::text( $item->skip_reason ) );
 		}
 
+		if ( in_array( $item->status, array( Status::Failed, Status::Unconfirmed ), true ) ) {
+			return '<span title="' . esc_attr( (string) $item->error_detail ) . '">' . esc_html( ErrorExplainer::explain( $item ) ) . '</span>';
+		}
+
 		return esc_html( (string) $item->error_detail );
 	}
 
@@ -220,6 +235,13 @@ final class MessageListTable extends WP_List_Table {
 		);
 
 		submit_button( __( 'Filter', 'povikvane-for-woocommerce' ), '', 'filter_action', false );
+
+		printf(
+			' <button type="submit" class="button" formmethod="post" formaction="%1$s" name="action" value="povikvane_bulk_resend" data-povikvane-confirm="%2$s">%3$s</button>',
+			esc_url( admin_url( 'admin-post.php' ) ),
+			esc_attr__( 'Send the selected messages again? A customer may receive one twice if the first was actually delivered.', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Resend selected', 'povikvane-for-woocommerce' )
+		);
 
 		echo '</div>';
 	}

@@ -109,4 +109,46 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 	}
 }
 
+// Stand-ins for the WordPress translation and number helpers: the text comes back untranslated.
+// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+if ( ! function_exists( '__' ) ) {
+	/**
+	 * Untranslated text.
+	 *
+	 * @param string $text   Text.
+	 * @param string $domain Text domain.
+	 */
+	function __( string $text, string $domain = 'default' ): string {
+		return $text;
+	}
+}
+
+if ( ! function_exists( '_n' ) ) {
+	/**
+	 * Untranslated singular or plural text.
+	 *
+	 * @param string $single Singular text.
+	 * @param string $plural Plural text.
+	 * @param int    $number Number.
+	 * @param string $domain Text domain.
+	 */
+	function _n( string $single, string $plural, int $number, string $domain = 'default' ): string {
+		return 1 === $number ? $single : $plural;
+	}
+}
+
+if ( ! function_exists( 'number_format_i18n' ) ) {
+	/**
+	 * Plain number formatting.
+	 *
+	 * @param float $number   Number.
+	 * @param int   $decimals Decimals.
+	 */
+	function number_format_i18n( float $number, int $decimals = 0 ): string {
+		return number_format( $number, $decimals, '.', ',' );
+	}
+}
+
+// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter
+
 require_once __DIR__ . '/Support/Fakes.php';

@@ -11,6 +11,8 @@ namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Setup\SetupChecklist;
+use Povikvane\WooCommerce\Messages\ErrorExplainer;
+use Povikvane\WooCommerce\Messages\Status;
 use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Support\Mask;
 use Povikvane\WooCommerce\Support\SendingState;
@@ -25,7 +27,6 @@ defined( 'ABSPATH' ) || exit;
  */
 final class OverviewPanel {
 
-	private const QUEUE_WARNING_SECONDS = 600;
 
 	/**
 	 * Print the panel.
@@ -33,12 +34,14 @@ final class OverviewPanel {
 	 * @param OverviewData $data What to show.
 	 */
 	public function render( OverviewData $data ): void {
+		$this->render_attention( $data );
+
 		if ( ! SetupChecklist::is_complete( $data->checklist ) ) {
 			$this->render_checklist( $data );
 		}
 
 		$this->render_tiles( $data );
-		$this->render_alerts( $data );
+		$this->render_report( $data );
 		$this->render_test();
 		$this->render_recent( $data );
 	}
@@ -174,21 +177,99 @@ final class OverviewPanel {
 	}
 
 	/**
-	 * Warnings that need action.
+	 * What needs attention, each with the button that fixes it.
 	 *
 	 * @param OverviewData $data What to show.
 	 */
-	private function render_alerts( OverviewData $data ): void {
-		if ( $data->queue_late > self::QUEUE_WARNING_SECONDS ) {
-			Ui::note(
-				sprintf(
-					/* translators: %d: minutes. */
-					__( 'The message queue is running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly.', 'povikvane-for-woocommerce' ),
-					(int) floor( $data->queue_late / 60 )
-				),
-				'warn'
+	private function render_attention( OverviewData $data ): void {
+		if ( array() === $data->attention ) {
+			return;
+		}
+
+		Ui::card_open( __( 'Needs attention', 'povikvane-for-woocommerce' ) );
+		echo '<div class="pvk-attn-list">';
+
+		foreach ( $data->attention as $item ) {
+			printf(
+				'<div class="pvk-attn pvk-attn--%1$s"><div><strong>%2$s</strong><p>%3$s</p></div>',
+				esc_attr( $item['tone'] ),
+				esc_html( $item['title'] ),
+				esc_html( $item['text'] )
+			);
+
+			if ( '' !== $item['label'] && '' !== $item['url'] ) {
+				printf(
+					'<a class="pvk-btn" href="%1$s"%2$s>%3$s</a>',
+					esc_url( $item['url'] ),
+					$item['external'] ? ' target="_blank" rel="noopener noreferrer"' : '',
+					esc_html( $item['label'] )
+				);
+			}
+
+			echo '</div>';
+		}
+
+		echo '</div>';
+		Ui::card_close();
+	}
+
+	/**
+	 * Results of the chosen period.
+	 *
+	 * @param OverviewData $data What to show.
+	 */
+	private function render_report( OverviewData $data ): void {
+		$report = $data->report;
+
+		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px"><h2 class="pvk-card__title">' . esc_html__( 'Results', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-views">';
+
+		foreach ( array( 7, 30, 90 ) as $days ) {
+			printf(
+				'<a href="%1$s"%2$s>%3$s</a>',
+				esc_url( add_query_arg( 'range', $days, '' !== $data->overview_url ? $data->overview_url : '' ) ),
+				$days === $data->range_days ? ' class="is-current"' : '',
+				esc_html(
+					sprintf(
+						/* translators: %d: number of days. */
+						_n( 'Last %d day', 'Last %d days', $days, 'povikvane-for-woocommerce' ),
+						$days
+					)
+				)
 			);
 		}
+
+		echo '</p></div>';
+
+		if ( null === $report || 0 === $report->sent() ) {
+			echo '<div class="pvk-empty">' . esc_html__( 'No messages in this period yet.', 'povikvane-for-woocommerce' ) . '</div></section>';
+			return;
+		}
+
+		$rate = $report->rate();
+
+		echo '<div class="pvk-tiles">';
+		Ui::tile( __( 'Sent', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->sent() ) ), 0 === $report->skipped ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d not sent on purpose', 'povikvane-for-woocommerce' ), $report->skipped ) );
+		Ui::tile( __( 'Delivered', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->delivered ) ), null === $rate ? '' : sprintf( /* translators: %s: percentage. */ __( '%s%% of finished messages', 'povikvane-for-woocommerce' ), number_format_i18n( $rate, 1 ) ) );
+		Ui::tile( __( 'Did not arrive', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->failed + $report->unconfirmed ) ), 0 === $report->unconfirmed ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d could not be confirmed', 'povikvane-for-woocommerce' ), $report->unconfirmed ) );
+		Ui::tile( __( 'Credits used', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->credits, 1 ) ) );
+
+		if ( $report->viber_sent > 0 ) {
+			Ui::tile( __( 'Viber', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->viber_sent ) ), sprintf( /* translators: %d: number of messages. */ __( '%d fell back to SMS', 'povikvane-for-woocommerce' ), $report->fallbacks ) );
+		}
+
+		echo '</div>';
+
+		$total = max( 1, $report->sent() );
+
+		printf(
+			'<div class="pvk-bar" role="img" aria-label="%1$s"><span class="pvk-bar__ok" style="width:%2$s%%"></span><span class="pvk-bar__bad" style="width:%3$s%%"></span><span class="pvk-bar__warn" style="width:%4$s%%"></span></div>',
+			esc_attr__( 'Share of delivered, failed and unconfirmed messages', 'povikvane-for-woocommerce' ),
+			esc_attr( (string) round( 100 * $report->delivered / $total, 1 ) ),
+			esc_attr( (string) round( 100 * $report->failed / $total, 1 ) ),
+			esc_attr( (string) round( 100 * $report->unconfirmed / $total, 1 ) )
+		);
+
+		echo '</section>';
 	}
 
 	/**
@@ -240,7 +321,7 @@ final class OverviewPanel {
 				esc_html( $row->event ),
 				esc_html( Mask::phone( $row->recipient ) ),
 				StatusView::live_pill( (int) $row->id, $row->status ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
-				esc_html( null !== $row->skip_reason ? SkipLabels::text( $row->skip_reason ) : (string) $row->error_detail )
+				esc_html( null !== $row->skip_reason ? SkipLabels::text( $row->skip_reason ) : ( in_array( $row->status, array( Status::Failed, Status::Unconfirmed ), true ) ? ErrorExplainer::explain( $row ) : (string) $row->error_detail ) )
 			);
 		}
 

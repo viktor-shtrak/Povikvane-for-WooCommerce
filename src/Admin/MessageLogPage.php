@@ -38,6 +38,7 @@ final class MessageLogPage {
 	private const CAPABILITY  = 'manage_woocommerce';
 	private const EXPORT_MAX  = 50000;
 	private const EXPORT_PAGE = 500;
+	private const BULK_MAX    = 100;
 
 	/**
 	 * Admin screen hook suffix.
@@ -70,6 +71,7 @@ final class MessageLogPage {
 		add_filter( 'submenu_file', array( $this, 'highlight_settings_entry' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'admin_post_povikvane_resend', array( $this, 'handle_resend' ) );
+		add_action( 'admin_post_povikvane_bulk_resend', array( $this, 'handle_bulk_resend' ) );
 		add_action( 'admin_post_povikvane_export', array( $this, 'handle_export' ) );
 	}
 
@@ -143,13 +145,43 @@ final class MessageLogPage {
 			esc_html__( 'Export CSV', 'povikvane-for-woocommerce' )
 		);
 
+		$this->views( $query );
+
 		echo '<form method="get">';
 		printf( '<input type="hidden" name="page" value="%s">', esc_attr( self::SLUG ) );
+		printf( '<input type="hidden" name="view" value="%s">', esc_attr( $query->needs_attention ? 'attention' : '' ) );
+		wp_nonce_field( 'povikvane_bulk_resend' );
 		$table->search_box( __( 'Search order number, reference or message ID', 'povikvane-for-woocommerce' ), 'povikvane-message' );
 		$table->display();
 		echo '</form></div></section>';
 
 		Layout::close();
+	}
+
+	/**
+	 * Links between "all messages" and "needs attention".
+	 *
+	 * @param MessageQuery $query Active filter.
+	 */
+	private function views( MessageQuery $query ): void {
+		$attention = $this->repository->count( new MessageQuery( null, '', '', null, null, true ) );
+		$base      = admin_url( 'admin.php?page=' . self::SLUG );
+
+		printf(
+			'<p class="pvk-views"><a href="%1$s"%2$s>%3$s</a><a href="%4$s"%5$s>%6$s</a></p>',
+			esc_url( $base ),
+			$query->needs_attention ? '' : ' class="is-current"',
+			esc_html__( 'All messages', 'povikvane-for-woocommerce' ),
+			esc_url( add_query_arg( 'view', 'attention', $base ) ),
+			$query->needs_attention ? ' class="is-current"' : '',
+			esc_html(
+				sprintf(
+					/* translators: %d: number of failed or unconfirmed messages. */
+					__( 'Needs attention (%d)', 'povikvane-for-woocommerce' ),
+					$attention
+				)
+			)
+		);
 	}
 
 	/**
@@ -161,18 +193,89 @@ final class MessageLogPage {
 		check_admin_referer( 'povikvane_resend_' . $id );
 		$this->require_capability();
 
+		if ( SendingState::REASON_SITE === $this->state->paused_reason() ) {
+			Flash::add( 'error', __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-for-woocommerce' ) );
+			$this->back();
+		}
+
 		$old = $this->repository->find( $id );
 
-		if ( null === $old || ! in_array( $old->status, array( Status::Failed, Status::Unconfirmed ), true ) || '' === $old->body || Kind::Transactional !== $old->kind ) {
+		if ( null === $old || ! $this->resendable( $old ) ) {
 			Flash::add( 'error', __( 'This message cannot be sent again.', 'povikvane-for-woocommerce' ) );
 			$this->back();
 		}
+
+		if ( $this->queue_again( $old ) ) {
+			Flash::add( 'success', __( 'The message was queued again.', 'povikvane-for-woocommerce' ) );
+		} else {
+			Flash::add( 'error', __( 'Another message was just queued. Wait a second and try again.', 'povikvane-for-woocommerce' ) );
+		}
+
+		$this->back();
+	}
+
+	/**
+	 * Send several failed or unconfirmed messages again.
+	 */
+	public function handle_bulk_resend(): void {
+		check_admin_referer( 'povikvane_bulk_resend' );
+		$this->require_capability();
 
 		if ( SendingState::REASON_SITE === $this->state->paused_reason() ) {
 			Flash::add( 'error', __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-for-woocommerce' ) );
 			$this->back();
 		}
 
+		$ids = isset( $_POST['ids'] ) && is_array( $_POST['ids'] ) ? array_map( 'absint', wp_unslash( $_POST['ids'] ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each value is cast to an integer.
+		$ids = array_slice( array_values( array_unique( array_filter( $ids ) ) ), 0, self::BULK_MAX );
+
+		$queued  = 0;
+		$skipped = 0;
+
+		foreach ( $ids as $id ) {
+			$old = $this->repository->find( $id );
+
+			if ( null !== $old && $this->resendable( $old ) && $this->queue_again( $old ) ) {
+				++$queued;
+			} else {
+				++$skipped;
+			}
+		}
+
+		if ( 0 === $queued && 0 === $skipped ) {
+			Flash::add( 'error', __( 'Select at least one message first.', 'povikvane-for-woocommerce' ) );
+			$this->back();
+		}
+
+		Flash::add(
+			$queued > 0 ? 'success' : 'error',
+			sprintf(
+				/* translators: 1: number of messages queued again, 2: number that could not be sent again. */
+				__( '%1$d queued again, %2$d could not be sent again.', 'povikvane-for-woocommerce' ),
+				$queued,
+				$skipped
+			)
+		);
+
+		$this->back();
+	}
+
+	/**
+	 * Whether a message may be sent again.
+	 *
+	 * @param Message $old Message.
+	 */
+	private function resendable( Message $old ): bool {
+		return in_array( $old->status, array( Status::Failed, Status::Unconfirmed ), true ) && '' !== $old->body && Kind::Transactional === $old->kind;
+	}
+
+	/**
+	 * Queue a new SMS with the text of an earlier message, under a new reference.
+	 *
+	 * @param Message $old The earlier message.
+	 * @return bool Whether it was queued.
+	 */
+	private function queue_again( Message $old ): bool {
 		$new            = new Message();
 		$new->order_id  = $old->order_id;
 		$new->event     = $old->event;
@@ -187,13 +290,7 @@ final class MessageLogPage {
 			$this->repository->count_for_order_event( $old->order_id, $old->event ) + 1
 		);
 
-		if ( null === $this->enqueuer->enqueue( $new ) ) {
-			Flash::add( 'error', __( 'Another message was just queued. Wait a second and try again.', 'povikvane-for-woocommerce' ) );
-		} else {
-			Flash::add( 'success', __( 'The message was queued again.', 'povikvane-for-woocommerce' ) );
-		}
-
-		$this->back();
+		return null !== $this->enqueuer->enqueue( $new );
 	}
 
 	/**
@@ -259,7 +356,9 @@ final class MessageLogPage {
 		$from   = isset( $_GET['from'] ) ? $this->day_start( sanitize_text_field( wp_unslash( $_GET['from'] ) ) ) : null;
 		$to     = isset( $_GET['to'] ) ? $this->day_start( sanitize_text_field( wp_unslash( $_GET['to'] ) ) ) : null;
 
-		return new MessageQuery( $status, $event, $search, $from, null === $to ? null : $to + DAY_IN_SECONDS );
+		$attention = isset( $_GET['view'] ) && 'attention' === sanitize_key( wp_unslash( $_GET['view'] ) );
+
+		return new MessageQuery( $status, $event, $search, $from, null === $to ? null : $to + DAY_IN_SECONDS, $attention );
 	}
 
 	/**
@@ -286,7 +385,8 @@ final class MessageLogPage {
 		$args = array_filter(
 			array(
 				'action' => 'povikvane_export',
-				'status' => $query->status?->value,
+				'view'   => $query->needs_attention ? 'attention' : null,
+				'status' => $query->needs_attention ? null : $query->status?->value,
 				'event'  => $query->event,
 				's'      => $query->search,
 				'from'   => null === $query->from ? null : Dates::format( $query->from, 'Y-m-d' ),

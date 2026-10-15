@@ -98,33 +98,10 @@ final class ConnectionPanel {
 		echo '</select>';
 		Ui::field_close();
 
-		Ui::field_open( __( 'Drop waiting messages after', 'povikvane-for-woocommerce' ), 'povikvane_max_age', __( 'A status message that arrives a day late is worse than none, so messages stuck longer than this are not sent.', 'povikvane-for-woocommerce' ) );
-		printf(
-			'<div class="pvk-inline"><input type="number" id="povikvane_max_age" name="%1$s[max_age_hours]" value="%2$d" min="1" max="168"> <span>%3$s</span></div>',
-			esc_attr( $name ),
-			(int) $values['max_age_hours'],
-			esc_html__( 'hours', 'povikvane-for-woocommerce' )
-		);
-		Ui::field_close();
-
 		Ui::card_close();
 
 		$this->viber->render();
 
 		$this->delivery->render();
-
-		Ui::card_open( __( 'Diagnostics', 'povikvane-for-woocommerce' ) );
-
-		Ui::field_open( __( 'Debug logging', 'povikvane-for-woocommerce' ) );
-		Ui::toggle(
-			$name . '[debug_log]',
-			(bool) $values['debug_log'],
-			__( 'Write detailed diagnostics to the WooCommerce log', 'povikvane-for-woocommerce' ),
-			__( 'Never includes the API key or message text; phone numbers are shortened. Warnings and errors are always logged.', 'povikvane-for-woocommerce' )
-		);
-		printf( '<p><a href="%1$s">%2$s</a></p>', esc_url( admin_url( 'admin.php?page=wc-status&tab=logs' ) ), esc_html__( 'View logs', 'povikvane-for-woocommerce' ) );
-		Ui::field_close();
-
-		Ui::card_close();
 	}
 }

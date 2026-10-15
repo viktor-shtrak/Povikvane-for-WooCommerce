@@ -59,7 +59,10 @@ function get_bloginfo( $k = '' ) { return 'Demo Shop'; }
 function wp_specialchars_decode( $s, $q = 0 ) { return htmlspecialchars_decode( $s, $q ); }
 function wc_get_order_statuses() { return array( 'wc-pending' => 'Pending payment', 'wc-processing' => 'Processing', 'wc-on-hold' => 'On hold', 'wc-completed' => 'Completed', 'wc-cancelled' => 'Cancelled', 'wc-refunded' => 'Refunded', 'wc-failed' => 'Failed' ); }
 function wp_nonce_url( $u, $a = -1 ) { return $u . '&_wpnonce=nonce'; }
-function add_query_arg( $args, $url = '' ) { return $url . '?' . http_build_query( $args ); }
+function add_query_arg( $args, $value = '', $url = '' ) {
+	if ( ! is_array( $args ) ) { $args = array( $args => $value ); } else { $url = $value; }
+	return $url . ( str_contains( $url, '?' ) ? '&' : '?' ) . http_build_query( $args );
+}
 function wp_kses_post( $t ) { return $t; }
 function sanitize_key( $k ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $k ) ); }
 function wp_unslash( $v ) { return $v; }
@@ -89,7 +92,12 @@ class PvkWpdb {
 	public $prefix = 'wp_';
 	public function prepare( $q, ...$a ) { return $q; }
 	public function get_var( $q ) { return '0'; }
-	public function get_results( $q, $o = null ) { return str_contains( (string) $q, 'povikvane_messages' ) ? ( $GLOBALS['pvk_rows'] ?? array() ) : array(); }
+	public function get_results( $q, $o = null ) {
+		if ( str_contains( (string) $q, 'GROUP BY status' ) ) {
+			return $GLOBALS['pvk_summary'] ?? array();
+		}
+		return str_contains( (string) $q, 'povikvane_messages' ) ? ( $GLOBALS['pvk_rows'] ?? array() ) : array();
+	}
 	public function get_col( $q ) { return array(); }
 	public function get_row( $q, $o = null ) { $rows = $GLOBALS['pvk_rows'] ?? array(); return $rows[4] ?? null; }
 	public function esc_like( $t ) { return $t; }

@@ -138,7 +138,7 @@ final class DeliveryPanel {
 
 		Flash::add( SelfTest::OK === $result ? 'success' : 'error', $this->test_message( $result ) );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=connection' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
 		exit;
 	}
 

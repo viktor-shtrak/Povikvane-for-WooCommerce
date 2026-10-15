@@ -11,6 +11,7 @@ namespace Povikvane\WooCommerce\Log;
 
 use Povikvane\WooCommerce\Messages\Kind;
 use Povikvane\WooCommerce\Messages\Status;
+use Povikvane\WooCommerce\Reports\ReportSource;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Reads and writes the povikvane_messages table.
  */
-final class Repository implements MessageStore {
+final class Repository implements MessageStore, ReportSource {
 
 	/**
 	 * Column formats for $wpdb insert/update.
@@ -382,6 +383,60 @@ final class Repository implements MessageStore {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $since Unix time.
+	 */
+	public function summary( int $since ): array {
+		global $wpdb;
+
+		$table = Schema::table();
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT status, channel, delivered_via, COUNT(*) AS total, COALESCE(SUM(credits), 0) AS credits FROM {$table} WHERE created_at >= %s GROUP BY status, channel, delivered_via",
+				gmdate( 'Y-m-d H:i:s', $since )
+			),
+			ARRAY_A
+		);
+
+		$out = array();
+
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$out[] = array(
+				'status'        => (string) $row['status'],
+				'channel'       => (string) $row['channel'],
+				'delivered_via' => null === $row['delivered_via'] ? null : (string) $row['delivered_via'],
+				'count'         => (int) $row['total'],
+				'credits'       => (float) $row['credits'],
+			);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param int $limit Maximum rows.
+	 */
+	public function recent_problems( int $limit ): array {
+		global $wpdb;
+
+		$table = Schema::table();
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE status IN (%s, %s) ORDER BY id DESC LIMIT %d",
+				Status::Failed->value,
+				Status::Unconfirmed->value,
+				$limit
+			),
+			ARRAY_A
+		);
+
+		return $this->hydrate_all( $rows );
+	}
+
+	/**
 	 * Distinct event slugs in the log, for the filter menu.
 	 *
 	 * @return string[]
@@ -408,7 +463,11 @@ final class Repository implements MessageStore {
 		$clauses = array( '1 = %d' );
 		$args    = array( 1 );
 
-		if ( null !== $query->status ) {
+		if ( $query->needs_attention ) {
+			$clauses[] = 'status IN (%s, %s)';
+			$args[]    = Status::Failed->value;
+			$args[]    = Status::Unconfirmed->value;
+		} elseif ( null !== $query->status ) {
 			$clauses[] = 'status = %s';
 			$args[]    = $query->status->value;
 		}

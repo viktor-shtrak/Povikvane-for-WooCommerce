@@ -21,10 +21,11 @@ use Povikvane\WooCommerce\Admin\MessageStatusAjax;
 use Povikvane\WooCommerce\Admin\OrderMetabox;
 use Povikvane\WooCommerce\Admin\OverviewPanel;
 use Povikvane\WooCommerce\Admin\PauseControls;
-use Povikvane\WooCommerce\Admin\SafetyPanel;
+use Povikvane\WooCommerce\Admin\AdvancedPanel;
 use Povikvane\WooCommerce\Admin\SettingsPage;
 use Povikvane\WooCommerce\Admin\SetupNotice;
 use Povikvane\WooCommerce\Admin\SetupWizard;
+use Povikvane\WooCommerce\Admin\SupportInfo;
 use Povikvane\WooCommerce\Admin\TemplatesSection;
 use Povikvane\WooCommerce\Admin\TestSender;
 use Povikvane\WooCommerce\Api\Capabilities;
@@ -210,7 +211,7 @@ final class Plugin {
 				$marketing_section,
 				new OverviewPanel(),
 				new ConnectionPanel( $this->settings(), $delivery ),
-				new SafetyPanel(),
+				new AdvancedPanel( new SupportInfo( $this->settings(), $this->repository(), $this->state(), $activity, new OptionBalanceStore(), $this->marketing() ) ),
 				$activity,
 				$tester,
 				$sanitizer,

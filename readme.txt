@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.6.5
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,13 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.7.0 =
+* Settings are now split into Settings (account, language, Viber, delivery reports) and Advanced (protections, credits warning, data retention, diagnostics). Old links still work.
+* The Overview shows results for the last 7, 30 or 90 days: sent, delivered, did not arrive, credits used and Viber use including SMS fallbacks.
+* A "Needs attention" list on the Overview with a button for each problem: no credits, rejected key, low credits, many failures, delivery reports not arriving, Viber statuses that go out as SMS, late scheduled tasks.
+* The message log has a "Needs attention" view with plain-language reasons for failures and a Resend selected button.
+* A Support information box in Advanced to copy to support: versions, connection state, settings and recent results, never your key, phone numbers or message text.
 
 = 0.6.5 =
 * Viber templates with custom fields now work: Povikvane Viber templates can only contain a first name, a last name and custom fields 1 to 3. The first two fill themselves, and for each custom field you choose what it is filled with (order number, order total, shop name and so on) per order status. Until every field has a value, that message is sent as an SMS.

@@ -103,6 +103,31 @@ final class TemplatesSection {
 	}
 
 	/**
+	 * How many order statuses are set to Viber but will go out as SMS because Viber is
+	 * unavailable or the template is not ready.
+	 */
+	public function viber_fallback_count(): int {
+		$ready = Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) );
+		$count = 0;
+
+		foreach ( array_keys( $this->triggers->statuses() ) as $slug ) {
+			$trigger = $this->triggers->for_status( $slug );
+
+			if ( ! $trigger->enabled || Channel::Viber->value !== $trigger->channel ) {
+				continue;
+			}
+
+			$template = '' === $trigger->viber_template ? null : $this->catalog->find( $trigger->viber_template );
+
+			if ( ! $ready || null === $template || null !== ViberPlanner::problem( $template ) || null !== ViberPlanner::selection_problem( $template, ViberPlanner::choices_for( $trigger->viber_map, $template->id ) ) ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
 	 * Tell why Viber is not offered, so its absence is never a mystery.
 	 *
 	 * @param string $status A Capabilities::VIBER_* constant.

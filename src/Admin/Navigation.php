@@ -32,11 +32,6 @@ final class Navigation {
 				'url'   => $settings( 'overview' ),
 			),
 			array(
-				'id'    => 'connection',
-				'label' => __( 'Connection', 'povikvane-for-woocommerce' ),
-				'url'   => $settings( 'connection' ),
-			),
-			array(
 				'id'    => 'messages',
 				'label' => __( 'Messages', 'povikvane-for-woocommerce' ),
 				'url'   => $settings( 'messages' ),
@@ -47,9 +42,14 @@ final class Navigation {
 				'url'   => $settings( 'promotions' ),
 			),
 			array(
-				'id'    => 'safety',
-				'label' => __( 'Safety & data', 'povikvane-for-woocommerce' ),
-				'url'   => $settings( 'safety' ),
+				'id'    => 'settings',
+				'label' => __( 'Settings', 'povikvane-for-woocommerce' ),
+				'url'   => $settings( 'settings' ),
+			),
+			array(
+				'id'    => 'advanced',
+				'label' => __( 'Advanced', 'povikvane-for-woocommerce' ),
+				'url'   => $settings( 'advanced' ),
 			),
 			array(
 				'id'      => 'log',

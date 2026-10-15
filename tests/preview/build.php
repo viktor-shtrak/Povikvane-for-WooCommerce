@@ -14,7 +14,7 @@ use Povikvane\WooCommerce\Admin\ConnectionPanel;
 use Povikvane\WooCommerce\Admin\DeliveryPanel;
 use Povikvane\WooCommerce\Admin\MarketingSection;
 use Povikvane\WooCommerce\Admin\OverviewPanel;
-use Povikvane\WooCommerce\Admin\SafetyPanel;
+use Povikvane\WooCommerce\Admin\AdvancedPanel;
 use Povikvane\WooCommerce\Admin\SettingsPage;
 use Povikvane\WooCommerce\Admin\SetupWizard;
 use Povikvane\WooCommerce\Admin\TemplatesSection;
@@ -112,7 +112,7 @@ function pvk_settings_page(): SettingsPage {
 
 	return new SettingsPage(
 		$settings, $repo, $state, $triggers, $templates, new OptionBalanceStore(), $marketing,
-		new OverviewPanel(), new ConnectionPanel( $settings, $delivery ), new SafetyPanel(), $activity, $tester,
+		new OverviewPanel(), new ConnectionPanel( $settings, $delivery ), new AdvancedPanel(), $activity, $tester,
 		new SettingsSanitizer( $settings, $state ), new SetupProgress( $triggers, $repo, $activity ), static fn() => null
 	);
 }
@@ -152,12 +152,13 @@ function pvk_rows(): array {
 
 $jobs = array();
 
-foreach ( array( 'overview', 'connection', 'messages', 'promotions', 'safety' ) as $tab ) {
+foreach ( array( 'overview', 'messages', 'promotions', 'settings', 'advanced' ) as $tab ) {
 	$jobs[ 'tab-' . $tab ] = array( 'settings', $tab, true );
 }
 $jobs['tab-overview-new'] = array( 'settings', 'overview', false );
+$jobs['tab-overview-attention'] = array( 'settings', 'overview', true );
 $jobs['tab-messages-viber'] = array( 'settings', 'messages', true );
-$jobs['tab-connection-viber'] = array( 'settings', 'connection', true );
+$jobs['tab-connection-viber'] = array( 'settings', 'settings', true );
 
 foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) as $step ) {
 	$jobs[ 'wizard-' . $step ] = array( 'wizard', $step, 'wizard-test' === 'x' );
@@ -166,7 +167,17 @@ foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) a
 foreach ( $jobs as $name => $job ) {
 	list( $kind, $which, $connected ) = $job;
 
+	unset( $GLOBALS['pvk_override_summary'] );
 	pvk_options( 'wizard' === $kind ? in_array( $which, array( 'messages', 'test', 'reports', 'done' ), true ) : (bool) $connected );
+
+	if ( 'tab-overview-attention' === $name ) {
+		$GLOBALS['pvk_options'][ OptionBalanceStore::OPTION ] = array( 'available' => 20, 'locked' => 0, 'channels' => array( 'sms' ), 'fetched_at' => time(), 'estimated' => false );
+		$GLOBALS['pvk_options'][ OptionActivity::OPTION ]     = null;
+		$GLOBALS['pvk_override_summary']                      = array(
+			array( 'status' => 'delivered', 'channel' => 'sms', 'delivered_via' => 'sms', 'total' => 6, 'credits' => 6.0 ),
+			array( 'status' => 'failed', 'channel' => 'sms', 'delivered_via' => null, 'total' => 4, 'credits' => 0 ),
+		);
+	}
 
 	if ( in_array( $name, array( 'tab-messages-viber', 'tab-connection-viber' ), true ) ) {
 		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
@@ -184,6 +195,15 @@ foreach ( $jobs as $name => $job ) {
 		);
 	}
 	$GLOBALS['pvk_rows'] = ( 'settings' === $kind && ! $connected ) ? array() : pvk_rows();
+	$GLOBALS['pvk_summary'] = $GLOBALS['pvk_override_summary'] ?? ( ( 'settings' === $kind && ! $connected ) ? array() : array(
+		array( 'status' => 'delivered', 'channel' => 'sms', 'delivered_via' => 'sms', 'total' => 41, 'credits' => 43.0 ),
+		array( 'status' => 'delivered', 'channel' => 'viber', 'delivered_via' => 'viber', 'total' => 18, 'credits' => 14.4 ),
+		array( 'status' => 'delivered', 'channel' => 'viber', 'delivered_via' => 'sms', 'total' => 3, 'credits' => 3.0 ),
+		array( 'status' => 'failed', 'channel' => 'sms', 'delivered_via' => null, 'total' => 4, 'credits' => 0 ),
+		array( 'status' => 'unconfirmed', 'channel' => 'sms', 'delivered_via' => null, 'total' => 2, 'credits' => 2.0 ),
+		array( 'status' => 'queued', 'channel' => 'sms', 'delivered_via' => null, 'total' => 1, 'credits' => 1.0 ),
+		array( 'status' => 'skipped', 'channel' => 'sms', 'delivered_via' => null, 'total' => 5, 'credits' => 0 ),
+	) );
 	$_GET = array();
 
 	if ( 'settings' === $kind ) {

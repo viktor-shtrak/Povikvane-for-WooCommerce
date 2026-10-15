@@ -1116,3 +1116,97 @@
 .pvk-list li {
 	margin: 0 0 6px;
 }
+
+.pvk-views {
+	display: flex;
+	gap: 6px;
+	margin: 0 0 12px;
+}
+
+.pvk-views a {
+	padding: 5px 12px;
+	border: 1px solid var(--pvk-line);
+	border-radius: 999px;
+	color: var(--pvk-muted);
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.pvk .pvk-views a.is-current {
+	background: var(--pvk-blue-50);
+	border-color: var(--pvk-blue-100);
+	color: var(--pvk-blue-700);
+	font-weight: 600;
+}
+
+.pvk-attn-list {
+	display: grid;
+	gap: 10px;
+	margin-top: 12px;
+}
+
+.pvk-attn {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 12px 14px;
+	border: 1px solid var(--pvk-line);
+	border-left-width: 4px;
+	border-radius: 6px;
+}
+
+.pvk-attn p {
+	margin-top: 2px;
+	color: var(--pvk-muted);
+	font-size: 13px;
+}
+
+.pvk-attn--bad {
+	background: var(--pvk-bad-bg);
+	border-color: #fecaca;
+	border-left-color: var(--pvk-bad);
+}
+
+.pvk-attn--warn {
+	background: var(--pvk-warn-bg);
+	border-color: #fde68a;
+	border-left-color: var(--pvk-warn);
+}
+
+.pvk-attn .pvk-btn {
+	flex: 0 0 auto;
+}
+
+.pvk-card > .pvk-tiles {
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	padding: 12px 20px 16px;
+}
+
+.pvk-bar {
+	display: flex;
+	height: 8px;
+	margin: 0 20px 16px;
+	overflow: hidden;
+	background: var(--pvk-line);
+	border-radius: 999px;
+}
+
+.pvk-bar__ok {
+	background: #22c55e;
+}
+
+.pvk-bar__bad {
+	background: #ef4444;
+}
+
+.pvk-bar__warn {
+	background: #f59e0b;
+}
+
+@media (max-width: 782px) {
+	.pvk-attn {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
