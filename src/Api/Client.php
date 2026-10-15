@@ -63,9 +63,14 @@ final class Client implements Gateway {
 			$message['reference'] = $request->reference;
 		}
 
-		// Only sent for Viber; the API then falls back to SMS if Viber fails.
-		if ( null !== $request->fallback ) {
-			$message['fallback'] = $request->fallback;
+		if ( null !== $request->template_id ) {
+			$message['template_id'] = $request->template_id;
+			$message['params']      = (object) $request->params;
+		}
+
+		// Only sent for Viber: the SMS the API uses if Viber cannot deliver.
+		if ( null !== $request->fallback_sms ) {
+			$message['fallback'] = array( 'sms' => $request->fallback_sms );
 		}
 
 		$headers = array(
@@ -117,7 +122,7 @@ final class Client implements Gateway {
 	 * {@inheritDoc}
 	 */
 	public function templates(): ApiResult {
-		return $this->get( '/public-api/v1/templates' );
+		return $this->get( '/public-api/v1/templates?status=all&channel=viber' );
 	}
 
 	/**

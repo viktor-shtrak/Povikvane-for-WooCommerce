@@ -44,7 +44,7 @@ final class Capabilities {
 	 * @param Gateway             $gateway  API gateway.
 	 * @param array<string,mixed> $previous Previously stored result, kept where a probe is inconclusive.
 	 * @param int                 $now      Current time.
-	 * @return array{checked_at:int,connection:string,account:?bool,lookup:?bool,templates:?bool,balance:?array<string,mixed>}
+	 * @return array{checked_at:int,connection:string,account:?bool,lookup:?bool,templates:?bool,fallback:?bool,balance:?array<string,mixed>}
 	 */
 	public static function evaluate( Gateway $gateway, array $previous, int $now ): array {
 		$caps = array(
@@ -53,6 +53,8 @@ final class Capabilities {
 			'account'    => self::bool_or_null( $previous['account'] ?? null ),
 			'lookup'     => self::bool_or_null( $previous['lookup'] ?? null ),
 			'templates'  => self::bool_or_null( $previous['templates'] ?? null ),
+			// The service accepts or refuses the SMS fallback per request; only a real send shows which, so each check starts over.
+			'fallback'   => null,
 			'balance'    => is_array( $previous['balance'] ?? null ) ? $previous['balance'] : null,
 		);
 
@@ -87,13 +89,13 @@ final class Capabilities {
 	}
 
 	/**
-	 * Whether Viber can be used: the account has a Viber sender and the API offers
-	 * the templates endpoint that ships together with the SMS fallback.
+	 * Whether Viber can be used: the account has a Viber sender, the API offers the
+	 * templates endpoint, and the service has not refused the SMS fallback.
 	 *
 	 * @param mixed $stored The stored capabilities option.
 	 */
 	public static function viber_ready( mixed $stored ): bool {
-		if ( ! is_array( $stored ) || true !== ( $stored['templates'] ?? null ) || ! is_array( $stored['balance'] ?? null ) ) {
+		if ( ! is_array( $stored ) || true !== ( $stored['templates'] ?? null ) || false === ( $stored['fallback'] ?? null ) || ! is_array( $stored['balance'] ?? null ) ) {
 			return false;
 		}
 

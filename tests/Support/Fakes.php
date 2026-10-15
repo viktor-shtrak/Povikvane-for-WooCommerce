@@ -338,7 +338,8 @@ final class InMemoryStore implements MessageStore {
 		$count = 0;
 		foreach ( $this->rows as $row ) {
 			if ( $this->purgeable( $row, $before ) && '' !== $row->body ) {
-				$row->body = '';
+				$row->body  = '';
+				$row->viber = null;
 				++$count;
 			}
 		}

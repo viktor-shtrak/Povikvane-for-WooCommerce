@@ -47,7 +47,8 @@ final class TriggerRepository implements TriggerProvider {
 			array_key_exists( 'enabled', $row ) ? (bool) $row['enabled'] : TemplateDefaults::enabled_by_default( $status ),
 			'' !== $template ? $template : TemplateDefaults::for_status( $status, $this->locale ),
 			isset( $row['delay'] ) ? max( 0, min( self::MAX_DELAY_MINUTES, (int) $row['delay'] ) ) : 0,
-			Channel::from_value( $row['channel'] ?? null )->value
+			Channel::from_value( $row['channel'] ?? null )->value,
+			isset( $row['viber_template'] ) && is_string( $row['viber_template'] ) ? $row['viber_template'] : ''
 		);
 	}
 
@@ -74,7 +75,7 @@ final class TriggerRepository implements TriggerProvider {
 	 * The current configuration of every status in the shape the settings form posts,
 	 * so a screen showing only some statuses can change those and leave the rest alone.
 	 *
-	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string}>
+	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string,viber_template:string}>
 	 */
 	public function current_input(): array {
 		$input = array();
@@ -82,10 +83,11 @@ final class TriggerRepository implements TriggerProvider {
 		foreach ( array_keys( $this->statuses() ) as $slug ) {
 			$trigger        = $this->for_status( $slug );
 			$input[ $slug ] = array(
-				'enabled'  => $trigger->enabled,
-				'template' => $trigger->template,
-				'delay'    => $trigger->delay_minutes,
-				'channel'  => $trigger->channel,
+				'enabled'        => $trigger->enabled,
+				'template'       => $trigger->template,
+				'delay'          => $trigger->delay_minutes,
+				'channel'        => $trigger->channel,
+				'viber_template' => $trigger->viber_template,
 			);
 		}
 
@@ -96,7 +98,7 @@ final class TriggerRepository implements TriggerProvider {
 	 * Sanitise the submitted trigger table.
 	 *
 	 * @param mixed $input Submitted value, keyed by status slug.
-	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string}>
+	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string,viber_template:string}>
 	 */
 	public function sanitize( mixed $input ): array {
 		$input = is_array( $input ) ? $input : array();
@@ -108,10 +110,11 @@ final class TriggerRepository implements TriggerProvider {
 			$template = isset( $row['template'] ) ? sanitize_textarea_field( (string) $row['template'] ) : '';
 
 			$clean[ $slug ] = array(
-				'enabled'  => ! empty( $row['enabled'] ),
-				'template' => function_exists( 'mb_substr' ) ? mb_substr( $template, 0, self::MAX_TEMPLATE_LENGTH ) : substr( $template, 0, self::MAX_TEMPLATE_LENGTH ),
-				'delay'    => max( 0, min( self::MAX_DELAY_MINUTES, (int) ( $row['delay'] ?? 0 ) ) ),
-				'channel'  => Channel::from_value( $row['channel'] ?? null )->value,
+				'enabled'        => ! empty( $row['enabled'] ),
+				'template'       => function_exists( 'mb_substr' ) ? mb_substr( $template, 0, self::MAX_TEMPLATE_LENGTH ) : substr( $template, 0, self::MAX_TEMPLATE_LENGTH ),
+				'delay'          => max( 0, min( self::MAX_DELAY_MINUTES, (int) ( $row['delay'] ?? 0 ) ) ),
+				'channel'        => Channel::from_value( $row['channel'] ?? null )->value,
+				'viber_template' => substr( preg_replace( '/[^A-Za-z0-9_.:-]/', '', (string) ( $row['viber_template'] ?? '' ) ) ?? '', 0, 64 ),
 			);
 		}
 

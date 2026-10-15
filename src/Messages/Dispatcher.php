@@ -60,6 +60,7 @@ final class Dispatcher {
 	 * @param SendGate|null       $gate           Optional last-moment check.
 	 * @param BalanceTracker|null $balance  Optional balance tracking.
 	 * @param QuietHours|null     $quiet_hours  Optional window for promotional messages.
+	 * @param callable|null       $on_fallback_refused Called when the API refuses the SMS fallback, so Viber is not offered until the next check.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -72,7 +73,8 @@ final class Dispatcher {
 		private readonly Logger $logger = new NullLogger(),
 		private readonly ?SendGate $gate = null,
 		private readonly ?BalanceTracker $balance = null,
-		private readonly ?QuietHours $quiet_hours = null
+		private readonly ?QuietHours $quiet_hours = null,
+		private $on_fallback_refused = null
 	) {}
 
 	/**
@@ -135,9 +137,7 @@ final class Dispatcher {
 		++$message->attempts;
 		$this->store->save( $message );
 
-		$result = $this->gateway->send(
-			new SendRequest( $message->recipient, $message->body, $message->channel, $message->reference, $message->reference, ChannelPlanner::fallback_for( $message->channel ) )
-		);
+		$result = $this->gateway->send( $this->request_for( $message ) );
 
 		$this->apply( $message, $result, $now );
 
@@ -259,8 +259,64 @@ final class Dispatcher {
 			case Outcome::NotFound:
 			case Outcome::PermanentFailure:
 			default:
+				if ( null !== $message->viber && 'viber' === $message->channel ) {
+					$this->send_as_sms( $message, $result, $now );
+					return;
+				}
+
 				$this->fail( $message, 'http_' . $result->http_status, $result->detail, $now );
 		}
+	}
+
+	/**
+	 * The request for a message: plain SMS, or Viber with a template and an SMS fallback.
+	 *
+	 * @param Message $message Message.
+	 */
+	private function request_for( Message $message ): SendRequest {
+		if ( 'viber' !== $message->channel || null === $message->viber ) {
+			return new SendRequest( $message->recipient, $message->body, 'sms', $message->reference, $message->reference );
+		}
+
+		return new SendRequest(
+			$message->recipient,
+			$message->body,
+			'viber',
+			$message->reference,
+			$message->reference,
+			$message->viber['template_id'],
+			$message->viber['params'],
+			$message->viber['fallback_sms']
+		);
+	}
+
+	/**
+	 * The API refused a Viber message. The customer still gets the update, as an SMS.
+	 *
+	 * @param Message   $message Message.
+	 * @param ApiResult $result  API result.
+	 * @param int       $now     Current time.
+	 */
+	private function send_as_sms( Message $message, ApiResult $result, int $now ): void {
+		if ( 'invalid_fallback' === $result->error_code && null !== $this->on_fallback_refused ) {
+			( $this->on_fallback_refused )();
+		}
+
+		$this->logger->log(
+			Logger::WARNING,
+			'Message ' . $message->id . ' will go out as SMS: Viber was refused',
+			array(
+				'http' => $result->http_status,
+				'code' => $result->error_code,
+			)
+		);
+
+		$message->body    = (string) ( $message->viber['fallback_sms'] ?? $message->body );
+		$message->channel = 'sms';
+		$message->viber   = null;
+
+		$this->uncount_attempt( $message );
+		$this->reschedule( $message, 0, $now );
 	}
 
 	/**

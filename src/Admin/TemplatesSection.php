@@ -12,7 +12,10 @@ namespace Povikvane\WooCommerce\Admin;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Messages\Channel;
 use Povikvane\WooCommerce\Messages\Placeholders;
+use Povikvane\WooCommerce\Orders\Trigger;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
+use Povikvane\WooCommerce\Viber\TemplateCatalog;
+use Povikvane\WooCommerce\Viber\ViberPlanner;
 
 use const Povikvane\WooCommerce\PLUGIN_FILE;
 use const Povikvane\WooCommerce\VERSION;
@@ -29,8 +32,12 @@ final class TemplatesSection {
 	 * Constructor.
 	 *
 	 * @param TriggerRepository $triggers Trigger configuration.
+	 * @param TemplateCatalog   $catalog  Viber templates.
 	 */
-	public function __construct( private readonly TriggerRepository $triggers ) {}
+	public function __construct(
+		private readonly TriggerRepository $triggers,
+		private readonly TemplateCatalog $catalog = new TemplateCatalog()
+	) {}
 
 	/**
 	 * Print the editor. Must be called inside the settings form.
@@ -44,9 +51,15 @@ final class TemplatesSection {
 				echo '<code>{' . esc_html( $name ) . '}</code> ';
 			}
 		}
-		echo '</p></div><div style="margin-top:12px">';
+		echo '</p>';
 
 		$viber = Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) );
+
+		if ( $viber ) {
+			echo '<p class="pvk-card__intro">' . esc_html__( 'Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection.', 'povikvane-for-woocommerce' ) . '</p>';
+		}
+
+		echo '</div><div style="margin-top:12px">';
 
 		foreach ( $this->ordered_statuses() as $slug => $label ) {
 			$trigger = $this->triggers->for_status( $slug );
@@ -61,7 +74,7 @@ final class TemplatesSection {
 				(int) $trigger->delay_minutes,
 				esc_html__( 'minutes first', 'povikvane-for-woocommerce' )
 			);
-			$this->channel_field( $name, $slug, $trigger->channel, $viber );
+			$this->channel_field( $name, $slug, $trigger, $viber );
 			echo '</div><div>';
 			printf(
 				'<label class="screen-reader-text" for="pvk-text-%1$s">%2$s</label><textarea id="pvk-text-%1$s" name="%3$s[template]" rows="3" maxlength="1000" data-povikvane-template>%4$s</textarea><div class="pvk-estimate povikvane-estimate" aria-live="polite"></div>',
@@ -83,17 +96,22 @@ final class TemplatesSection {
 	}
 
 	/**
-	 * The channel choice for one status. Without Viber the stored choice is kept in a
-	 * hidden field, so saving the form never silently changes it.
+	 * The channel choice for one status. Without Viber the stored choice is kept in
+	 * hidden fields, so saving the form never silently changes it.
 	 *
-	 * @param string $name    Field name prefix.
-	 * @param string $slug    Status slug.
-	 * @param string $channel Stored channel.
-	 * @param bool   $viber   Whether Viber is available.
+	 * @param string  $name    Field name prefix.
+	 * @param string  $slug    Status slug.
+	 * @param Trigger $trigger Stored configuration.
+	 * @param bool    $viber   Whether Viber is available.
 	 */
-	private function channel_field( string $name, string $slug, string $channel, bool $viber ): void {
+	private function channel_field( string $name, string $slug, Trigger $trigger, bool $viber ): void {
 		if ( ! $viber ) {
-			printf( '<input type="hidden" name="%s[channel]" value="%s">', esc_attr( $name ), esc_attr( $channel ) );
+			printf(
+				'<input type="hidden" name="%1$s[channel]" value="%2$s"><input type="hidden" name="%1$s[viber_template]" value="%3$s">',
+				esc_attr( $name ),
+				esc_attr( $trigger->channel ),
+				esc_attr( $trigger->viber_template )
+			);
 			return;
 		}
 
@@ -102,11 +120,73 @@ final class TemplatesSection {
 			esc_attr( $slug ),
 			esc_html__( 'Send via', 'povikvane-for-woocommerce' ),
 			esc_attr( $name ),
-			selected( Channel::Sms->value, $channel, false ),
+			selected( Channel::Sms->value, $trigger->channel, false ),
 			esc_html__( 'SMS', 'povikvane-for-woocommerce' ),
-			selected( Channel::Viber->value, $channel, false ),
+			selected( Channel::Viber->value, $trigger->channel, false ),
 			esc_html__( 'Viber, SMS if not delivered', 'povikvane-for-woocommerce' )
 		);
+
+		printf(
+			'<div class="pvk-trigger__delay"><label for="pvk-template-%1$s">%2$s</label> <select id="pvk-template-%1$s" name="%3$s[viber_template]"><option value="">%4$s</option>',
+			esc_attr( $slug ),
+			esc_html__( 'Viber template', 'povikvane-for-woocommerce' ),
+			esc_attr( $name ),
+			esc_html__( 'Choose a template', 'povikvane-for-woocommerce' )
+		);
+
+		foreach ( $this->catalog->all() as $template ) {
+			$problem = ViberPlanner::problem( $template );
+
+			printf(
+				'<option value="%1$s"%2$s%3$s>%4$s</option>',
+				esc_attr( $template->id ),
+				selected( $template->id, $trigger->viber_template, false ),
+				null === $problem ? '' : ' disabled',
+				esc_html( null === $problem ? $template->name : $template->name . ' (' . $this->problem_label( $problem ) . ')' )
+			);
+		}
+
+		echo '</select></div>';
+
+		if ( Channel::Viber->value === $trigger->channel ) {
+			$this->selection_notice( $trigger );
+		}
+	}
+
+	/**
+	 * Warn when the chosen template will not be used.
+	 *
+	 * @param Trigger $trigger Stored configuration.
+	 */
+	private function selection_notice( Trigger $trigger ): void {
+		$template = '' === $trigger->viber_template ? null : $this->catalog->find( $trigger->viber_template );
+		$problem  = null === $template ? ViberPlanner::PROBLEM_NOT_APPROVED : ViberPlanner::problem( $template );
+
+		if ( null === $template ) {
+			echo '<p class="pvk-trigger__hint pvk-trigger__hint--warn">' . esc_html__( 'No template chosen, so this message is sent as an SMS.', 'povikvane-for-woocommerce' ) . '</p>';
+		} elseif ( null !== $problem ) {
+			echo '<p class="pvk-trigger__hint pvk-trigger__hint--warn">' . esc_html(
+				sprintf(
+					/* translators: %s: reason, for example "awaiting approval". */
+					__( 'This template cannot be used yet (%s), so this message is sent as an SMS.', 'povikvane-for-woocommerce' ),
+					$this->problem_label( $problem )
+				)
+			) . '</p>';
+		}
+	}
+
+	/**
+	 * Short reason a template cannot be used.
+	 *
+	 * @param string $problem A ViberPlanner::PROBLEM_* constant.
+	 */
+	private function problem_label( string $problem ): string {
+		return match ( $problem ) {
+			ViberPlanner::PROBLEM_NOT_APPROVED      => __( 'awaiting approval', 'povikvane-for-woocommerce' ),
+			ViberPlanner::PROBLEM_NOT_TRANSACTIONAL => __( 'not transactional', 'povikvane-for-woocommerce' ),
+			ViberPlanner::PROBLEM_UNMAPPED          => __( 'has a variable the plugin cannot fill', 'povikvane-for-woocommerce' ),
+			default                                 => __( 'contains a link', 'povikvane-for-woocommerce' ),
+		};
 	}
 
 	/**

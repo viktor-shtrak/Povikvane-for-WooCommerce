@@ -34,6 +34,7 @@ foreach ( array(
 	'povikvane_settings',
 	'povikvane_api_key_enc',
 	'povikvane_capabilities',
+	'povikvane_viber_templates',
 	'povikvane_triggers',
 	'povikvane_marketing',
 	'povikvane_setup',

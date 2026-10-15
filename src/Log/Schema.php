@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Schema {
 
-	public const VERSION = '4';
+	public const VERSION = '5';
 	public const OPTION  = 'povikvane_db_version';
 
 	/**
@@ -56,6 +56,7 @@ final class Schema {
   kind varchar(16) NOT NULL DEFAULT 'transactional',
   channel varchar(16) NOT NULL DEFAULT 'sms',
   delivered_via varchar(16) DEFAULT NULL,
+  viber_payload text,
   recipient varchar(20) NOT NULL,
   body text NOT NULL,
   reference varchar(128) NOT NULL,

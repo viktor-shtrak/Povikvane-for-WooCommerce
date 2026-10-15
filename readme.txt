@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,7 @@ Povikvane SMS for WooCommerce sends text messages to your customers when their o
 * Order messages: choose which statuses send a text (processing, completed, on hold, and more), edit the wording with placeholders such as the customer's name, order number and tracking link, and see the SMS length and credit estimate while you type.
 * Delivery tracking: each message is marked Delivered or Failed through a webhook and regular checks, with a note on the order.
 * Promotions (off by default): optional marketing messages to customers who agree at checkout or in My Account. Every promotional message carries an unsubscribe link, respects sending hours and a frequency limit, and checks consent again just before it is sent.
+* Viber: send order updates over Viber using your approved templates, with an automatic SMS fallback (when your account has Viber).
 * Message log: every message with its status, the reason when one was skipped, and a CSV export.
 * Credits: your balance is shown and kept current, with a warning when it runs low.
 * Safety: no messages for old orders, landline numbers or copied sites, and sending pauses if many messages are created at once.
@@ -70,6 +71,10 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.6.0 =
+* Viber for order messages: pick an approved Viber template for an order status and the message goes out over Viber, with an automatic SMS if Viber cannot deliver it. Anything unusual (template not approved, a link in the message, a missing value, an SMS longer than one part) is sent as a normal SMS, so no update is lost.
+* The message log shows which channel delivered each message and the credits actually charged.
 
 = 0.5.0 =
 * New setup wizard: connect your account, choose messages, send a test message and watch it arrive, and add the webhook. It opens after activation, and a reminder and an Overview checklist stay until setup is done.

@@ -156,6 +156,7 @@ foreach ( array( 'overview', 'connection', 'messages', 'promotions', 'safety' ) 
 	$jobs[ 'tab-' . $tab ] = array( 'settings', $tab, true );
 }
 $jobs['tab-overview-new'] = array( 'settings', 'overview', false );
+$jobs['tab-messages-viber'] = array( 'settings', 'messages', true );
 
 foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) as $step ) {
 	$jobs[ 'wizard-' . $step ] = array( 'wizard', $step, 'wizard-test' === 'x' );
@@ -165,6 +166,22 @@ foreach ( $jobs as $name => $job ) {
 	list( $kind, $which, $connected ) = $job;
 
 	pvk_options( 'wizard' === $kind ? in_array( $which, array( 'messages', 'test', 'reports', 'done' ), true ) : (bool) $connected );
+
+	if ( 'tab-messages-viber' === $name ) {
+		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
+		$GLOBALS['pvk_options'][ TriggerRepository::OPTION ] = array(
+			'processing' => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-1', 'template' => 'Order {order_number} is being processed.' ),
+			'completed'  => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-2', 'template' => 'Order {order_number} shipped.' ),
+		);
+		$GLOBALS['pvk_options'][ Povikvane\WooCommerce\Viber\TemplateCatalog::OPTION ] = array(
+			'fetched_at' => time(),
+			'items'      => array(
+				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Hi {{firstName}}, order {{orderNumber}}.', 'variables' => array( 'firstName', 'orderNumber' ), 'status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-2', 'name' => 'Shipped with link', 'content' => 'Track {{trackingUrl}}', 'variables' => array( 'trackingUrl' ), 'status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-3', 'name' => 'New offer', 'content' => 'Hi {{firstName}}', 'variables' => array( 'firstName' ), 'status' => 'pending', 'message_type' => null ),
+			),
+		);
+	}
 	$GLOBALS['pvk_rows'] = ( 'settings' === $kind && ! $connected ) ? array() : pvk_rows();
 	$_GET = array();
 

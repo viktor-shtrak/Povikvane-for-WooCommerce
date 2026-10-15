@@ -650,6 +650,20 @@
 	font-size: 13px;
 }
 
+.pvk-trigger__delay select {
+	max-width: 100%;
+}
+
+.pvk-trigger__hint {
+	margin: 6px 0 0;
+	font-size: 12px;
+	color: var(--pvk-muted, #5b6b7b);
+}
+
+.pvk-trigger__hint--warn {
+	color: #8a4b00;
+}
+
 .pvk-trigger__delay input {
 	margin: 0 4px;
 }

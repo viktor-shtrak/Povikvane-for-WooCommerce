@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.6.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-14 15:42+0300\n"
+"POT-Creation-Date: 2026-10-15 12:11+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -894,7 +894,7 @@ msgstr ""
 msgid "Warn me below"
 msgstr ""
 
-#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:168
+#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:248
 msgid "credits"
 msgstr ""
 
@@ -1063,7 +1063,7 @@ msgstr ""
 msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:41
+#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:48
 msgid "You can use:"
 msgstr ""
 
@@ -1245,77 +1245,115 @@ msgstr ""
 msgid "Expired"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:39
+#: src/Admin/TemplatesSection.php:46
 msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:39
+#: src/Admin/TemplatesSection.php:46
 msgid "Order messages"
 msgstr ""
 
 #: src/Admin/TemplatesSection.php:59
+msgid "Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:72
 msgid "Wait"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:62
+#: src/Admin/TemplatesSection.php:75
 msgid "minutes first"
 msgstr ""
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:72
+#: src/Admin/TemplatesSection.php:85
 #, php-format
 msgid "Message when an order becomes \"%s\""
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:82
+#: src/Admin/TemplatesSection.php:95
 msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:103
+#: src/Admin/TemplatesSection.php:121
 msgid "Send via"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:106
+#: src/Admin/TemplatesSection.php:124
 msgid "SMS"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:108
+#: src/Admin/TemplatesSection.php:126
 msgid "Viber, SMS if not delivered"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:162
-msgid "Standard SMS"
+#: src/Admin/TemplatesSection.php:132
+msgid "Viber template"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:163
-msgid "Unicode SMS (e.g. Cyrillic)"
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:164
-msgid "characters"
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:165
-msgid "SMS part"
+#: src/Admin/TemplatesSection.php:134
+msgid "Choose a template"
 msgstr ""
 
 #: src/Admin/TemplatesSection.php:166
+msgid "No template chosen, so this message is sent as an SMS."
+msgstr ""
+
+#. translators: %s: reason, for example "awaiting approval".
+#: src/Admin/TemplatesSection.php:171
+#, php-format
+msgid "This template cannot be used yet (%s), so this message is sent as an SMS."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:185
+msgid "awaiting approval"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:186
+msgid "not transactional"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:187
+msgid "has a variable the plugin cannot fill"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:188
+msgid "contains a link"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:242
+msgid "Standard SMS"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:243
+msgid "Unicode SMS (e.g. Cyrillic)"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:244
+msgid "characters"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:245
+msgid "SMS part"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:246
 msgid "SMS parts"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:167
+#: src/Admin/TemplatesSection.php:247
 msgid "credit"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:169
+#: src/Admin/TemplatesSection.php:249
 msgid "With a Cyrillic name:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:170
+#: src/Admin/TemplatesSection.php:250
 msgid "Unknown placeholder:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:171
+#: src/Admin/TemplatesSection.php:251
 msgid "Empty message: nothing will be sent."
 msgstr ""
 
@@ -1378,7 +1416,7 @@ msgid "Unsubscribed"
 msgstr ""
 
 #. translators: %s: minimum required WooCommerce version.
-#: src/Plugin.php:401
+#: src/Plugin.php:428
 #, php-format
 msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
 msgstr ""

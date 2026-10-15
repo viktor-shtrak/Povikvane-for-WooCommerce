@@ -92,6 +92,11 @@ final class Reconciler {
 		$attributes = $result->attributes();
 		$status     = (string) ( $attributes['status'] ?? '' );
 
+		// Viber messages are charged in full first and settled when delivery is known.
+		if ( isset( $attributes['credits-charged'] ) && is_numeric( $attributes['credits-charged'] ) ) {
+			$message->credits = (float) $attributes['credits-charged'];
+		}
+
 		if ( 'delivered_to_handset' === $status ) {
 			$this->updater->delivered( $message, isset( $attributes['delivered_via'] ) && is_string( $attributes['delivered_via'] ) ? $attributes['delivered_via'] : null );
 			return true;

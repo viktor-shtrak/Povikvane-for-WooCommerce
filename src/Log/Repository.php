@@ -30,6 +30,7 @@ final class Repository implements MessageStore {
 		'kind'            => '%s',
 		'channel'         => '%s',
 		'delivered_via'   => '%s',
+		'viber_payload'   => '%s',
 		'recipient'       => '%s',
 		'body'            => '%s',
 		'reference'       => '%s',
@@ -292,7 +293,7 @@ final class Repository implements MessageStore {
 		$table = Schema::table();
 		$done  = $wpdb->query(
 			$wpdb->prepare(
-				"UPDATE {$table} SET body = '' WHERE created_at < %s AND body <> '' AND status NOT IN (%s, %s, %s)",
+				"UPDATE {$table} SET body = '', viber_payload = NULL WHERE created_at < %s AND body <> '' AND status NOT IN (%s, %s, %s)",
 				gmdate( 'Y-m-d H:i:s', $before ),
 				Status::Pending->value,
 				Status::Sending->value,
@@ -512,7 +513,7 @@ final class Repository implements MessageStore {
 		$table        = Schema::table();
 		$placeholders = implode( ', ', array_fill( 0, count( $order_ids ), '%d' ) );
 		$args         = array_merge( array( 'erased' ), $order_ids );
-		$done         = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET body = '', recipient = %s, error_detail = NULL WHERE order_id IN ({$placeholders})", $args ) ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholders are generated to match the IDs.
+		$done         = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET body = '', viber_payload = NULL, recipient = %s, error_detail = NULL WHERE order_id IN ({$placeholders})", $args ) ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholders are generated to match the IDs.
 
 		return false === $done ? 0 : (int) $done;
 	}
@@ -530,6 +531,7 @@ final class Repository implements MessageStore {
 			'kind'            => $message->kind->value,
 			'channel'         => $message->channel,
 			'delivered_via'   => $message->delivered_via,
+			'viber_payload'   => null === $message->viber ? null : wp_json_encode( $message->viber ),
 			'recipient'       => $message->recipient,
 			'body'            => $message->body,
 			'reference'       => $message->reference,
@@ -563,6 +565,7 @@ final class Repository implements MessageStore {
 		$message->kind            = Kind::tryFrom( (string) $row['kind'] ) ?? Kind::Transactional;
 		$message->channel         = (string) $row['channel'];
 		$message->delivered_via   = isset( $row['delivered_via'] ) && is_string( $row['delivered_via'] ) && '' !== $row['delivered_via'] ? $row['delivered_via'] : null;
+		$message->viber           = $this->decode_viber( $row['viber_payload'] ?? null );
 		$message->recipient       = (string) $row['recipient'];
 		$message->body            = (string) $row['body'];
 		$message->reference       = (string) $row['reference'];
@@ -582,6 +585,32 @@ final class Repository implements MessageStore {
 		$message->final_at        = $this->from_datetime( $row['final_at'] );
 
 		return $message;
+	}
+
+	/**
+	 * Read the stored Viber details.
+	 *
+	 * @param mixed $value Column value.
+	 * @return array{template_id:string,params:array<string,string>,fallback_sms:string}|null
+	 */
+	private function decode_viber( mixed $value ): ?array {
+		$data = is_string( $value ) && '' !== $value ? json_decode( $value, true ) : null;
+
+		if ( ! is_array( $data ) || ! isset( $data['template_id'], $data['fallback_sms'] ) || ! is_string( $data['template_id'] ) || ! is_string( $data['fallback_sms'] ) ) {
+			return null;
+		}
+
+		$params = array();
+
+		foreach ( is_array( $data['params'] ?? null ) ? $data['params'] : array() as $name => $param ) {
+			$params[ (string) $name ] = (string) $param;
+		}
+
+		return array(
+			'template_id'  => $data['template_id'],
+			'params'       => $params,
+			'fallback_sms' => $data['fallback_sms'],
+		);
 	}
 
 	/**

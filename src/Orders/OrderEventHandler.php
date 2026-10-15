@@ -11,8 +11,6 @@ namespace Povikvane\WooCommerce\Orders;
 
 use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\MessageStore;
-use Povikvane\WooCommerce\Messages\Channel;
-use Povikvane\WooCommerce\Messages\ChannelPlanner;
 use Povikvane\WooCommerce\Messages\Enqueuer;
 use Povikvane\WooCommerce\Messages\Placeholders;
 use Povikvane\WooCommerce\Messages\Reference;
@@ -22,6 +20,7 @@ use Povikvane\WooCommerce\Safety\StormGuard;
 use Povikvane\WooCommerce\Support\Clock;
 use Povikvane\WooCommerce\Support\Notifier;
 use Povikvane\WooCommerce\Support\SendingState;
+use Povikvane\WooCommerce\Viber\ViberPlan;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,11 +43,11 @@ final class OrderEventHandler {
 	private $allow;
 
 	/**
-	 * Tells whether Viber is available.
+	 * Decides whether a message goes over Viber.
 	 *
 	 * @var callable|null
 	 */
-	private $viber_ready;
+	private $viber_plan;
 
 	/**
 	 * Constructor.
@@ -63,7 +62,7 @@ final class OrderEventHandler {
 	 * @param string        $site_token Site token used in references.
 	 * @param Rules         $rules      Eligibility rules.
 	 * @param callable      $allow      Returns false to veto a message.
-	 * @param callable|null $viber_ready Returns whether Viber can be used; Viber is never used without it.
+	 * @param callable|null $viber_plan  Given the trigger, placeholder values and SMS text, returns a ViberPlan or null to send an SMS.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -76,10 +75,10 @@ final class OrderEventHandler {
 		private readonly string $site_token,
 		private readonly Rules $rules,
 		callable $allow,
-		?callable $viber_ready = null
+		?callable $viber_plan = null
 	) {
-		$this->allow       = $allow;
-		$this->viber_ready = $viber_ready;
+		$this->allow      = $allow;
+		$this->viber_plan = $viber_plan;
 	}
 
 	/**
@@ -103,7 +102,6 @@ final class OrderEventHandler {
 		$message->order_id  = $facts->order_id;
 		$message->event     = $facts->status;
 		$message->reference = $reference;
-		$message->channel   = ChannelPlanner::plan( Channel::from_value( $trigger->channel ), null !== $this->viber_ready && (bool) ( $this->viber_ready )() )->value;
 
 		$reason = $this->skip_reason( $facts, $message );
 
@@ -123,6 +121,14 @@ final class OrderEventHandler {
 			$this->notifier->note( $message, Notifier::NOTE_SKIPPED, array( 'reason' => $reason ) );
 
 			return self::RESULT_SKIPPED;
+		}
+
+		$plan = null !== $this->viber_plan ? ( $this->viber_plan )( $trigger, $facts->values, $message->body ) : null;
+
+		if ( $plan instanceof ViberPlan ) {
+			$message->channel = 'viber';
+			$message->viber   = $plan->payload();
+			$message->body    = $plan->text;
 		}
 
 		$this->storm->check();

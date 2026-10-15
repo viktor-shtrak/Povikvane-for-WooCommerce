@@ -59,6 +59,7 @@ use Povikvane\WooCommerce\Orders\OrderEventHandler;
 use Povikvane\WooCommerce\Orders\OrderFacts;
 use Povikvane\WooCommerce\Orders\OrderStatusGate;
 use Povikvane\WooCommerce\Orders\StatusHooks;
+use Povikvane\WooCommerce\Orders\Trigger;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
 use Povikvane\WooCommerce\Phone\Normalizer;
 use Povikvane\WooCommerce\Privacy\Privacy;
@@ -82,6 +83,10 @@ use Povikvane\WooCommerce\Support\WpNotifier;
 use Povikvane\WooCommerce\Webhook\OptionActivity;
 use Povikvane\WooCommerce\Webhook\RestController;
 use Povikvane\WooCommerce\Webhook\Token;
+use Povikvane\WooCommerce\Viber\TemplateCatalog;
+use Povikvane\WooCommerce\Viber\TemplateSync;
+use Povikvane\WooCommerce\Viber\ViberPlan;
+use Povikvane\WooCommerce\Viber\ViberPlanner;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
 
 /**
@@ -272,7 +277,13 @@ final class Plugin {
 			$this->logger(),
 			new CompositeGate( new OrderStatusGate(), $this->marketing_gate() ),
 			new BalanceTracker( new OptionBalanceStore(), new ActionSchedulerScheduler() ),
-			$this->marketing()->quiet_hours( wp_timezone() )
+			$this->marketing()->quiet_hours( wp_timezone() ),
+			static function (): void {
+				$caps = get_option( Capabilities::OPTION, array() );
+				$caps = is_array( $caps ) ? $caps : array();
+
+				update_option( Capabilities::OPTION, array_merge( $caps, array( 'fallback' => false ) ), false );
+			}
 		) )->handle( (int) $message_id );
 	}
 
@@ -325,6 +336,10 @@ final class Plugin {
 		if ( true === $caps['account'] && is_array( $caps['balance'] ) ) {
 			$this->balance_refresher()->apply( $caps['balance'] );
 		}
+
+		if ( Capabilities::CONNECTION_OK === $caps['connection'] ) {
+			$this->template_sync()->refresh( time() );
+		}
 	}
 
 	/**
@@ -362,6 +377,18 @@ final class Plugin {
 		}
 
 		$this->balance_refresher()->refresh();
+
+		// Templates are approved within minutes, so the list is kept fresh alongside the balance.
+		if ( Capabilities::viber_ready( $caps ) ) {
+			$this->template_sync()->refresh_if_stale( time(), 15 * MINUTE_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Keeps the local list of Viber templates current.
+	 */
+	private function template_sync(): TemplateSync {
+		return new TemplateSync( $this->client(), new TemplateCatalog() );
 	}
 
 	/**
@@ -582,7 +609,14 @@ final class Plugin {
 			 * @param string $status   New order status slug without "wc-".
 			 */
 			static fn( OrderFacts $facts ): bool => (bool) apply_filters( 'povikvane_should_send', true, $facts->order_id, $facts->status ),
-			static fn(): bool => Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) )
+			static fn( Trigger $trigger, array $values, string $sms_text ): ?ViberPlan => ViberPlanner::plan(
+				$trigger->channel,
+				$trigger->viber_template,
+				$values,
+				$sms_text,
+				Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) ),
+				new TemplateCatalog()
+			)
 		);
 	}
 
