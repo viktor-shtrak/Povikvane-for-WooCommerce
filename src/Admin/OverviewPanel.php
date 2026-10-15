@@ -19,6 +19,9 @@ use Povikvane\WooCommerce\Support\SendingState;
 use Povikvane\WooCommerce\Support\SkipLabels;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
 
+use const Povikvane\WooCommerce\PLUGIN_FILE;
+use const Povikvane\WooCommerce\VERSION;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -186,6 +189,8 @@ final class OverviewPanel {
 			return;
 		}
 
+		wp_enqueue_script( 'povikvane-attention', plugins_url( 'assets/js/attention.js', PLUGIN_FILE ), array(), VERSION, true );
+
 		Ui::card_open( __( 'Needs attention', 'povikvane-for-woocommerce' ) );
 		echo '<div class="pvk-attn-list">';
 
@@ -197,6 +202,8 @@ final class OverviewPanel {
 				esc_html( $item['text'] )
 			);
 
+			echo '<div class="pvk-attn__actions">';
+
 			if ( '' !== $item['label'] && '' !== $item['url'] ) {
 				printf(
 					'<a class="pvk-btn" href="%1$s"%2$s>%3$s</a>',
@@ -206,7 +213,15 @@ final class OverviewPanel {
 				);
 			}
 
-			echo '</div>';
+			printf(
+				'<button type="button" class="pvk-attn__dismiss" data-action="%1$s" data-nonce="%2$s" data-key="%3$s" aria-label="%4$s" title="%4$s">&times;</button>',
+				esc_attr( AttentionDismissals::ACTION ),
+				esc_attr( wp_create_nonce( AttentionDismissals::NONCE ) ),
+				esc_attr( $item['key'] ),
+				esc_attr__( 'Dismiss for a week', 'povikvane-for-woocommerce' )
+			);
+
+			echo '</div></div>';
 		}
 
 		echo '</div>';
@@ -249,7 +264,7 @@ final class OverviewPanel {
 
 		echo '<div class="pvk-tiles">';
 		Ui::tile( __( 'Sent', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->sent() ) ), 0 === $report->skipped ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d not sent on purpose', 'povikvane-for-woocommerce' ), $report->skipped ) );
-		Ui::tile( __( 'Delivered', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->delivered ) ), null === $rate ? '' : sprintf( /* translators: %s: percentage. */ __( '%s%% of finished messages', 'povikvane-for-woocommerce' ), number_format_i18n( $rate, 1 ) ) );
+		Ui::tile( __( 'Messages delivered', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->delivered ) ), null === $rate ? '' : sprintf( /* translators: %s: percentage. */ __( '%s%% of finished messages', 'povikvane-for-woocommerce' ), number_format_i18n( $rate, 1 ) ) );
 		Ui::tile( __( 'Did not arrive', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->failed + $report->unconfirmed ) ), 0 === $report->unconfirmed ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d could not be confirmed', 'povikvane-for-woocommerce' ), $report->unconfirmed ) );
 		Ui::tile( __( 'Credits used', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->credits, 1 ) ) );
 
@@ -309,19 +324,20 @@ final class OverviewPanel {
 		}
 
 		echo '<table class="pvk-table"><thead><tr>';
-		foreach ( array( __( 'Time', 'povikvane-for-woocommerce' ), __( 'Event', 'povikvane-for-woocommerce' ), __( 'Recipient', 'povikvane-for-woocommerce' ), __( 'Status', 'povikvane-for-woocommerce' ), __( 'Detail', 'povikvane-for-woocommerce' ) ) as $heading ) {
+		foreach ( array( __( 'Time', 'povikvane-for-woocommerce' ), __( 'Event', 'povikvane-for-woocommerce' ), __( 'Type', 'povikvane-for-woocommerce' ), __( 'Recipient', 'povikvane-for-woocommerce' ), __( 'Status', 'povikvane-for-woocommerce' ), __( 'Detail', 'povikvane-for-woocommerce' ) ) as $heading ) {
 			echo '<th scope="col">' . esc_html( $heading ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
 
 		foreach ( $data->recent as $row ) {
 			printf(
-				'<tr><td>%1$s</td><td>%2$s</td><td class="pvk-mono">%3$s</td><td>%4$s</td><td>%5$s</td></tr>',
+				'<tr><td>%1$s</td><td>%2$s</td><td>%6$s</td><td class="pvk-mono">%3$s</td><td>%4$s</td><td>%5$s</td></tr>',
 				esc_html( Dates::format( $row->created_at ) ),
 				esc_html( $row->event ),
 				esc_html( Mask::phone( $row->recipient ) ),
 				StatusView::live_pill( (int) $row->id, $row->status ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
-				esc_html( null !== $row->skip_reason ? SkipLabels::text( $row->skip_reason ) : ( in_array( $row->status, array( Status::Failed, Status::Unconfirmed ), true ) ? ErrorExplainer::explain( $row ) : (string) $row->error_detail ) )
+				esc_html( null !== $row->skip_reason ? SkipLabels::text( $row->skip_reason ) : ( in_array( $row->status, array( Status::Failed, Status::Unconfirmed ), true ) ? ErrorExplainer::explain( $row ) : (string) $row->error_detail ) ),
+				esc_html( ChannelLabel::text( $row ) )
 			);
 		}
 

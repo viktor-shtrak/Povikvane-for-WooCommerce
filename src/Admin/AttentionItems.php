@@ -39,23 +39,24 @@ final class AttentionItems {
 	 * @param int                  $viber_fallbacks  Statuses set to Viber that go out as SMS.
 	 * @param string               $viber_status     A Capabilities::VIBER_* value.
 	 * @param array<string,string> $urls             Addresses: settings, messages, failed, app.
-	 * @return array<int,array{tone:string,title:string,text:string,label:string,url:string,external:bool}>
+	 * @return array<int,array{key:string,tone:string,title:string,text:string,label:string,url:string,external:bool}>
 	 */
 	public static function build( string $connection, ?string $paused, ?float $credits, int $low_threshold, int $queue_late, DeliveryReport $report, bool $webhook_seen, int $viber_fallbacks, string $viber_status, array $urls ): array {
 		$items = array();
 
 		if ( SendingState::REASON_CREDITS === $paused ) {
-			$items[] = self::item( 'bad', __( 'Sending is on hold: no credits', 'povikvane-for-woocommerce' ), __( 'Messages wait and go out by themselves as soon as credits are added.', 'povikvane-for-woocommerce' ), __( 'Top up credits', 'povikvane-for-woocommerce' ), $urls['app'], true );
+			$items[] = self::item( 'credits_out', 'bad', __( 'Sending is on hold: no credits', 'povikvane-for-woocommerce' ), __( 'Messages wait and go out by themselves as soon as credits are added.', 'povikvane-for-woocommerce' ), __( 'Top up credits', 'povikvane-for-woocommerce' ), $urls['app'], true );
 		}
 
 		if ( SendingState::REASON_AUTH === $paused || Capabilities::CONNECTION_AUTH === $connection ) {
-			$items[] = self::item( 'bad', __( 'Povikvane rejected the API key', 'povikvane-for-woocommerce' ), __( 'No messages are sent until the API key and service ID are correct.', 'povikvane-for-woocommerce' ), __( 'Check the connection', 'povikvane-for-woocommerce' ), $urls['settings'] );
+			$items[] = self::item( 'auth', 'bad', __( 'Povikvane rejected the API key', 'povikvane-for-woocommerce' ), __( 'No messages are sent until the API key and service ID are correct.', 'povikvane-for-woocommerce' ), __( 'Check the connection', 'povikvane-for-woocommerce' ), $urls['settings'] );
 		} elseif ( Capabilities::CONNECTION_CONFIG === $connection ) {
-			$items[] = self::item( 'bad', __( 'Povikvane rejected the request', 'povikvane-for-woocommerce' ), __( 'The service ID is probably wrong.', 'povikvane-for-woocommerce' ), __( 'Check the connection', 'povikvane-for-woocommerce' ), $urls['settings'] );
+			$items[] = self::item( 'config', 'bad', __( 'Povikvane rejected the request', 'povikvane-for-woocommerce' ), __( 'The service ID is probably wrong.', 'povikvane-for-woocommerce' ), __( 'Check the connection', 'povikvane-for-woocommerce' ), $urls['settings'] );
 		}
 
 		if ( SendingState::REASON_CREDITS !== $paused && null !== $credits && $low_threshold > 0 && $credits < $low_threshold ) {
 			$items[] = self::item(
+				'credits_low',
 				'warn',
 				__( 'Credits are running low', 'povikvane-for-woocommerce' ),
 				sprintf(
@@ -74,6 +75,7 @@ final class AttentionItems {
 
 		if ( $finished >= self::MIN_FINISHED && $bad / $finished >= self::FAILURE_SHARE ) {
 			$items[] = self::item(
+				'many_failed',
 				'warn',
 				__( 'Many messages did not arrive', 'povikvane-for-woocommerce' ),
 				sprintf(
@@ -88,11 +90,12 @@ final class AttentionItems {
 		}
 
 		if ( ! $webhook_seen && $report->delivered >= self::MIN_DELIVERED ) {
-			$items[] = self::item( 'warn', __( 'Delivery reports are not arriving instantly', 'povikvane-for-woocommerce' ), __( 'Statuses still update, only a few minutes late. Add the webhook address in Povikvane to get them straight away.', 'povikvane-for-woocommerce' ), __( 'Set up delivery reports', 'povikvane-for-woocommerce' ), $urls['settings'] );
+			$items[] = self::item( 'webhook', 'warn', __( 'Delivery reports are not arriving instantly', 'povikvane-for-woocommerce' ), __( 'Statuses still update, only a few minutes late. Add the webhook address in Povikvane to get them straight away.', 'povikvane-for-woocommerce' ), __( 'Set up delivery reports', 'povikvane-for-woocommerce' ), $urls['settings'] );
 		}
 
 		if ( $viber_fallbacks > 0 ) {
 			$items[] = self::item(
+				'viber_fallback',
 				'warn',
 				sprintf(
 					/* translators: %d: number of order statuses. */
@@ -107,6 +110,7 @@ final class AttentionItems {
 
 		if ( $queue_late > self::OVERDUE_SECONDS ) {
 			$items[] = self::item(
+				'cron_late',
 				'warn',
 				__( 'Scheduled tasks are running late', 'povikvane-for-woocommerce' ),
 				sprintf(
@@ -125,16 +129,18 @@ final class AttentionItems {
 	/**
 	 * One item.
 	 *
+	 * @param string $key      Stable ID, used to remember a dismissal.
 	 * @param string $tone     "bad" or "warn".
 	 * @param string $title    Short title.
 	 * @param string $text     What it means.
 	 * @param string $label    Button text, or empty for none.
 	 * @param string $url      Button address.
 	 * @param bool   $external Whether it opens Povikvane.
-	 * @return array{tone:string,title:string,text:string,label:string,url:string,external:bool}
+	 * @return array{key:string,tone:string,title:string,text:string,label:string,url:string,external:bool}
 	 */
-	private static function item( string $tone, string $title, string $text, string $label, string $url, bool $external = false ): array {
+	private static function item( string $key, string $tone, string $title, string $text, string $label, string $url, bool $external = false ): array {
 		return array(
+			'key'      => $key,
 			'tone'     => $tone,
 			'title'    => $title,
 			'text'     => $text,

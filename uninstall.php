@@ -52,3 +52,4 @@ foreach ( array(
 }
 
 delete_metadata( 'user', 0, 'povikvane_balance_notice_dismissed', '', true );
+delete_metadata( 'user', 0, 'povikvane_attention_dismissed', '', true );

@@ -109,6 +109,7 @@ final class SettingsPage {
 	 * Register hooks.
 	 */
 	public function register(): void {
+		( new AttentionDismissals() )->register();
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		// options.php asks for manage_options by default; shop managers use this page too.
@@ -357,22 +358,26 @@ final class SettingsPage {
 			admin_url( 'admin.php?page=' . MessageLogPage::SLUG ),
 			'',
 			$report,
-			AttentionItems::build(
-				$connection,
-				$this->state->paused_reason(),
-				null === $balance ? null : $balance->available,
-				$this->settings->low_balance_threshold(),
-				null === $overdue ? 0 : time() - $overdue,
-				$report,
-				null !== $last_report,
-				$this->templates->viber_fallback_count(),
-				Capabilities::viber_status( $caps ),
-				array(
-					'settings' => $this->tab_url( 'settings' ),
-					'messages' => $this->tab_url( 'messages' ),
-					'failed'   => add_query_arg( 'view', 'attention', admin_url( 'admin.php?page=' . MessageLogPage::SLUG ) ),
-					'app'      => 'https://app.povikvane.com/',
-				)
+			AttentionDismissals::visible(
+				AttentionItems::build(
+					$connection,
+					$this->state->paused_reason(),
+					null === $balance ? null : $balance->available,
+					$this->settings->low_balance_threshold(),
+					null === $overdue ? 0 : time() - $overdue,
+					$report,
+					null !== $last_report,
+					$this->templates->viber_fallback_count(),
+					Capabilities::viber_status( $caps ),
+					array(
+						'settings' => $this->tab_url( 'settings' ),
+						'messages' => $this->tab_url( 'messages' ),
+						'failed'   => add_query_arg( 'view', 'attention', admin_url( 'admin.php?page=' . MessageLogPage::SLUG ) ),
+						'app'      => 'https://app.povikvane.com/',
+					)
+				),
+				get_user_meta( get_current_user_id(), AttentionDismissals::USERMETA, true ),
+				time()
 			),
 			$days,
 			$this->tab_url( 'overview' )

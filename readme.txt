@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.7.0
+Stable tag: 0.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,11 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.7.1 =
+* Every item in "Needs attention" can be dismissed with its X and comes back after a week if the problem is still there.
+* The latest messages show whether each went out as SMS or Viber.
+* Clearer Bulgarian wording for the results ("Доставени", "Недоставени").
 
 = 0.7.0 =
 * Settings are now split into Settings (account, language, Viber, delivery reports) and Advanced (protections, credits warning, data retention, diagnostics). Old links still work.

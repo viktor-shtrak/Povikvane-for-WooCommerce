@@ -1178,6 +1178,32 @@
 	flex: 0 0 auto;
 }
 
+.pvk-attn__actions {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: 8px;
+}
+
+.pvk-attn__dismiss {
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	color: var(--pvk-muted);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	background: transparent;
+	border: 0;
+	border-radius: 6px;
+}
+
+.pvk-attn__dismiss:hover,
+.pvk-attn__dismiss:focus-visible {
+	color: var(--pvk-text, #111827);
+	background: rgba(0, 0, 0, 0.06);
+}
+
 .pvk-card > .pvk-tiles {
 	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 	padding: 12px 20px 16px;

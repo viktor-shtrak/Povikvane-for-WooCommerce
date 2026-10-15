@@ -160,9 +160,7 @@ final class MessageListTable extends WP_List_Table {
 			return $phone;
 		}
 
-		$label = 'sms' === $item->delivered_via
-			? __( 'Viber, delivered by SMS', 'povikvane-for-woocommerce' )
-			: __( 'Viber', 'povikvane-for-woocommerce' );
+		$label = ChannelLabel::text( $item );
 
 		return $phone . '<br><small>' . esc_html( $label ) . '</small>';
 	}
