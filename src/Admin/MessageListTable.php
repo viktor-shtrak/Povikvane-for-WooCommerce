@@ -162,7 +162,7 @@ final class MessageListTable extends WP_List_Table {
 	 * @param Message $item Row.
 	 */
 	protected function column_status( $item ): string {
-		return StatusView::pill( $item->status );
+		return StatusView::live_pill( (int) $item->id, $item->status );
 	}
 
 	/**

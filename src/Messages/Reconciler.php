@@ -82,6 +82,32 @@ final class Reconciler {
 	}
 
 	/**
+	 * Ask the service about one accepted message right now, for a screen the
+	 * administrator is watching. Unlike run(), an unclear answer changes nothing,
+	 * so watching a message never speeds up or uses up its regular checks.
+	 *
+	 * @param Message $message Message.
+	 * @return bool Whether the message changed.
+	 */
+	public function check_now( Message $message ): bool {
+		if ( Status::Queued !== $message->status || null === $message->api_message_id || '' === $message->api_message_id || SendingState::REASON_AUTH === $this->state->paused_reason() ) {
+			return false;
+		}
+
+		$result = $this->gateway->message_status( $message->api_message_id );
+
+		if ( Outcome::Success !== $result->outcome ) {
+			return false;
+		}
+
+		$this->apply( $message, $result );
+
+		$stored = $this->store->find( (int) $message->id );
+
+		return null !== $stored && Status::Queued !== $stored->status;
+	}
+
+	/**
 	 * Apply a status response.
 	 *
 	 * @param Message   $message Message.

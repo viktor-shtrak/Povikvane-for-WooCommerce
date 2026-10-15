@@ -157,6 +157,7 @@ foreach ( array( 'overview', 'connection', 'messages', 'promotions', 'safety' ) 
 }
 $jobs['tab-overview-new'] = array( 'settings', 'overview', false );
 $jobs['tab-messages-viber'] = array( 'settings', 'messages', true );
+$jobs['tab-connection-viber'] = array( 'settings', 'connection', true );
 
 foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) as $step ) {
 	$jobs[ 'wizard-' . $step ] = array( 'wizard', $step, 'wizard-test' === 'x' );
@@ -167,7 +168,7 @@ foreach ( $jobs as $name => $job ) {
 
 	pvk_options( 'wizard' === $kind ? in_array( $which, array( 'messages', 'test', 'reports', 'done' ), true ) : (bool) $connected );
 
-	if ( 'tab-messages-viber' === $name ) {
+	if ( in_array( $name, array( 'tab-messages-viber', 'tab-connection-viber' ), true ) ) {
 		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
 		$GLOBALS['pvk_options'][ TriggerRepository::OPTION ] = array(
 			'processing' => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-1', 'template' => 'Order {order_number} is being processed.' ),

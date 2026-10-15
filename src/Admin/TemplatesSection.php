@@ -105,14 +105,7 @@ final class TemplatesSection {
 	 * @param string $status A Capabilities::VIBER_* constant.
 	 */
 	private function viber_unavailable_note( string $status ): void {
-		$text = match ( $status ) {
-			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_NO_SENDER        => __( 'Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day.', 'povikvane-for-woocommerce' ),
-			default                              => __( 'Viber has not been checked yet. Open the Connection tab and press "Check connection".', 'povikvane-for-woocommerce' ),
-		};
-
-		echo '<p class="pvk-card__intro pvk-trigger__hint--warn">' . esc_html( $text ) . '</p>';
+		echo '<p class="pvk-card__intro pvk-trigger__hint--warn">' . esc_html( ViberView::reason( $status ) ) . '</p>';
 	}
 
 	/**
@@ -162,7 +155,7 @@ final class TemplatesSection {
 				esc_attr( $template->id ),
 				selected( $template->id, $trigger->viber_template, false ),
 				null === $problem ? '' : ' disabled',
-				esc_html( null === $problem ? $template->name : $template->name . ' (' . $this->problem_label( $problem ) . ')' )
+				esc_html( null === $problem ? $template->name : $template->name . ' (' . ViberView::problem_label( $problem ) . ')' )
 			);
 		}
 
@@ -189,24 +182,10 @@ final class TemplatesSection {
 				sprintf(
 					/* translators: %s: reason, for example "awaiting approval". */
 					__( 'This template cannot be used yet (%s), so this message is sent as an SMS.', 'povikvane-for-woocommerce' ),
-					$this->problem_label( $problem )
+					ViberView::problem_label( $problem )
 				)
 			) . '</p>';
 		}
-	}
-
-	/**
-	 * Short reason a template cannot be used.
-	 *
-	 * @param string $problem A ViberPlanner::PROBLEM_* constant.
-	 */
-	private function problem_label( string $problem ): string {
-		return match ( $problem ) {
-			ViberPlanner::PROBLEM_NOT_APPROVED      => __( 'awaiting approval', 'povikvane-for-woocommerce' ),
-			ViberPlanner::PROBLEM_NOT_TRANSACTIONAL => __( 'not transactional', 'povikvane-for-woocommerce' ),
-			ViberPlanner::PROBLEM_UNMAPPED          => __( 'has a variable the plugin cannot fill', 'povikvane-for-woocommerce' ),
-			default                                 => __( 'contains a link', 'povikvane-for-woocommerce' ),
-		};
 	}
 
 	/**

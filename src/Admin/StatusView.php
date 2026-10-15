@@ -53,6 +53,26 @@ final class StatusView {
 	}
 
 	/**
+	 * Whether a message no longer needs to be watched.
+	 *
+	 * @param Status $status Status.
+	 */
+	public static function is_settled( Status $status ): bool {
+		return $status->is_final() || Status::Unconfirmed === $status;
+	}
+
+	/**
+	 * A status label that the page keeps current while the message is still on its way.
+	 *
+	 * @param int    $id     Message ID.
+	 * @param Status $status Status.
+	 * @return string HTML, escaped.
+	 */
+	public static function live_pill( int $id, Status $status ): string {
+		return '<span data-pvk-live="' . (int) $id . '" data-pvk-settled="' . ( self::is_settled( $status ) ? '1' : '0' ) . '">' . self::pill( $status ) . '</span>';
+	}
+
+	/**
 	 * A coloured status label.
 	 *
 	 * @param Status $status Status.

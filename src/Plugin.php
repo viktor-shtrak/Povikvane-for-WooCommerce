@@ -17,6 +17,7 @@ use Povikvane\WooCommerce\Admin\ConnectionPanel;
 use Povikvane\WooCommerce\Admin\DeliveryPanel;
 use Povikvane\WooCommerce\Admin\MarketingSection;
 use Povikvane\WooCommerce\Admin\MessageLogPage;
+use Povikvane\WooCommerce\Admin\MessageStatusAjax;
 use Povikvane\WooCommerce\Admin\OrderMetabox;
 use Povikvane\WooCommerce\Admin\OverviewPanel;
 use Povikvane\WooCommerce\Admin\PauseControls;
@@ -34,6 +35,7 @@ use Povikvane\WooCommerce\Balance\BalanceTracker;
 use Povikvane\WooCommerce\Balance\LowBalanceAlert;
 use Povikvane\WooCommerce\Balance\OptionBalanceStore;
 use Povikvane\WooCommerce\Balance\WpMailer;
+use Povikvane\WooCommerce\Log\Message;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Log\Retention;
 use Povikvane\WooCommerce\Log\Schema;
@@ -237,6 +239,11 @@ final class Plugin {
 
 			( new BalanceAjax( new OptionBalanceStore(), fn() => $this->balance_refresher()->refresh() ) )->register();
 
+			( new MessageStatusAjax(
+				$this->repository(),
+				fn( Message $message ): bool => ( new Reconciler( $this->repository(), $this->client(), $this->delivery_updater(), $this->state(), new SystemClock(), $this->logger() ) )->check_now( $message )
+			) )->register();
+
 			( new PauseControls( $this->state(), new SiteGuard( $this->state() ), $this->repository() ) )->register();
 
 			( new OrderMetabox(
@@ -320,6 +327,7 @@ final class Plugin {
 				'connection' => $caps['connection'],
 				'account'    => $caps['account'],
 				'lookup'     => $caps['lookup'],
+				'viber'      => Capabilities::viber_status( $caps ),
 				'paused'     => $this->state()->paused_reason(),
 			)
 		);

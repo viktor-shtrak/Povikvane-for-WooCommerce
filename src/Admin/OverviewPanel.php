@@ -239,7 +239,7 @@ final class OverviewPanel {
 				esc_html( Dates::format( $row->created_at ) ),
 				esc_html( $row->event ),
 				esc_html( Mask::phone( $row->recipient ) ),
-				StatusView::pill( $row->status ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+				StatusView::live_pill( (int) $row->id, $row->status ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
 				esc_html( null !== $row->skip_reason ? SkipLabels::text( $row->skip_reason ) : (string) $row->error_detail )
 			);
 		}

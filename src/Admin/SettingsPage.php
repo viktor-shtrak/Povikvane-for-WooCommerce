@@ -135,6 +135,7 @@ final class SettingsPage {
 
 		Assets::base();
 		Assets::confirm();
+		MessageStatusAjax::enqueue();
 		$this->templates->enqueue();
 
 		wp_enqueue_script( 'povikvane-tabs', plugins_url( 'assets/js/tabs.js', PLUGIN_FILE ), array(), VERSION, true );

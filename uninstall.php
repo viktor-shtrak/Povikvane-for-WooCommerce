@@ -50,3 +50,5 @@ foreach ( array(
 ) as $povikvane_option ) {
 	delete_option( $povikvane_option );
 }
+
+delete_metadata( 'user', 0, 'povikvane_balance_notice_dismissed', '', true );

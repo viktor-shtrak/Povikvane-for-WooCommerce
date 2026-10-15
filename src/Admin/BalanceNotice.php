@@ -11,7 +11,11 @@ namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Balance\BalanceStore;
 use Povikvane\WooCommerce\Support\SendingState;
+use Povikvane\WooCommerce\Support\Dismissal;
 use Povikvane\WooCommerce\Support\Settings;
+
+use const Povikvane\WooCommerce\PLUGIN_FILE;
+use const Povikvane\WooCommerce\VERSION;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,11 +38,30 @@ final class BalanceNotice {
 		private readonly SendingState $state
 	) {}
 
+	public const ACTION   = 'povikvane_dismiss_balance';
+	public const NONCE    = 'povikvane_dismiss_balance';
+	public const USERMETA = 'povikvane_balance_notice_dismissed';
+
 	/**
-	 * Register the hook.
+	 * Register the hooks.
 	 */
 	public function register(): void {
 		add_action( 'admin_notices', array( $this, 'render' ) );
+		add_action( 'wp_ajax_' . self::ACTION, array( $this, 'handle_dismiss' ) );
+	}
+
+	/**
+	 * Remember that this user dismissed the warning.
+	 */
+	public function handle_dismiss(): void {
+		check_ajax_referer( self::NONCE, 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array(), 403 );
+		}
+
+		update_user_meta( get_current_user_id(), self::USERMETA, time() );
+		wp_send_json_success();
 	}
 
 	/**
@@ -56,19 +79,26 @@ final class BalanceNotice {
 			return;
 		}
 
+		if ( Dismissal::hides( get_user_meta( get_current_user_id(), self::USERMETA, true ), time() ) ) {
+			return;
+		}
+
+		wp_enqueue_script( 'povikvane-notice', plugins_url( 'assets/js/notice.js', PLUGIN_FILE ), array(), VERSION, true );
+
 		printf(
-			'<div class="notice notice-warning"><p><strong>%1$s</strong> %2$s <a href="%3$s">%4$s</a></p></div>',
+			'<div class="notice notice-warning is-dismissible povikvane-dismissible" data-action="%5$s" data-nonce="%6$s"><p><strong>%1$s</strong> %2$s <a href="%3$s">%4$s</a></p></div>',
 			esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ),
 			esc_html(
 				sprintf(
-					/* translators: 1: credits left, 2: warning level. */
-					__( 'Only %1$s credits are left (warning level: %2$d). Top up soon so customer messages keep going out.', 'povikvane-for-woocommerce' ),
-					number_format_i18n( $balance->available, 1 ),
-					$threshold
+					/* translators: %s: credits left. */
+					__( 'Only %s credits are left. Top up soon so customer messages keep going out.', 'povikvane-for-woocommerce' ),
+					number_format_i18n( $balance->available, 1 )
 				)
 			),
 			esc_url( admin_url( 'admin.php?page=' . SettingsPage::SLUG ) ),
-			esc_html__( 'Open settings', 'povikvane-for-woocommerce' )
+			esc_html__( 'Open settings', 'povikvane-for-woocommerce' ),
+			esc_attr( self::ACTION ),
+			esc_attr( wp_create_nonce( self::NONCE ) )
 		);
 	}
 }

@@ -115,6 +115,7 @@ final class MessageLogPage {
 		if ( '' !== $this->hook_suffix && $hook_suffix === $this->hook_suffix ) {
 			Assets::base();
 			Assets::confirm();
+			MessageStatusAjax::enqueue();
 		}
 	}
 
