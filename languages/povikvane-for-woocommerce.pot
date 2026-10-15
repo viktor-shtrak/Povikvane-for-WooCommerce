@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.6.2\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.6.5\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-15 13:57+0300\n"
+"POT-Creation-Date: 2026-10-15 14:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -922,7 +922,7 @@ msgstr ""
 msgid "Warn me below"
 msgstr ""
 
-#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:247
+#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:314
 msgid "credits"
 msgstr ""
 
@@ -1091,7 +1091,7 @@ msgstr ""
 msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:48
+#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:50
 msgid "You can use:"
 msgstr ""
 
@@ -1273,99 +1273,113 @@ msgstr ""
 msgid "Expired"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:46
+#: src/Admin/TemplatesSection.php:48
 msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:46
+#: src/Admin/TemplatesSection.php:48
 msgid "Order messages"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:63
+#: src/Admin/TemplatesSection.php:65
+msgid "How Viber works"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:65
 msgid "Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:76
+#: src/Admin/TemplatesSection.php:79
 msgid "Wait"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:79
+#: src/Admin/TemplatesSection.php:82
 msgid "minutes first"
 msgstr ""
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:89
+#: src/Admin/TemplatesSection.php:92
 #, php-format
 msgid "Message when an order becomes \"%s\""
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:99
+#: src/Admin/TemplatesSection.php:102
 msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:134
+#: src/Admin/TemplatesSection.php:144
 msgid "Send via"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:137
+#: src/Admin/TemplatesSection.php:147
 msgid "SMS"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:139
+#: src/Admin/TemplatesSection.php:149
 msgid "Viber, SMS if not delivered"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:145
+#: src/Admin/TemplatesSection.php:155
 msgid "Viber template"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:147
+#: src/Admin/TemplatesSection.php:157
 msgid "Choose a template"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:179
+#. translators: %s: name of a field in a Viber template, for example customField1.
+#: src/Admin/TemplatesSection.php:216
+#, php-format
+msgid "Fill %s with"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:223
+msgid "Choose a value"
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:246
 msgid "No template chosen, so this message is sent as an SMS."
 msgstr ""
 
 #. translators: %s: reason, for example "awaiting approval".
-#: src/Admin/TemplatesSection.php:184
+#: src/Admin/TemplatesSection.php:251
 #, php-format
 msgid "This template cannot be used yet (%s), so this message is sent as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:241
+#: src/Admin/TemplatesSection.php:308
 msgid "Standard SMS"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:242
+#: src/Admin/TemplatesSection.php:309
 msgid "Unicode SMS (e.g. Cyrillic)"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:243
+#: src/Admin/TemplatesSection.php:310
 msgid "characters"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:244
+#: src/Admin/TemplatesSection.php:311
 msgid "SMS part"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:245
+#: src/Admin/TemplatesSection.php:312
 msgid "SMS parts"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:246
+#: src/Admin/TemplatesSection.php:313
 msgid "credit"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:248
+#: src/Admin/TemplatesSection.php:315
 msgid "With a Cyrillic name:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:249
+#: src/Admin/TemplatesSection.php:316
 msgid "Unknown placeholder:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:250
+#: src/Admin/TemplatesSection.php:317
 msgid "Empty message: nothing will be sent."
 msgstr ""
 
@@ -1436,18 +1450,42 @@ msgid "Viber has not been checked yet. Open the Connection tab and press \"Check
 msgstr ""
 
 #: src/Admin/ViberView.php:43
-msgid "awaiting approval"
+msgid "Order number"
 msgstr ""
 
 #: src/Admin/ViberView.php:44
-msgid "not transactional"
+msgid "Order total"
 msgstr ""
 
 #: src/Admin/ViberView.php:45
-msgid "has a variable the plugin cannot fill"
+msgid "First name"
 msgstr ""
 
 #: src/Admin/ViberView.php:46
+msgid "Last name"
+msgstr ""
+
+#: src/Admin/ViberView.php:47
+msgid "Shop name"
+msgstr ""
+
+#: src/Admin/ViberView.php:48
+msgid "Tracking number"
+msgstr ""
+
+#: src/Admin/ViberView.php:60
+msgid "awaiting approval"
+msgstr ""
+
+#: src/Admin/ViberView.php:61
+msgid "not transactional"
+msgstr ""
+
+#: src/Admin/ViberView.php:62
+msgid "choose what to fill each field with"
+msgstr ""
+
+#: src/Admin/ViberView.php:63
 msgid "contains a link"
 msgstr ""
 

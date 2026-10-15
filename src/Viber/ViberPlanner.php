@@ -34,14 +34,15 @@ final class ViberPlanner {
 	/**
 	 * Plan a Viber message, or return null to send an SMS.
 	 *
-	 * @param string               $channel  Channel chosen for the status ("sms" or "viber").
-	 * @param string               $template Chosen template ID.
-	 * @param array<string,string> $values   Placeholder values for the order.
-	 * @param string               $sms_text The message as an SMS.
-	 * @param bool                 $ready    Whether the account can use Viber.
-	 * @param TemplateCatalog      $catalog  Template list.
+	 * @param string                                          $channel  Channel chosen for the status ("sms" or "viber").
+	 * @param string                                          $template Chosen template ID.
+	 * @param array<string,string>                            $values   Placeholder values for the order.
+	 * @param string                                          $sms_text The message as an SMS.
+	 * @param bool                                            $ready    Whether the account can use Viber.
+	 * @param TemplateCatalog                                 $catalog  Template list.
+	 * @param array<string,array<string,string>>|array<mixed> $chosen   Shop's value choices per template: template ID => variable => placeholder.
 	 */
-	public static function plan( string $channel, string $template, array $values, string $sms_text, bool $ready, TemplateCatalog $catalog ): ?ViberPlan {
+	public static function plan( string $channel, string $template, array $values, string $sms_text, bool $ready, TemplateCatalog $catalog, array $chosen = array() ): ?ViberPlan {
 		if ( Channel::Viber->value !== $channel || ! $ready || '' === $template || '' === trim( $sms_text ) ) {
 			return null;
 		}
@@ -52,10 +53,15 @@ final class ViberPlanner {
 			return null;
 		}
 
-		$map    = VariableMapper::map( $found->variables, Placeholders::NAMES );
+		$mine = self::choices_for( $chosen, $found->id );
+
+		if ( null !== self::selection_problem( $found, $mine ) ) {
+			return null;
+		}
+
 		$params = array();
 
-		foreach ( (array) $map as $variable => $placeholder ) {
+		foreach ( (array) VariableMapper::map( $found->variables, $mine, Placeholders::NAMES ) as $variable => $placeholder ) {
 			$value = trim( $values[ $placeholder ] ?? '' );
 
 			if ( '' === $value || mb_strlen( $value ) > self::MAX_VALUE_LENGTH || 1 === preg_match( '~(?:https?://|www\.)~i', $value ) ) {
@@ -73,7 +79,27 @@ final class ViberPlanner {
 	}
 
 	/**
-	 * Why a template cannot be used for order messages, or null if it can.
+	 * The shop's value choices for one template.
+	 *
+	 * @param array<mixed> $chosen   Choices per template.
+	 * @param string       $template Template ID.
+	 * @return array<string,string>
+	 */
+	public static function choices_for( array $chosen, string $template ): array {
+		$row = $chosen[ $template ] ?? array();
+		$out = array();
+
+		foreach ( is_array( $row ) ? $row : array() as $variable => $placeholder ) {
+			if ( is_string( $placeholder ) ) {
+				$out[ (string) $variable ] = $placeholder;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Why a template cannot be used at all (for any order status), or null if it can.
 	 *
 	 * @param ViberTemplate $template Template.
 	 * @return string|null A PROBLEM_* constant.
@@ -83,15 +109,24 @@ final class ViberPlanner {
 			return self::PROBLEM_NOT_APPROVED;
 		}
 
-		if ( ! $template->is_transactional() ) {
-			return self::PROBLEM_NOT_TRANSACTIONAL;
-		}
+		return $template->is_transactional() ? null : self::PROBLEM_NOT_TRANSACTIONAL;
+	}
 
-		if ( array() !== VariableMapper::unmapped( $template->variables, Placeholders::NAMES ) ) {
+	/**
+	 * Why a template cannot be used for one order status with the shop's choices, or null.
+	 *
+	 * @param ViberTemplate        $template Template.
+	 * @param array<string,string> $chosen   The shop's choices for this template.
+	 * @return string|null A PROBLEM_* constant.
+	 */
+	public static function selection_problem( ViberTemplate $template, array $chosen ): ?string {
+		$map = VariableMapper::map( $template->variables, $chosen, Placeholders::NAMES );
+
+		if ( null === $map ) {
 			return self::PROBLEM_UNMAPPED;
 		}
 
-		foreach ( (array) VariableMapper::map( $template->variables, Placeholders::NAMES ) as $placeholder ) {
+		foreach ( $map as $placeholder ) {
 			if ( in_array( $placeholder, VariableMapper::LINK_PLACEHOLDERS, true ) ) {
 				return self::PROBLEM_LINK;
 			}

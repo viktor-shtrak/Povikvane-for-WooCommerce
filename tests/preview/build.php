@@ -74,7 +74,7 @@ function pvk_page( string $title, string $body ): string {
 		. '<style>body{margin:0;background:#f0f0f1}#pvk-bar{height:32px;background:#1d2327}#pvk-side{position:absolute;top:32px;left:0;bottom:0;width:160px;background:#1d2327}#wpcontent{margin-left:160px;padding-left:20px;padding-top:0}@media(max-width:782px){#pvk-side{display:none}#wpcontent{margin-left:0;padding-left:10px}}</style></head>'
 		. '<body class="wp-admin wp-core-ui"><div id="pvk-bar"></div><div id="pvk-side"></div><div id="wpcontent"><div id="wpbody-content">' . $body . '</div></div>'
 		. '<script>' . $config . '</script>'
-		. '<script src="assets-root/assets/js/tabs.js"></script><script src="assets-root/assets/js/segments.js"></script><script src="assets-root/assets/js/admin.js"></script><script src="assets-root/assets/js/status.js"></script></body></html>';
+		. '<script src="assets-root/assets/js/tabs.js"></script><script src="assets-root/assets/js/segments.js"></script><script src="assets-root/assets/js/admin.js"></script><script src="assets-root/assets/js/status.js"></script><script src="assets-root/assets/js/select.js"></script></body></html>';
 }
 
 /**
@@ -171,15 +171,15 @@ foreach ( $jobs as $name => $job ) {
 	if ( in_array( $name, array( 'tab-messages-viber', 'tab-connection-viber' ), true ) ) {
 		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
 		$GLOBALS['pvk_options'][ TriggerRepository::OPTION ] = array(
-			'processing' => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-1', 'template' => 'Order {order_number} is being processed.' ),
+			'processing' => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-1', 'viber_map' => array( 'tpl-1' => array( 'customField1' => 'order_number' ) ), 'template' => 'Order {order_number} is being processed.' ),
 			'completed'  => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-2', 'template' => 'Order {order_number} shipped.' ),
 		);
 		$GLOBALS['pvk_options'][ Povikvane\WooCommerce\Viber\TemplateCatalog::OPTION ] = array(
 			'fetched_at' => time(),
 			'items'      => array(
-				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Hi {{firstName}}, order {{orderNumber}}.', 'variables' => array( 'firstName', 'orderNumber' ), 'status' => 'approved', 'message_type' => 'transactional' ),
-				array( 'id' => 'tpl-2', 'name' => 'Shipped with link', 'content' => 'Track {{trackingUrl}}', 'variables' => array( 'trackingUrl' ), 'status' => 'approved', 'message_type' => 'transactional' ),
-				array( 'id' => 'tpl-3', 'name' => 'New offer', 'content' => 'Hi {{firstName}}', 'variables' => array( 'firstName' ), 'status' => 'pending', 'message_type' => null ),
+				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Hi {firstName}, order {customField1}.', 'variables' => array( 'firstName', 'customField1' ), 'status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-2', 'name' => 'Shipped notice', 'content' => 'Track {customField1} total {customField2}', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-3', 'name' => 'New offer', 'content' => 'Hi {firstName}', 'variables' => array( 'firstName' ), 'status' => 'pending', 'message_type' => null ),
 			),
 		);
 	}

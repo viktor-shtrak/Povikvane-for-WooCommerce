@@ -1,6 +1,6 @@
 <?php
 /**
- * Connects template variables to the plugin's placeholders.
+ * Connects Viber template variables to order values.
  *
  * @package Povikvane\WooCommerce
  */
@@ -12,63 +12,54 @@ namespace Povikvane\WooCommerce\Viber;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * A template variable such as "firstName" is matched to a placeholder such as
- * {first_name} by name, ignoring case and separators, plus a few obvious aliases.
- * A template with a variable we cannot fill is not used.
+ * A Viber template can only contain firstName, lastName and customField1 to
+ * customField3. The first two are filled from the order automatically; each
+ * customField is whatever the shop chooses for it (for example the order number),
+ * so the shop picks the value per order status. A template whose variables are not
+ * all covered is not used.
  */
 final class VariableMapper {
 
 	/**
 	 * Placeholders whose value is a link. Povikvane bills a Viber message with a link
-	 * as promotional, so a template using one is not sent as an order message.
+	 * in a variable as promotional, so such a value is never sent as an order message.
 	 */
 	public const LINK_PLACEHOLDERS = array( 'order_status_url', 'tracking_url', 'shop_url', 'optout_link' );
 
-	private const ALIASES = array(
-		'name'         => 'first_name',
-		'customer'     => 'first_name',
-		'order'        => 'order_number',
-		'orderid'      => 'order_number',
-		'total'        => 'order_total',
-		'shop'         => 'shop_name',
-		'store'        => 'shop_name',
-		'storename'    => 'shop_name',
-		'trackingcode' => 'tracking_number',
-		'trackinglink' => 'tracking_url',
-		'orderlink'    => 'order_status_url',
-		'orderurl'     => 'order_status_url',
+	/**
+	 * Variables filled without asking.
+	 */
+	private const AUTOMATIC = array(
+		'firstName' => 'first_name',
+		'lastName'  => 'last_name',
 	);
 
 	/**
-	 * Placeholder for a variable, or null.
+	 * Placeholder that fills a variable, from the automatic rules or the shop's choice.
 	 *
-	 * @param string   $variable     Template variable name.
-	 * @param string[] $placeholders Supported placeholder names.
+	 * @param string               $variable     Template variable name.
+	 * @param array<string,string> $chosen       Shop's choices, variable => placeholder.
+	 * @param string[]             $placeholders Supported placeholder names.
 	 */
-	public static function placeholder_for( string $variable, array $placeholders ): ?string {
-		$key = self::normalise( $variable );
+	public static function placeholder_for( string $variable, array $chosen, array $placeholders ): ?string {
+		$placeholder = self::AUTOMATIC[ $variable ] ?? ( $chosen[ $variable ] ?? '' );
 
-		foreach ( $placeholders as $name ) {
-			if ( self::normalise( $name ) === $key ) {
-				return $name;
-			}
-		}
-
-		return self::ALIASES[ $key ] ?? null;
+		return '' !== $placeholder && in_array( $placeholder, $placeholders, true ) ? $placeholder : null;
 	}
 
 	/**
 	 * Map every variable of a template.
 	 *
-	 * @param string[] $variables    Template variables.
-	 * @param string[] $placeholders Supported placeholder names.
+	 * @param string[]             $variables    Template variables.
+	 * @param array<string,string> $chosen       Shop's choices.
+	 * @param string[]             $placeholders Supported placeholder names.
 	 * @return array<string,string>|null Variable => placeholder, or null if any cannot be filled.
 	 */
-	public static function map( array $variables, array $placeholders ): ?array {
+	public static function map( array $variables, array $chosen, array $placeholders ): ?array {
 		$map = array();
 
 		foreach ( $variables as $variable ) {
-			$placeholder = self::placeholder_for( $variable, $placeholders );
+			$placeholder = self::placeholder_for( $variable, $chosen, $placeholders );
 
 			if ( null === $placeholder ) {
 				return null;
@@ -81,22 +72,34 @@ final class VariableMapper {
 	}
 
 	/**
-	 * Variables that cannot be filled.
+	 * Variables the shop still has to choose a value for.
 	 *
-	 * @param string[] $variables    Template variables.
-	 * @param string[] $placeholders Supported placeholder names.
+	 * @param string[]             $variables    Template variables.
+	 * @param array<string,string> $chosen       Shop's choices.
+	 * @param string[]             $placeholders Supported placeholder names.
 	 * @return string[]
 	 */
-	public static function unmapped( array $variables, array $placeholders ): array {
-		return array_values( array_filter( $variables, static fn( string $v ): bool => null === self::placeholder_for( $v, $placeholders ) ) );
+	public static function unmapped( array $variables, array $chosen, array $placeholders ): array {
+		return array_values( array_filter( $variables, static fn( string $v ): bool => null === self::placeholder_for( $v, $chosen, $placeholders ) ) );
 	}
 
 	/**
-	 * Lower-case letters and digits only.
+	 * Variables the shop has to choose a value for (everything but the automatic ones).
 	 *
-	 * @param string $name Name.
+	 * @param string[] $variables Template variables.
+	 * @return string[]
 	 */
-	private static function normalise( string $name ): string {
-		return strtolower( (string) preg_replace( '/[^A-Za-z0-9]/', '', $name ) );
+	public static function needs_choice( array $variables ): array {
+		return array_values( array_filter( $variables, static fn( string $v ): bool => ! isset( self::AUTOMATIC[ $v ] ) ) );
+	}
+
+	/**
+	 * Placeholders offered for a variable: values that are not links.
+	 *
+	 * @param string[] $placeholders Supported placeholder names.
+	 * @return string[]
+	 */
+	public static function choices( array $placeholders ): array {
+		return array_values( array_diff( $placeholders, self::LINK_PLACEHOLDERS ) );
 	}
 }

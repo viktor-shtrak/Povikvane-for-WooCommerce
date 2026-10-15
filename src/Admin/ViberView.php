@@ -34,6 +34,23 @@ final class ViberView {
 	}
 
 	/**
+	 * Name of an order value the shop can put into a template field.
+	 *
+	 * @param string $placeholder Placeholder name.
+	 */
+	public static function placeholder_label( string $placeholder ): string {
+		return match ( $placeholder ) {
+			'order_number'    => __( 'Order number', 'povikvane-for-woocommerce' ),
+			'order_total'     => __( 'Order total', 'povikvane-for-woocommerce' ),
+			'first_name'      => __( 'First name', 'povikvane-for-woocommerce' ),
+			'last_name'       => __( 'Last name', 'povikvane-for-woocommerce' ),
+			'shop_name'       => __( 'Shop name', 'povikvane-for-woocommerce' ),
+			'tracking_number' => __( 'Tracking number', 'povikvane-for-woocommerce' ),
+			default           => $placeholder,
+		};
+	}
+
+	/**
 	 * Short reason a template cannot be used.
 	 *
 	 * @param string $problem A ViberPlanner::PROBLEM_* constant.
@@ -42,7 +59,7 @@ final class ViberView {
 		return match ( $problem ) {
 			ViberPlanner::PROBLEM_NOT_APPROVED      => __( 'awaiting approval', 'povikvane-for-woocommerce' ),
 			ViberPlanner::PROBLEM_NOT_TRANSACTIONAL => __( 'not transactional', 'povikvane-for-woocommerce' ),
-			ViberPlanner::PROBLEM_UNMAPPED          => __( 'has a variable the plugin cannot fill', 'povikvane-for-woocommerce' ),
+			ViberPlanner::PROBLEM_UNMAPPED          => __( 'choose what to fill each field with', 'povikvane-for-woocommerce' ),
 			default                                 => __( 'contains a link', 'povikvane-for-woocommerce' ),
 		};
 	}

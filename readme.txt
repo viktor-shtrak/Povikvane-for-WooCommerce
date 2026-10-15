@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.6.3
+Stable tag: 0.6.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,13 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.6.5 =
+* Viber templates with custom fields now work: Povikvane Viber templates can only contain a first name, a last name and custom fields 1 to 3. The first two fill themselves, and for each custom field you choose what it is filled with (order number, order total, shop name and so on) per order status. Until every field has a value, that message is sent as an SMS.
+
+= 0.6.4 =
+* Drop-downs now match the Povikvane design instead of the browser's own, with keyboard support and a clear reason shown for templates that cannot be used yet.
+* Tidier order message rows: the Viber template field only shows when Viber is chosen, and the Viber explanation is folded away.
 
 = 0.6.3 =
 * Viber no longer requires your own Viber sender: accounts that send through Povikvane's shared Viber sender can use Viber too. Availability now depends on the Viber templates being enabled for your account.

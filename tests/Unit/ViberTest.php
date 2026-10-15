@@ -78,8 +78,8 @@ final class ViberTest extends TestCase {
 				array(
 					'name'                  => 'Order shipped',
 					'channel'               => 'viber',
-					'content'               => 'Hello {{firstName}}, order {{orderNumber}} is shipped.',
-					'variables'             => array( 'firstName', 'orderNumber' ),
+					'content'               => 'Hello {firstName}, order {customField1} is shipped.',
+					'variables'             => array( 'firstName', 'customField1' ),
 					'approval_status'       => 'approved',
 					'message_type'          => 'transactional',
 					'why_not_transactional' => null,
@@ -123,6 +123,15 @@ final class ViberTest extends TestCase {
 		);
 	}
 
+	/**
+	 * What the shop chose for custom field 1 of the test template.
+	 *
+	 * @return array<string,array<string,string>>
+	 */
+	private function chosen(): array {
+		return array( 'tpl-1' => array( 'customField1' => 'order_number' ) );
+	}
+
 	// ---- Basics ----
 
 	/**
@@ -136,24 +145,35 @@ final class ViberTest extends TestCase {
 	}
 
 	/**
-	 * A template is read from the API shape and filled.
+	 * A template is read from the API shape and filled, with either kind of braces.
 	 */
 	public function test_template_parsing_and_rendering(): void {
 		$template = ViberTemplate::from_api( $this->api_item() );
 
 		$this->assertNotNull( $template );
 		$this->assertSame( 'tpl-1', $template->id );
-		$this->assertSame( array( 'firstName', 'orderNumber' ), $template->variables );
+		$this->assertSame( array( 'firstName', 'customField1' ), $template->variables );
 		$this->assertTrue( $template->is_transactional() );
 		$this->assertSame(
 			'Hello Maria, order 1234 is shipped.',
 			$template->render(
 				array(
-					'firstName'   => 'Maria',
-					'orderNumber' => '1234',
+					'firstName'    => 'Maria',
+					'customField1' => '1234',
 				)
 			)
 		);
+
+		$double = ViberTemplate::from_api(
+			$this->api_item(
+				array(
+					'content'   => 'Hi {{firstName}}!',
+					'variables' => array( 'firstName' ),
+				)
+			)
+		);
+		$this->assertSame( 'Hi Maria!', $double?->render( array( 'firstName' => 'Maria' ) ) );
+
 		$this->assertNull( ViberTemplate::from_api( array( 'id' => 'x' ) ) );
 		$this->assertSame( 'marketing', ViberTemplate::from_api( $this->api_item( array( 'message_type' => 'marketing' ) ) )?->message_type );
 		$this->assertFalse(
@@ -169,19 +189,29 @@ final class ViberTest extends TestCase {
 	}
 
 	/**
-	 * Variables are matched to placeholders by name.
+	 * The first and last name fill themselves; each custom field is what the shop chooses.
 	 */
-	public function test_variables_map_to_placeholders(): void {
-		$names = Placeholders::NAMES;
+	public function test_variables_map_to_order_values(): void {
+		$names  = Placeholders::NAMES;
+		$chosen = array( 'customField1' => 'order_number' );
 
-		$this->assertSame( 'first_name', VariableMapper::placeholder_for( 'firstName', $names ) );
-		$this->assertSame( 'order_number', VariableMapper::placeholder_for( 'order_number', $names ) );
-		$this->assertSame( 'shop_name', VariableMapper::placeholder_for( 'ShopName', $names ) );
-		$this->assertSame( 'first_name', VariableMapper::placeholder_for( 'name', $names ) );
-		$this->assertNull( VariableMapper::placeholder_for( 'couponCode', $names ) );
-		$this->assertSame( array( 'couponCode' ), VariableMapper::unmapped( array( 'firstName', 'couponCode' ), $names ) );
-		$this->assertNull( VariableMapper::map( array( 'firstName', 'couponCode' ), $names ) );
-		$this->assertSame( array( 'firstName' => 'first_name' ), VariableMapper::map( array( 'firstName' ), $names ) );
+		$this->assertSame( 'first_name', VariableMapper::placeholder_for( 'firstName', array(), $names ) );
+		$this->assertSame( 'last_name', VariableMapper::placeholder_for( 'lastName', array(), $names ) );
+		$this->assertSame( 'order_number', VariableMapper::placeholder_for( 'customField1', $chosen, $names ) );
+		$this->assertNull( VariableMapper::placeholder_for( 'customField2', $chosen, $names ) );
+		$this->assertNull( VariableMapper::placeholder_for( 'customField1', array( 'customField1' => 'nonsense' ), $names ), 'unknown value' );
+		$this->assertSame( array( 'customField2' ), VariableMapper::unmapped( array( 'firstName', 'customField1', 'customField2' ), $chosen, $names ) );
+		$this->assertNull( VariableMapper::map( array( 'firstName', 'customField2' ), $chosen, $names ) );
+		$this->assertSame(
+			array(
+				'firstName'    => 'first_name',
+				'customField1' => 'order_number',
+			),
+			VariableMapper::map( array( 'firstName', 'customField1' ), $chosen, $names )
+		);
+		$this->assertSame( array( 'customField1', 'customField3' ), VariableMapper::needs_choice( array( 'firstName', 'customField1', 'lastName', 'customField3' ) ) );
+		$this->assertNotContains( 'tracking_url', VariableMapper::choices( $names ) );
+		$this->assertContains( 'order_number', VariableMapper::choices( $names ) );
 	}
 
 	// ---- Template list ----
@@ -226,14 +256,14 @@ final class ViberTest extends TestCase {
 	 * Everything in order: a Viber plan with the SMS fallback.
 	 */
 	public function test_planner_builds_a_plan(): void {
-		$plan = ViberPlanner::plan( 'viber', 'tpl-1', $this->values(), 'Order 1234 shipped.', true, $this->catalog( array( $this->api_item() ) ) );
+		$plan = ViberPlanner::plan( 'viber', 'tpl-1', $this->values(), 'Order 1234 shipped.', true, $this->catalog( array( $this->api_item() ) ), $this->chosen() );
 
 		$this->assertNotNull( $plan );
 		$this->assertSame( 'tpl-1', $plan->template_id );
 		$this->assertSame(
 			array(
-				'firstName'   => 'Maria',
-				'orderNumber' => '1234',
+				'firstName'    => 'Maria',
+				'customField1' => '1234',
 			),
 			$plan->params
 		);
@@ -245,20 +275,23 @@ final class ViberTest extends TestCase {
 	 * Any doubt means an ordinary SMS.
 	 */
 	public function test_planner_falls_back_to_sms_when_unsure(): void {
-		$ok   = $this->catalog( array( $this->api_item() ) );
-		$sms  = 'Order 1234 shipped.';
-		$none = static fn( string $channel, string $tpl, array $values, string $text, bool $ready, TemplateCatalog $catalog ): ?object => ViberPlanner::plan( $channel, $tpl, $values, $text, $ready, $catalog );
+		$ok     = $this->catalog( array( $this->api_item() ) );
+		$sms    = 'Order 1234 shipped.';
+		$chosen = $this->chosen();
+		$none   = static fn( string $channel, string $tpl, array $values, string $text, bool $ready, TemplateCatalog $catalog, array $map ): ?object => ViberPlanner::plan( $channel, $tpl, $values, $text, $ready, $catalog, $map );
 
-		$this->assertNull( $none( 'sms', 'tpl-1', $this->values(), $sms, true, $ok ), 'SMS chosen' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), $sms, false, $ok ), 'Viber not available' );
-		$this->assertNull( $none( 'viber', '', $this->values(), $sms, true, $ok ), 'no template chosen' );
-		$this->assertNull( $none( 'viber', 'gone', $this->values(), $sms, true, $ok ), 'template not in the list' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), '  ', true, $ok ), 'empty SMS text' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'first_name' => '' ) ), $sms, true, $ok ), 'a value is missing' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'first_name' => str_repeat( 'a', 126 ) ) ), $sms, true, $ok ), 'a value is too long' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'first_name' => 'see https://x.test' ) ), $sms, true, $ok ), 'a value has a link' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), str_repeat( 'a', 161 ), true, $ok ), 'SMS text longer than one part' );
-		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), str_repeat( 'Я', 71 ), true, $ok ), 'Cyrillic SMS text longer than one part' );
+		$this->assertNull( $none( 'sms', 'tpl-1', $this->values(), $sms, true, $ok, $chosen ), 'SMS chosen' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), $sms, false, $ok, $chosen ), 'Viber not available' );
+		$this->assertNull( $none( 'viber', '', $this->values(), $sms, true, $ok, $chosen ), 'no template chosen' );
+		$this->assertNull( $none( 'viber', 'gone', $this->values(), $sms, true, $ok, $chosen ), 'template not in the list' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), '  ', true, $ok, $chosen ), 'empty SMS text' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), $sms, true, $ok, array() ), 'custom field not chosen' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), $sms, true, $ok, array( 'tpl-1' => array( 'customField1' => 'tracking_url' ) ) ), 'a link was chosen' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'first_name' => '' ) ), $sms, true, $ok, $chosen ), 'a value is missing' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'order_number' => str_repeat( '1', 126 ) ) ), $sms, true, $ok, $chosen ), 'a value is too long' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'first_name' => 'see https://x.test' ) ), $sms, true, $ok, $chosen ), 'a value has a link' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), str_repeat( 'a', 161 ), true, $ok, $chosen ), 'SMS text longer than one part' );
+		$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), str_repeat( 'Я', 71 ), true, $ok, $chosen ), 'Cyrillic SMS text longer than one part' );
 
 		foreach ( array(
 			array(
@@ -270,17 +303,9 @@ final class ViberTest extends TestCase {
 				'message_type'    => null,
 			),
 			array( 'message_type' => 'marketing' ),
-			array(
-				'variables' => array( 'firstName', 'couponCode' ),
-				'content'   => 'Hi {{firstName}} {{couponCode}}',
-			),
-			array(
-				'variables' => array( 'firstName', 'trackingUrl' ),
-				'content'   => 'Hi {{firstName}} {{trackingUrl}}',
-			),
 		) as $attributes ) {
 			$catalog = $this->catalog( array( $this->api_item( $attributes ) ) );
-			$this->assertNull( $none( 'viber', 'tpl-1', $this->values( array( 'tracking_url' => 'https://t.test/1' ) ), $sms, true, $catalog ), wp_json_encode( $attributes ) );
+			$this->assertNull( $none( 'viber', 'tpl-1', $this->values(), $sms, true, $catalog, $chosen ), (string) wp_json_encode( $attributes ) );
 		}
 	}
 
@@ -288,7 +313,7 @@ final class ViberTest extends TestCase {
 	 * The editor learns why a template is not usable.
 	 */
 	public function test_problem_reasons(): void {
-		$problem = static fn( array $attributes ): ?string => ViberPlanner::problem( ViberTemplate::from_api( $attributes ) );
+		$problem = static fn( array $item ): ?string => ViberPlanner::problem( ViberTemplate::from_api( $item ) );
 
 		$this->assertNull( $problem( $this->api_item() ) );
 		$this->assertSame(
@@ -303,8 +328,14 @@ final class ViberTest extends TestCase {
 			)
 		);
 		$this->assertSame( ViberPlanner::PROBLEM_NOT_TRANSACTIONAL, $problem( $this->api_item( array( 'message_type' => 'marketing' ) ) ) );
-		$this->assertSame( ViberPlanner::PROBLEM_UNMAPPED, $problem( $this->api_item( array( 'variables' => array( 'couponCode' ) ) ) ) );
-		$this->assertSame( ViberPlanner::PROBLEM_LINK, $problem( $this->api_item( array( 'variables' => array( 'orderLink' ) ) ) ) );
+
+		$template = ViberTemplate::from_api( $this->api_item() );
+		$this->assertNotNull( $template );
+		$this->assertSame( ViberPlanner::PROBLEM_UNMAPPED, ViberPlanner::selection_problem( $template, array() ) );
+		$this->assertNull( ViberPlanner::selection_problem( $template, array( 'customField1' => 'order_number' ) ) );
+		$this->assertSame( ViberPlanner::PROBLEM_LINK, ViberPlanner::selection_problem( $template, array( 'customField1' => 'order_status_url' ) ) );
+		$this->assertSame( array( 'customField1' => 'order_number' ), ViberPlanner::choices_for( $this->chosen(), 'tpl-1' ) );
+		$this->assertSame( array(), ViberPlanner::choices_for( $this->chosen(), 'other' ) );
 	}
 
 	// ---- Request ----
@@ -400,7 +431,7 @@ final class ViberTest extends TestCase {
 	}
 
 	/**
-	 * The stored channel and template are read back.
+	 * The stored channel, template and value choices are read back.
 	 */
 	public function test_trigger_reads_the_stored_channel_and_template(): void {
 		update_option(
@@ -409,6 +440,12 @@ final class ViberTest extends TestCase {
 				'processing' => array(
 					'channel'        => 'viber',
 					'viber_template' => 'tpl-1',
+					'viber_map'      => array(
+						'tpl-1' => array(
+							'customField1' => 'order_number',
+							'customField2' => 'nonsense',
+						),
+					),
 				),
 				'completed'  => array( 'channel' => 'fax' ),
 			)
@@ -420,6 +457,8 @@ final class ViberTest extends TestCase {
 		$this->assertSame( 'tpl-1', $repository->for_status( 'processing' )->viber_template );
 		$this->assertSame( 'sms', $repository->for_status( 'completed' )->channel );
 		$this->assertSame( '', $repository->for_status( 'cancelled' )->viber_template );
+		$this->assertSame( array( 'tpl-1' => array( 'customField1' => 'order_number' ) ), $repository->for_status( 'processing' )->viber_map, 'unknown values are dropped' );
+		$this->assertSame( array(), $repository->for_status( 'completed' )->viber_map );
 	}
 
 	/**
@@ -489,7 +528,7 @@ final class ViberTest extends TestCase {
 			'ab12cd34',
 			new Rules(),
 			static fn(): bool => true,
-			static fn( Trigger $trigger, array $values, string $text ) => ViberPlanner::plan( $trigger->channel, $trigger->viber_template, $values, $text, true, $catalog )
+			static fn( Trigger $trigger, array $values, string $text ) => ViberPlanner::plan( $trigger->channel, $trigger->viber_template, $values, $text, true, $catalog, $trigger->viber_map )
 		);
 	}
 
@@ -505,7 +544,7 @@ final class ViberTest extends TestCase {
 	 */
 	public function test_order_event_queues_a_viber_message(): void {
 		$store = new InMemoryStore();
-		$this->handler( $store, new RecordingScheduler() )->handle( $this->facts(), new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', 'tpl-1' ) );
+		$this->handler( $store, new RecordingScheduler() )->handle( $this->facts(), new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', 'tpl-1', $this->chosen() ) );
 
 		$message = $store->find( 1 );
 		$this->assertNotNull( $message );
@@ -515,8 +554,8 @@ final class ViberTest extends TestCase {
 			array(
 				'template_id'  => 'tpl-1',
 				'params'       => array(
-					'firstName'   => 'Maria',
-					'orderNumber' => '1234',
+					'firstName'    => 'Maria',
+					'customField1' => '1234',
 				),
 				'fallback_sms' => 'Order 1234 shipped.',
 			),
@@ -529,9 +568,11 @@ final class ViberTest extends TestCase {
 	 */
 	public function test_order_event_queues_sms_otherwise(): void {
 		foreach ( array(
-			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'sms', 'tpl-1' ),
-			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', '' ),
-			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', 'gone' ),
+			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'sms', 'tpl-1', $this->chosen() ),
+			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', '', $this->chosen() ),
+			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', 'gone', $this->chosen() ),
+			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', 'tpl-1' ),
+			new Trigger( 'completed', true, 'Order {order_number} shipped.', 0, 'viber', 'tpl-1', array( 'tpl-1' => array( 'customField1' => 'tracking_url' ) ) ),
 		) as $trigger ) {
 			$store = new InMemoryStore();
 			$this->handler( $store, new RecordingScheduler() )->handle( $this->facts(), $trigger );

@@ -24,6 +24,7 @@ final class Assets {
 	 */
 	public static function base(): void {
 		wp_enqueue_style( 'povikvane-admin', plugins_url( 'assets/css/admin.css', PLUGIN_FILE ), array(), VERSION );
+		wp_enqueue_script( 'povikvane-select', plugins_url( 'assets/js/select.js', PLUGIN_FILE ), array(), VERSION, true );
 	}
 
 	/**

@@ -623,7 +623,8 @@ final class Plugin {
 				$values,
 				$sms_text,
 				Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) ),
-				new TemplateCatalog()
+				new TemplateCatalog(),
+				$trigger->viber_map
 			)
 		);
 	}

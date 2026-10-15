@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace Povikvane\WooCommerce\Orders;
 
 use Povikvane\WooCommerce\Messages\Channel;
+use Povikvane\WooCommerce\Messages\Placeholders;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -48,7 +49,8 @@ final class TriggerRepository implements TriggerProvider {
 			'' !== $template ? $template : TemplateDefaults::for_status( $status, $this->locale ),
 			isset( $row['delay'] ) ? max( 0, min( self::MAX_DELAY_MINUTES, (int) $row['delay'] ) ) : 0,
 			Channel::from_value( $row['channel'] ?? null )->value,
-			isset( $row['viber_template'] ) && is_string( $row['viber_template'] ) ? $row['viber_template'] : ''
+			isset( $row['viber_template'] ) && is_string( $row['viber_template'] ) ? $row['viber_template'] : '',
+			$this->clean_map( $row['viber_map'] ?? null )
 		);
 	}
 
@@ -75,7 +77,7 @@ final class TriggerRepository implements TriggerProvider {
 	 * The current configuration of every status in the shape the settings form posts,
 	 * so a screen showing only some statuses can change those and leave the rest alone.
 	 *
-	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string,viber_template:string}>
+	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string,viber_template:string,viber_map:array<string,array<string,string>>}>
 	 */
 	public function current_input(): array {
 		$input = array();
@@ -88,6 +90,7 @@ final class TriggerRepository implements TriggerProvider {
 				'delay'          => $trigger->delay_minutes,
 				'channel'        => $trigger->channel,
 				'viber_template' => $trigger->viber_template,
+				'viber_map'      => $trigger->viber_map,
 			);
 		}
 
@@ -95,10 +98,38 @@ final class TriggerRepository implements TriggerProvider {
 	}
 
 	/**
+	 * Keep only well-formed Viber value choices: known placeholders for short variable names.
+	 *
+	 * @param mixed $input Stored or submitted value.
+	 * @return array<string,array<string,string>>
+	 */
+	private function clean_map( mixed $input ): array {
+		$clean = array();
+
+		foreach ( is_array( $input ) ? $input : array() as $template => $row ) {
+			$id = substr( (string) preg_replace( '/[^A-Za-z0-9_.:-]/', '', (string) $template ), 0, 64 );
+
+			if ( '' === $id || ! is_array( $row ) ) {
+				continue;
+			}
+
+			foreach ( $row as $variable => $placeholder ) {
+				$name = substr( (string) preg_replace( '/[^A-Za-z0-9_]/', '', (string) $variable ), 0, 40 );
+
+				if ( '' !== $name && is_string( $placeholder ) && in_array( $placeholder, Placeholders::NAMES, true ) ) {
+					$clean[ $id ][ $name ] = $placeholder;
+				}
+			}
+		}
+
+		return $clean;
+	}
+
+	/**
 	 * Sanitise the submitted trigger table.
 	 *
 	 * @param mixed $input Submitted value, keyed by status slug.
-	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string,viber_template:string}>
+	 * @return array<string,array{enabled:bool,template:string,delay:int,channel:string,viber_template:string,viber_map:array<string,array<string,string>>}>
 	 */
 	public function sanitize( mixed $input ): array {
 		$input = is_array( $input ) ? $input : array();
@@ -115,6 +146,7 @@ final class TriggerRepository implements TriggerProvider {
 				'delay'          => max( 0, min( self::MAX_DELAY_MINUTES, (int) ( $row['delay'] ?? 0 ) ) ),
 				'channel'        => Channel::from_value( $row['channel'] ?? null )->value,
 				'viber_template' => substr( preg_replace( '/[^A-Za-z0-9_.:-]/', '', (string) ( $row['viber_template'] ?? '' ) ) ?? '', 0, 64 ),
+				'viber_map'      => $this->clean_map( $row['viber_map'] ?? null ),
 			);
 		}
 

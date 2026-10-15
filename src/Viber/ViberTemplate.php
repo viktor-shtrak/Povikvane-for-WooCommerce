@@ -115,15 +115,15 @@ final class ViberTemplate {
 	}
 
 	/**
-	 * Fill the template.
+	 * Fill the template. Both {{name}} and {name} markers are filled.
 	 *
 	 * @param array<string,string> $params Values keyed by variable name.
 	 */
 	public function render( array $params ): string {
 		return trim(
 			preg_replace_callback(
-				'/\{\{\s*([A-Za-z0-9_]+)\s*\}\}/',
-				static fn( array $found ): string => $params[ $found[1] ] ?? '',
+				'/\{\{\s*([A-Za-z0-9_]+)\s*\}\}|\{([A-Za-z0-9_]+)\}/',
+				static fn( array $found ): string => $params[ '' !== $found[1] ? $found[1] : ( $found[2] ?? '' ) ] ?? '',
 				$this->content
 			) ?? $this->content
 		);
