@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.6.0
+Stable tag: 0.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,7 +46,7 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it from the Plugins screen.
 2. Activate the plugin. WooCommerce 11.0 or newer is required.
-3. Follow the setup wizard that opens, or go to WooCommerce > Povikvane SMS. Enter your Povikvane API key and service ID, choose your messages and send a test.
+3. Follow the setup wizard that opens, or go to WooCommerce > Povikvane - Viber & SMS. Enter your Povikvane API key and service ID, choose your messages and send a test.
 
 == Frequently Asked Questions ==
 
@@ -71,6 +71,12 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.6.1 =
+* One menu entry: WooCommerce > Povikvane - Viber & SMS. The message log is a tab on the same screen.
+* New "Test the webhook address" button checks that your site answers at its webhook address.
+* The Messages tab now says why Viber is not offered (not checked, templates not enabled, no Viber sender, SMS fallback not enabled yet).
+* The Bulgarian translation was reviewed and reworded.
 
 = 0.6.0 =
 * Viber for order messages: pick an approved Viber template for an order status and the message goes out over Viber, with an automatic SMS if Viber cannot deliver it. Anything unusual (template not approved, a link in the message, a missing value, an SMS longer than one part) is sent as a normal SMS, so no update is lost.

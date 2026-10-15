@@ -55,6 +55,10 @@ final class TemplatesSection {
 
 		$viber = Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) );
 
+		if ( ! $viber ) {
+			$this->viber_unavailable_note( Capabilities::viber_status( get_option( Capabilities::OPTION, array() ) ) );
+		}
+
 		if ( $viber ) {
 			echo '<p class="pvk-card__intro">' . esc_html__( 'Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection.', 'povikvane-for-woocommerce' ) . '</p>';
 		}
@@ -93,6 +97,22 @@ final class TemplatesSection {
 		}
 
 		echo '</div><div class="pvk-card__foot">' . esc_html__( 'A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for.', 'povikvane-for-woocommerce' ) . '</div></section>';
+	}
+
+	/**
+	 * Tell why Viber is not offered, so its absence is never a mystery.
+	 *
+	 * @param string $status A Capabilities::VIBER_* constant.
+	 */
+	private function viber_unavailable_note( string $status ): void {
+		$text = match ( $status ) {
+			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available.', 'povikvane-for-woocommerce' ),
+			Capabilities::VIBER_NO_SENDER        => __( 'Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS.', 'povikvane-for-woocommerce' ),
+			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day.', 'povikvane-for-woocommerce' ),
+			default                              => __( 'Viber has not been checked yet. Open the Connection tab and press "Check connection".', 'povikvane-for-woocommerce' ),
+		};
+
+		echo '<p class="pvk-card__intro pvk-trigger__hint--warn">' . esc_html( $text ) . '</p>';
 	}
 
 	/**

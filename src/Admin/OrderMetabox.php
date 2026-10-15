@@ -75,7 +75,7 @@ final class OrderMetabox {
 	public function add(): void {
 		add_meta_box(
 			'povikvane-sms',
-			__( 'Povikvane SMS', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane', 'povikvane-for-woocommerce' ),
 			array( $this, 'render' ),
 			wc_get_page_screen_id( 'shop-order' ),
 			'side',

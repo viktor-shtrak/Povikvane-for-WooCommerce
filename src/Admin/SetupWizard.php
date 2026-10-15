@@ -113,8 +113,8 @@ final class SetupWizard {
 	public function add_menu(): void {
 		$this->hook_suffix = (string) add_submenu_page(
 			'woocommerce',
-			__( 'Povikvane SMS setup', 'povikvane-for-woocommerce' ),
-			__( 'Povikvane SMS setup', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane setup', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane setup', 'povikvane-for-woocommerce' ),
 			self::CAPABILITY,
 			self::SLUG,
 			array( $this, 'render' )

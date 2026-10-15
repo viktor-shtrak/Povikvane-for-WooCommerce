@@ -58,7 +58,7 @@ final class PauseControls {
 			return;
 		}
 
-		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'Povikvane SMS', 'povikvane-for-woocommerce' ) . '</strong> ' . esc_html( $this->text( $reason ) ) . '</p><p>';
+		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ) . '</strong> ' . esc_html( $this->text( $reason ) ) . '</p><p>';
 
 		switch ( $reason ) {
 			case SendingState::REASON_SITE:
@@ -141,7 +141,7 @@ final class PauseControls {
 
 				return sprintf(
 					/* translators: %d: number of waiting messages. */
-					_n( 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard it.', 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard them.', $waiting, 'povikvane-for-woocommerce' ),
+					_n( 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard it.', 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard them.', $waiting, 'povikvane-for-woocommerce' ),
 					$waiting
 				);
 

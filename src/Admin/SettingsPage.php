@@ -27,7 +27,7 @@ use const Povikvane\WooCommerce\VERSION;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce > Povikvane SMS: one page with tabs (Overview, Connection,
+ * WooCommerce > Povikvane - Viber & SMS: one page with tabs (Overview, Connection,
  * Messages, Promotions, Safety and data). Every tab lives in the same form, so
  * saving on one tab can never discard settings from another.
  */
@@ -115,8 +115,8 @@ final class SettingsPage {
 	public function add_menu(): void {
 		$this->hook_suffix = (string) add_submenu_page(
 			'woocommerce',
-			__( 'Povikvane SMS', 'povikvane-for-woocommerce' ),
-			__( 'Povikvane SMS', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane - Viber & SMS', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane - Viber & SMS', 'povikvane-for-woocommerce' ),
 			self::CAPABILITY,
 			self::SLUG,
 			array( $this, 'render' )

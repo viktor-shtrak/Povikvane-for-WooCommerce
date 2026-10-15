@@ -37,7 +37,7 @@ final class Layout {
 	public static function open( string $modifier = '', string $attrs = '' ): void {
 		self::$forms = array();
 
-		echo '<div class="wrap"><h1 class="screen-reader-text">' . esc_html__( 'Povikvane SMS', 'povikvane-for-woocommerce' ) . '</h1><hr class="wp-header-end">';
+		echo '<div class="wrap"><h1 class="screen-reader-text">' . esc_html__( 'Povikvane - Viber & SMS', 'povikvane-for-woocommerce' ) . '</h1><hr class="wp-header-end">';
 
 		settings_errors();
 		Flash::render();
@@ -47,7 +47,7 @@ final class Layout {
 		printf(
 			'<header class="pvk-header"><img class="pvk-header__logo" src="%1$s" alt="Povikvane" width="140" height="24"><span class="pvk-header__product">%2$s</span><span class="pvk-header__version">%3$s</span></header>',
 			esc_url( plugins_url( 'assets/img/povikvane-logo.svg', PLUGIN_FILE ) ),
-			esc_html__( 'SMS for WooCommerce', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Viber & SMS for WooCommerce', 'povikvane-for-woocommerce' ),
 			esc_html( 'v' . VERSION )
 		);
 	}
@@ -60,7 +60,7 @@ final class Layout {
 	 * @param string                                                                       $current ID of the tab shown first.
 	 */
 	public static function tabs( array $tabs, string $current ): void {
-		echo '<nav class="pvk-tabs" role="tablist" aria-label="' . esc_attr__( 'Povikvane SMS sections', 'povikvane-for-woocommerce' ) . '">';
+		echo '<nav class="pvk-tabs" role="tablist" aria-label="' . esc_attr__( 'Povikvane sections', 'povikvane-for-woocommerce' ) . '">';
 
 		foreach ( $tabs as $tab ) {
 			$dot = ! empty( $tab['dot'] ) ? '<span class="pvk-tab__dot" title="' . esc_attr__( 'Needs attention', 'povikvane-for-woocommerce' ) . '"></span>' : '';

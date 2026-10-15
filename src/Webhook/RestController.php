@@ -94,6 +94,17 @@ final class RestController {
 			return new WP_Error( 'povikvane_bad_request', __( 'Expected a JSON body.', 'povikvane-for-woocommerce' ), array( 'status' => 400 ) );
 		}
 
+		// The site's own check: answered, never recorded as a report from Povikvane.
+		if ( SelfTest::EVENT === ( $body['event'] ?? null ) ) {
+			return new WP_REST_Response(
+				array(
+					'ok'     => true,
+					'result' => 'test',
+				),
+				200
+			);
+		}
+
 		return new WP_REST_Response(
 			array(
 				'ok'     => true,

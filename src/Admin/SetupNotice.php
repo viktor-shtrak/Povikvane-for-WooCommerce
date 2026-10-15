@@ -61,7 +61,7 @@ final class SetupNotice {
 		$required = array_filter( $items, static fn( array $item ): bool => $item['required'] );
 		$done     = count( array_filter( $required, static fn( array $item ): bool => $item['done'] ) );
 
-		echo '<div class="notice notice-info"><p><strong>' . esc_html__( 'Povikvane SMS', 'povikvane-for-woocommerce' ) . '</strong> ';
+		echo '<div class="notice notice-info"><p><strong>' . esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ) . '</strong> ';
 		echo esc_html(
 			sprintf(
 				/* translators: 1: steps done, 2: total steps. */

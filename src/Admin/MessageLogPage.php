@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Filters are read-only GET parameters; actions that change data verify nonces.
 
 /**
- * WooCommerce > Povikvane messages: browse, filter, resend and export.
+ * Povikvane > Message log: browse, filter, resend and export.
  */
 final class MessageLogPage {
 
@@ -66,6 +66,8 @@ final class MessageLogPage {
 	 */
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		add_action( 'admin_head', array( $this, 'hide_menu_entry' ) );
+		add_filter( 'submenu_file', array( $this, 'highlight_settings_entry' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'admin_post_povikvane_resend', array( $this, 'handle_resend' ) );
 		add_action( 'admin_post_povikvane_export', array( $this, 'handle_export' ) );
@@ -77,12 +79,31 @@ final class MessageLogPage {
 	public function add_menu(): void {
 		$this->hook_suffix = (string) add_submenu_page(
 			'woocommerce',
-			__( 'Povikvane messages', 'povikvane-for-woocommerce' ),
-			__( 'Povikvane messages', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane message log', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane message log', 'povikvane-for-woocommerce' ),
 			self::CAPABILITY,
 			self::SLUG,
 			array( $this, 'render' )
 		);
+	}
+
+	/**
+	 * The log is a tab of the Povikvane screen, so it has no menu entry of its own.
+	 * It is hidden after WordPress has checked access to the page.
+	 */
+	public function hide_menu_entry(): void {
+		remove_submenu_page( 'woocommerce', self::SLUG );
+	}
+
+	/**
+	 * Keep the Povikvane menu entry highlighted while the log is open.
+	 *
+	 * @param mixed $submenu_file Current submenu file.
+	 * @return mixed
+	 */
+	public function highlight_settings_entry( mixed $submenu_file ): mixed {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen check.
+		return isset( $_GET['page'] ) && self::SLUG === sanitize_key( wp_unslash( $_GET['page'] ) ) ? SettingsPage::SLUG : $submenu_file;
 	}
 
 	/**

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-15 12:08+0300\n"
+"POT-Creation-Date: 2026-10-15 13:25+0300\n"
 "PO-Revision-Date: 2026-10-14 16:00+0300\n"
 "Last-Translator: Povikvane <support@povikvane.com>\n"
 "Language-Team: Bulgarian\n"
@@ -14,12 +14,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Admin/BalanceNotice.php:61 src/Admin/Layout.php:40
-#: src/Admin/OrderMetabox.php:78 src/Admin/PauseControls.php:61
-#: src/Admin/SettingsPage.php:118 src/Admin/SettingsPage.php:119
-#: src/Admin/SetupNotice.php:64
-msgid "Povikvane SMS"
-msgstr "Povikvane SMS"
+#: src/Admin/BalanceNotice.php:61 src/Admin/OrderMetabox.php:78
+#: src/Admin/PauseControls.php:61 src/Admin/SetupNotice.php:64
+msgid "Povikvane"
+msgstr "Povikvane"
 
 #. translators: 1: credits left, 2: warning level.
 #: src/Admin/BalanceNotice.php:65
@@ -120,11 +118,11 @@ msgstr "Автоматично (според езика на сайта)"
 
 #: src/Admin/ConnectionPanel.php:99
 msgid "A status message that arrives a day late is worse than none, so messages stuck longer than this are not sent."
-msgstr "Съобщение за статус, което пристига с ден закъснение, е по-лошо от никакво, затова съобщенията, чакали по-дълго от това, не се изпращат."
+msgstr "Известие за статус, което пристига с ден закъснение, е по-лошо от никакво, затова съобщенията, чакали по-дълго от това, не се изпращат."
 
 #: src/Admin/ConnectionPanel.php:99
 msgid "Drop waiting messages after"
-msgstr "Отмяна на чакащите съобщения след"
+msgstr "Не изпращай съобщения, чакали повече от"
 
 #: src/Admin/ConnectionPanel.php:104
 msgid "hours"
@@ -150,101 +148,131 @@ msgstr "Никога не включва API ключа или текста на
 msgid "View logs"
 msgstr "Виж дневниците"
 
-#: src/Admin/DeliveryPanel.php:53 src/Admin/OverviewPanel.php:159
+#: src/Admin/DeliveryPanel.php:55 src/Admin/OverviewPanel.php:159
 #: src/Admin/OverviewPanel.php:162
 msgid "Delivery reports"
 msgstr "Отчети за доставка"
 
-#: src/Admin/DeliveryPanel.php:53
-msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later."
-msgstr "За да виждате доставките в момента, в който се случват, поставете този адрес като Webhook URL на вашия API ключ в Povikvane (Настройки > API). Без него добавката пак разбира резултата, като проверява редовно, но малко по-късно."
+#: src/Admin/DeliveryPanel.php:55
+msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later. After adding it, send a test message from the Overview tab: \"Last report received\" shows when Povikvane has reached your site."
+msgstr "За да виждате доставките в момента, в който се случват, добавете този адрес като Webhook URL към вашия API ключ в Povikvane (Настройки > API). Без него добавката пак разбира резултата, като проверява редовно, но малко по-късно. След като го добавите, изпратете тестово съобщение от раздел „Общ преглед“: „Последен получен отчет“ показва кога Povikvane е успял да се свърже със сайта ви."
 
-#: src/Admin/DeliveryPanel.php:55 src/Admin/SetupWizard.php:398
+#: src/Admin/DeliveryPanel.php:57 src/Admin/SetupWizard.php:398
 msgid "Webhook address"
 msgstr "Webhook адрес"
 
-#: src/Admin/DeliveryPanel.php:59 src/Admin/SetupWizard.php:399
+#: src/Admin/DeliveryPanel.php:61 src/Admin/SetupWizard.php:399
 msgid "Copied"
 msgstr "Копирано"
 
-#: src/Admin/DeliveryPanel.php:60 src/Admin/SetupWizard.php:400
+#: src/Admin/DeliveryPanel.php:62 src/Admin/SetupWizard.php:400
 msgid "Copy"
 msgstr "Копирай"
 
-#: src/Admin/DeliveryPanel.php:66
+#: src/Admin/DeliveryPanel.php:68
 msgid "Last report received"
 msgstr "Последен получен отчет"
 
-#: src/Admin/DeliveryPanel.php:69
+#: src/Admin/DeliveryPanel.php:71
 msgid "Never"
 msgstr "Никога"
 
 #. translators: 1: date and time, 2: result of handling it.
-#: src/Admin/DeliveryPanel.php:74
+#: src/Admin/DeliveryPanel.php:76
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
-#: src/Admin/DeliveryPanel.php:86
+#: src/Admin/DeliveryPanel.php:88
 msgid "Message queue"
 msgstr "Опашка за съобщения"
 
 #. translators: %d: minutes.
-#: src/Admin/DeliveryPanel.php:92
+#: src/Admin/DeliveryPanel.php:94
 #, php-format
 msgid "Running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly."
-msgstr "Закъснение: най-старото чакащо съобщение е със закъснение от %d минути. Възможно е WordPress да не изпълнява планираните си задачи; помолете хостинг доставчика си да стартира WP-Cron редовно."
+msgstr "Закъснение: най-старото чакащо съобщение е със закъснение от %d минути. Възможно е WordPress да не изпълнява планираните си задачи; помолете хостинг компанията си да стартира WP-Cron редовно."
 
-#: src/Admin/DeliveryPanel.php:97
+#: src/Admin/DeliveryPanel.php:99
 msgid "On time"
 msgstr "Навреме"
 
-#: src/Admin/DeliveryPanel.php:103
+#: src/Admin/DeliveryPanel.php:104
 msgid "Need a different address?"
-msgstr "Нужен ви е друг адрес?"
+msgstr "Искате друг адрес?"
 
 #: src/Admin/DeliveryPanel.php:112
-msgid "Create a new webhook address"
-msgstr "Създай нов webhook адрес"
+msgid "Test the webhook address"
+msgstr "Провери webhook адреса"
 
-#: src/Admin/DeliveryPanel.php:112
-msgid "Create a new webhook address? The current one stops working and must be updated in Povikvane."
-msgstr "Да се създаде ли нов webhook адрес? Текущият ще спре да работи и трябва да бъде обновен в Povikvane."
-
-#: src/Admin/DeliveryPanel.php:124 src/Admin/MarketingSection.php:179
-#: src/Admin/MessageLogPage.php:284 src/Admin/OrderMetabox.php:157
-#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:370
-#: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:679
+#: src/Admin/DeliveryPanel.php:124 src/Admin/DeliveryPanel.php:177
+#: src/Admin/MarketingSection.php:179 src/Admin/MessageLogPage.php:305
+#: src/Admin/OrderMetabox.php:157 src/Admin/PauseControls.php:173
+#: src/Admin/SettingsPage.php:370 src/Admin/SetupNotice.php:88
+#: src/Admin/SetupWizard.php:679
 msgid "You do not have permission to do that."
 msgstr "Нямате право да правите това."
 
-#: src/Admin/DeliveryPanel.php:128
+#: src/Admin/DeliveryPanel.php:152
+msgid "The webhook address works. To see that Povikvane can reach it, send a test message and watch \"Last report received\"."
+msgstr "Webhook адресът работи. За да се уверите, че Povikvane може да го достигне, изпратете тестово съобщение и следете „Последен получен отчет“."
+
+#: src/Admin/DeliveryPanel.php:153
+msgid "The webhook address was not found. Check that pretty permalinks are on and the REST API is not disabled, or create a new address."
+msgstr "Webhook адресът не е намерен. Проверете дали са включени „красивите“ връзки (permalinks) и дали REST API не е изключен, или създайте нов адрес."
+
+#: src/Admin/DeliveryPanel.php:154
+msgid "The webhook address was blocked, probably by a security plugin or a firewall. Allow requests to /wp-json/povikvane/ and try again."
+msgstr "Webhook адресът е блокиран, вероятно от защитна добавка или защитна стена. Разрешете заявките към /wp-json/povikvane/ и опитайте отново."
+
+#: src/Admin/DeliveryPanel.php:155
+msgid "This server could not reach its own webhook address. That does not always mean Povikvane cannot; send a test message and watch \"Last report received\"."
+msgstr "Този сървър не успя да достигне собствения си webhook адрес. Това не значи непременно, че Povikvane не може; изпратете тестово съобщение и следете „Последен получен отчет“."
+
+#: src/Admin/DeliveryPanel.php:156
+msgid "The webhook address gave an unexpected answer. Try again, or create a new address."
+msgstr "Webhook адресът върна неочакван отговор. Опитайте отново или създайте нов адрес."
+
+#: src/Admin/DeliveryPanel.php:165
+msgid "Create a new webhook address"
+msgstr "Създай нов webhook адрес"
+
+#: src/Admin/DeliveryPanel.php:165
+msgid "Create a new webhook address? The current one stops working and must be updated in Povikvane."
+msgstr "Да се създаде ли нов webhook адрес? Текущият ще спре да работи и трябва да бъде обновен в Povikvane."
+
+#: src/Admin/DeliveryPanel.php:181
 msgid "A new webhook address was created. Update it in Povikvane."
 msgstr "Създаден е нов webhook адрес. Обновете го в Povikvane."
 
-#: src/Admin/DeliveryPanel.php:141 src/Admin/OverviewPanel.php:257
+#: src/Admin/DeliveryPanel.php:194 src/Admin/OverviewPanel.php:257
 msgid "updated a message"
-msgstr "обнови съобщение"
+msgstr "обновено съобщение"
 
-#: src/Admin/DeliveryPanel.php:142 src/Admin/OverviewPanel.php:258
+#: src/Admin/DeliveryPanel.php:195 src/Admin/OverviewPanel.php:258
 msgid "already known"
-msgstr "вече известно"
+msgstr "вече обработено"
 
-#: src/Admin/DeliveryPanel.php:143
+#: src/Admin/DeliveryPanel.php:196
 msgid "not one of this plugin's messages"
 msgstr "не е съобщение на тази добавка"
 
-#: src/Admin/DeliveryPanel.php:144 src/Admin/OverviewPanel.php:260
+#: src/Admin/DeliveryPanel.php:197 src/Admin/OverviewPanel.php:260
 msgid "not understood"
 msgstr "не е разпознато"
 
+#: src/Admin/Layout.php:40 src/Admin/SettingsPage.php:118
+#: src/Admin/SettingsPage.php:119
+msgid "Povikvane - Viber & SMS"
+msgstr "Povikvane - Viber и SMS"
+
 #: src/Admin/Layout.php:50
-msgid "SMS for WooCommerce"
-msgstr "SMS за WooCommerce"
+msgid "Viber & SMS for WooCommerce"
+msgstr "Viber и SMS за WooCommerce"
 
 #: src/Admin/Layout.php:63
-msgid "Povikvane SMS sections"
-msgstr "Раздели на Povikvane SMS"
+msgid "Povikvane sections"
+msgstr "Раздели на Povikvane"
 
 #: src/Admin/Layout.php:66
 msgid "Needs attention"
@@ -252,7 +280,7 @@ msgstr "Изисква внимание"
 
 #: src/Admin/MarketingSection.php:83
 msgid "Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on."
-msgstr "Промоционални SMS могат да се изпращат само на клиенти, които са се съгласили да ги получават. Добавката пита с неотбелязана отметка при плащането, проверява съгласието отново непосредствено преди всяко съобщение, добавя връзка за отписване към всяко промоционално съобщение и изпраща само в часовете по-долу. Дайте текста за преглед преди да включите това."
+msgstr "Промоционални SMS могат да се изпращат само на клиенти, които са се съгласили да ги получават. Добавката пита с неотбелязана отметка при плащането, проверява съгласието отново непосредствено преди всяко съобщение, добавя връзка за отписване към всяко промоционално съобщение и изпраща само в часовете по-долу. Нека текстът бъде прегледан, преди да включите това."
 
 #: src/Admin/MarketingSection.php:83
 msgid "Promotional messages"
@@ -266,7 +294,7 @@ msgstr "Статус"
 
 #: src/Admin/MarketingSection.php:86
 msgid "Ask customers for their agreement and allow promotional messages"
-msgstr "Питай клиентите за съгласие и разреши промоционални съобщения"
+msgstr "Искай съгласие от клиентите и разреши промоционални съобщения"
 
 #: src/Admin/MarketingSection.php:86
 msgid "Off by default. Nothing promotional is ever sent while this is off."
@@ -290,7 +318,7 @@ msgstr "Часове за изпращане"
 
 #: src/Admin/MarketingSection.php:101
 msgid "Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit."
-msgstr "Цели часове в часовата зона на магазина. Промоционалните съобщения изчакват следващото отваряне. Съобщенията за поръчки не се засягат. Еднакви часове означават без ограничение."
+msgstr "Цели часове в часовата зона на магазина. Промоционалните съобщения изчакват следващото отваряне. Съобщенията за поръчки не се засягат. Еднакви часове означават, че няма ограничение."
 
 #: src/Admin/MarketingSection.php:104 src/Admin/MessageListTable.php:216
 msgid "From"
@@ -322,7 +350,7 @@ msgstr "Позволени съобщения"
 
 #: src/Admin/MarketingSection.php:120
 msgid "message(s) per phone number in"
-msgstr "съобщение(я) на телефонен номер за"
+msgstr "съобщение(я) на телефонен номер за период от"
 
 #: src/Admin/MarketingSection.php:122
 msgid "Period in days"
@@ -442,41 +470,41 @@ msgstr "До"
 msgid "Filter"
 msgstr "Филтрирай"
 
-#: src/Admin/MessageLogPage.php:80 src/Admin/MessageLogPage.php:81
-msgid "Povikvane messages"
-msgstr "Съобщения на Povikvane"
+#: src/Admin/MessageLogPage.php:82 src/Admin/MessageLogPage.php:83
+msgid "Povikvane message log"
+msgstr "Дневник на съобщенията на Povikvane"
 
-#: src/Admin/MessageLogPage.php:105 src/Admin/SettingsPage.php:206
+#: src/Admin/MessageLogPage.php:126 src/Admin/SettingsPage.php:206
 #: src/Admin/SetupWizard.php:166
 msgid "You do not have permission to access this page."
-msgstr "Нямате право да достъпвате тази страница."
+msgstr "Нямате право за достъп до тази страница."
 
-#: src/Admin/MessageLogPage.php:117 src/Admin/Navigation.php:56
+#: src/Admin/MessageLogPage.php:138 src/Admin/Navigation.php:56
 #: src/Admin/SettingsPage.php:242
 msgid "Message log"
 msgstr "Дневник на съобщенията"
 
-#: src/Admin/MessageLogPage.php:121
+#: src/Admin/MessageLogPage.php:142
 msgid "Export CSV"
 msgstr "Експорт в CSV"
 
-#: src/Admin/MessageLogPage.php:126
+#: src/Admin/MessageLogPage.php:147
 msgid "Search order number, reference or message ID"
-msgstr "Търсене по номер на поръчка, референция или ID на съобщение"
+msgstr "Търсене по номер на поръчка, референтен номер или ID на съобщение"
 
-#: src/Admin/MessageLogPage.php:145
+#: src/Admin/MessageLogPage.php:166
 msgid "This message cannot be sent again."
 msgstr "Това съобщение не може да бъде изпратено отново."
 
-#: src/Admin/MessageLogPage.php:150 src/Admin/OrderMetabox.php:176
+#: src/Admin/MessageLogPage.php:171 src/Admin/OrderMetabox.php:176
 msgid "This site is not confirmed as the live shop yet. Confirm it first."
 msgstr "Този сайт още не е потвърден като реалния магазин. Първо го потвърдете."
 
-#: src/Admin/MessageLogPage.php:169 src/Admin/OrderMetabox.php:199
+#: src/Admin/MessageLogPage.php:190 src/Admin/OrderMetabox.php:199
 msgid "Another message was just queued. Wait a second and try again."
 msgstr "Току-що беше добавено друго съобщение. Изчакайте секунда и опитайте отново."
 
-#: src/Admin/MessageLogPage.php:171
+#: src/Admin/MessageLogPage.php:192
 msgid "The message was queued again."
 msgstr "Съобщението беше добавено отново в опашката."
 
@@ -580,7 +608,7 @@ msgstr "изтекло"
 
 #: src/Admin/OverviewPanel.php:54
 msgid "A few steps and your customers get their order updates by text message."
-msgstr "Само няколко стъпки и клиентите ви получават новини за поръчките си с текстови съобщения."
+msgstr "Само няколко стъпки и клиентите ви ще получават съобщения за поръчките си."
 
 #: src/Admin/OverviewPanel.php:54
 msgid "Finish setting up"
@@ -675,7 +703,7 @@ msgstr "Малко"
 
 #: src/Admin/OverviewPanel.php:143
 msgid "Your balance is not available from the service yet."
-msgstr "Балансът ви още не е наличен от услугата."
+msgstr "Услугата още не предоставя информация за баланса ви."
 
 #: src/Admin/OverviewPanel.php:148
 msgid "Active"
@@ -716,7 +744,7 @@ msgstr "Изпращане"
 
 #: src/Admin/OverviewPanel.php:159
 msgid "Messages are still checked regularly. Add the webhook for instant results."
-msgstr "Съобщенията пак се проверяват редовно. Добавете webhook за мигновени резултати."
+msgstr "Съобщенията пак се проверяват редовно. Добавете webhook за незабавни резултати."
 
 #: src/Admin/OverviewPanel.php:159
 msgid "None yet"
@@ -736,7 +764,7 @@ msgstr "Последен: %1$s (%2$s)"
 #: src/Admin/OverviewPanel.php:186
 #, php-format
 msgid "The message queue is running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly."
-msgstr "Опашката за съобщения закъснява: най-старото чакащо съобщение е със закъснение от %d минути. Възможно е WordPress да не изпълнява планираните си задачи; помолете хостинг доставчика си да стартира WP-Cron редовно."
+msgstr "Опашката за съобщения закъснява: най-старото чакащо съобщение е със закъснение от %d минути. Възможно е WordPress да не изпълнява планираните си задачи; помолете хостинг компанията си да стартира WP-Cron редовно."
 
 #: src/Admin/OverviewPanel.php:200
 msgid "Sends one real SMS and uses message credits."
@@ -768,7 +796,7 @@ msgstr "Виж всички"
 
 #: src/Admin/OverviewPanel.php:226
 msgid "No messages yet. They appear here as soon as an order changes status or you send a test."
-msgstr "Още няма съобщения. Ще се покажат тук, щом статусът на поръчка се промени или изпратите тест."
+msgstr "Още няма съобщения. Ще се появят тук, щом статусът на поръчка се промени или изпратите тестово съобщение."
 
 #: src/Admin/OverviewPanel.php:259
 msgid "another message"
@@ -784,7 +812,7 @@ msgstr "Изпрати тези съобщения"
 
 #: src/Admin/PauseControls.php:70
 msgid "Discard waiting messages"
-msgstr "Отхвърли чакащите съобщения"
+msgstr "Откажи чакащите съобщения"
 
 #: src/Admin/PauseControls.php:88
 msgid "Sending resumed."
@@ -813,10 +841,10 @@ msgstr "Адресът на този сайт е различен от този,
 #. translators: %d: number of waiting messages.
 #: src/Admin/PauseControls.php:144
 #, php-format
-msgid "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard it."
-msgid_plural "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard them."
-msgstr[0] "Бяха създадени много съобщения наведнъж, затова изпращането беше спряно за защита от случайно масово разпращане. Чака %d съобщение. Прегледайте списъка в WooCommerce > Povikvane SMS, след това го изпратете или отхвърлете."
-msgstr[1] "Бяха създадени много съобщения наведнъж, затова изпращането беше спряно за защита от случайно масово разпращане. Чакат %d съобщения. Прегледайте списъка в WooCommerce > Povikvane SMS, след това ги изпратете или отхвърлете."
+msgid "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard it."
+msgid_plural "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard them."
+msgstr[0] "Бяха създадени много съобщения наведнъж, затова изпращането беше спряно за защита от случайно масово разпращане. Чака %d съобщение. Прегледайте списъка в WooCommerce > Povikvane - Viber и SMS, след това го изпратете или отхвърлете."
+msgstr[1] "Бяха създадени много съобщения наведнъж, затова изпращането беше спряно за защита от случайно масово разпращане. Чакат %d съобщения. Прегледайте списъка в WooCommerce > Povikvane - Viber и SMS, след това ги изпратете или отхвърлете."
 
 #: src/Admin/PauseControls.php:149
 msgid "The API key or service ID was rejected, so no messages are being sent. Check the connection settings."
@@ -856,23 +884,23 @@ msgstr "Пропускай номера, които не са мобилни (п
 
 #: src/Admin/SafetyPanel.php:45
 msgid "Orders created in the admin"
-msgstr "Поръчки, създадени в администрацията"
+msgstr "Поръчки, създадени от администратор"
 
 #: src/Admin/SafetyPanel.php:46
 msgid "Do not send automatic messages for orders created by hand"
-msgstr "Не изпращай автоматични съобщения за поръчки, създадени ръчно"
+msgstr "Не изпращай автоматични съобщения за поръчки, въведени ръчно"
 
 #: src/Admin/SafetyPanel.php:49
 msgid "Bursts of messages"
-msgstr "Внезапни вълни от съобщения"
+msgstr "Много съобщения наведнъж"
 
 #: src/Admin/SafetyPanel.php:49
 msgid "Stops accidental mass messaging, for example after changing many orders at once. The messages are kept for you to send or discard. 0 turns this off."
-msgstr "Спира случайното масово разпращане, например след промяна на много поръчки наведнъж. Съобщенията се запазват, за да ги изпратите или отхвърлите. 0 изключва това."
+msgstr "Спира случайното масово разпращане, например след промяна на много поръчки наведнъж. Съобщенията се запазват, за да ги изпратите или отхвърлите. 0 изключва защитата."
 
 #: src/Admin/SafetyPanel.php:52
 msgid "Pause when more than"
-msgstr "Пауза, когато са създадени над"
+msgstr "Пауза, ако бъдат създадени над"
 
 #: src/Admin/SafetyPanel.php:55
 msgid "messages are created within 10 minutes"
@@ -880,7 +908,7 @@ msgstr "съобщения за 10 минути"
 
 #: src/Admin/SafetyPanel.php:63
 msgid "Low credits warning"
-msgstr "Предупреждение за малко кредити"
+msgstr "Предупреждение при ниско ниво на кредитите"
 
 #: src/Admin/SafetyPanel.php:63
 msgid "Shows a notice in the admin and sends the site administrator one email a day while credits stay below this level. 0 turns the warning off."
@@ -890,7 +918,7 @@ msgstr "Показва известие в администрацията и и�
 msgid "Warn me below"
 msgstr "Предупреждавай ме под"
 
-#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:248
+#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:268
 msgid "credits"
 msgstr "кредита"
 
@@ -900,11 +928,11 @@ msgstr "Данни и поверителност"
 
 #: src/Admin/SafetyPanel.php:75
 msgid "Message text is personal data, so it is erased after a while. Records are kept longer for billing questions."
-msgstr "Текстът на съобщенията представлява лични данни, затова се изтрива след известно време. Записите се пазят по-дълго за въпроси относно таксуването."
+msgstr "Текстът на съобщенията съдържа лични данни, затова се изтрива след известно време. Записите се пазят по-дълго, за въпроси относно таксуването."
 
 #: src/Admin/SafetyPanel.php:77
 msgid "0 keeps it forever."
-msgstr "0 го пази завинаги."
+msgstr "0 означава да се пази завинаги."
 
 #: src/Admin/SafetyPanel.php:77
 msgid "Message text"
@@ -920,7 +948,7 @@ msgstr "Записи за съобщенията"
 
 #: src/Admin/SafetyPanel.php:87
 msgid "Order, status, credits and phone number. 0 keeps them forever."
-msgstr "Поръчка, статус, кредити и телефонен номер. 0 ги пази завинаги."
+msgstr "Поръчка, статус, кредити и телефонен номер. 0 означава да се пазят завинаги."
 
 #: src/Admin/SafetyPanel.php:90
 msgid "Delete after"
@@ -928,7 +956,7 @@ msgstr "Изтрий след"
 
 #: src/Admin/SafetyPanel.php:97
 msgid "CSV export"
-msgstr "CSV експорт"
+msgstr "Експорт в CSV"
 
 #: src/Admin/SafetyPanel.php:98
 msgid "Include full phone numbers in the message log export"
@@ -956,7 +984,7 @@ msgstr "Свързано."
 
 #: src/Admin/SettingsPage.php:391
 msgid "The service could not be reached."
-msgstr "Услугата не може да бъде достигната."
+msgstr "Няма връзка с услугата."
 
 #: src/Admin/SettingsPage.php:392
 msgid "The service rejected the request; check the service ID."
@@ -981,8 +1009,8 @@ msgid "Dismiss"
 msgstr "Затвори"
 
 #: src/Admin/SetupWizard.php:116 src/Admin/SetupWizard.php:117
-msgid "Povikvane SMS setup"
-msgstr "Настройка на Povikvane SMS"
+msgid "Povikvane setup"
+msgstr "Настройка на Povikvane"
 
 #: src/Admin/SetupWizard.php:154 src/Admin/SetupWizard.php:364
 msgid "Waiting for the result…"
@@ -994,11 +1022,11 @@ msgstr "Още се чака. Можете да продължите; резул
 
 #: src/Admin/SetupWizard.php:199
 msgid "Let's get your order messages going"
-msgstr "Да задвижим съобщенията за вашите поръчки"
+msgstr "Да пуснем съобщенията за поръчките ви"
 
 #: src/Admin/SetupWizard.php:200
 msgid "In a few minutes your customers can get a text message when their order is completed. This takes about five minutes."
-msgstr "След броени минути клиентите ви могат да получават текстово съобщение, когато поръчката им е завършена. Отнема около пет минути."
+msgstr "Само след няколко минути клиентите ви ще получават текстово съобщение, когато поръчката им е завършена. Настройката отнема около пет минути."
 
 #: src/Admin/SetupWizard.php:202
 msgid "What you will need"
@@ -1057,7 +1085,7 @@ msgstr "Изберете съобщенията си"
 
 #: src/Admin/SetupWizard.php:292
 msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
-msgstr "Включете новините за поръчките, които клиентите ви да получават, и променете текста, ако желаете. Всичко това може да се промени по-късно."
+msgstr "Включете известията за поръчки, които клиентите ви да получават, и променете текста, ако желаете. Всичко това можете да промените и по-късно."
 
 #: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:48
 msgid "You can use:"
@@ -1131,7 +1159,7 @@ msgstr "Всичко е готово"
 
 #: src/Admin/SetupWizard.php:440
 msgid "A few things are still open. You can finish them from the Overview."
-msgstr "Остават няколко неща. Можете да ги завършите от Общия преглед."
+msgstr "Остават няколко неща. Можете да ги завършите от раздел „Общ преглед“."
 
 #: src/Admin/SetupWizard.php:440
 msgid "Your customers will now get the messages you switched on."
@@ -1163,7 +1191,7 @@ msgstr "Добре е да знаете"
 
 #: src/Admin/SetupWizard.php:462
 msgid "Promotional messages are off. They need your customers' agreement, and you can switch them on under Promotions."
-msgstr "Промоционалните съобщения са изключени. Те изискват съгласието на клиентите ви и можете да ги включите в Промоции."
+msgstr "Промоционалните съобщения са изключени. Те изискват съгласието на клиентите ви и можете да ги включите в раздел „Промоции“."
 
 #: src/Admin/SetupWizard.php:463
 msgid "Safety rules are active: no messages for old orders or landline numbers, and a pause if many messages are created at once."
@@ -1175,11 +1203,11 @@ msgstr "Към общия преглед"
 
 #: src/Admin/SetupWizard.php:507
 msgid "Connected. Your account details work."
-msgstr "Свързано. Данните на акаунта ви работят."
+msgstr "Свързано. Данните за акаунта ви са приети."
 
 #: src/Admin/SetupWizard.php:514
 msgid "The service could not be reached. Check your internet connection and try again."
-msgstr "Услугата не можа да бъде достигната. Проверете интернет връзката си и опитайте отново."
+msgstr "Няма връзка с услугата. Проверете интернет връзката си и опитайте отново."
 
 #: src/Admin/SetupWizard.php:515
 msgid "Those details were not accepted. Check the API key and service ID in Povikvane under Settings > API."
@@ -1243,113 +1271,129 @@ msgstr "Изтекло"
 
 #: src/Admin/TemplatesSection.php:46
 msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
-msgstr "Изберете при кои статуси на поръчка се изпраща текстово съобщение до клиента и какво да пише в него. Тук е мястото само на информация за поръчката; за всичко промоционално използвайте раздел Промоции."
+msgstr "Изберете при кои статуси на поръчка се изпраща текстово съобщение до клиента и какво да пише в него. Тук се пише само информация, свързана с поръчката; за всичко промоционално използвайте раздел „Промоции“."
 
 #: src/Admin/TemplatesSection.php:46
 msgid "Order messages"
 msgstr "Съобщения за поръчки"
 
-#: src/Admin/TemplatesSection.php:59
+#: src/Admin/TemplatesSection.php:63
 msgid "Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection."
 msgstr "Viber изисква одобрен транзакционен шаблон от вашия акаунт в Povikvane. Ако Viber не може да се използва за дадено съобщение, то се изпраща като SMS. Съобщение във Viber струва 0,8 кредита, когато е доставено през Viber; резервният SMS се таксува по ценовата листа на Povikvane. Текстът на SMS-а трябва да се побира в една SMS част (160 знака, 70 с кирилица), за да работи автоматичното връщане към SMS, а шаблон, който изисква връзка или дълга стойност, се изпраща като SMS. Новите шаблони се появяват до 15 минути или когато проверите връзката."
 
-#: src/Admin/TemplatesSection.php:72
+#: src/Admin/TemplatesSection.php:76
 msgid "Wait"
 msgstr "Изчакай"
 
-#: src/Admin/TemplatesSection.php:75
+#: src/Admin/TemplatesSection.php:79
 msgid "minutes first"
 msgstr "минути преди изпращане"
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:85
+#: src/Admin/TemplatesSection.php:89
 #, php-format
 msgid "Message when an order becomes \"%s\""
-msgstr "Съобщение, когато поръчка стане „%s“"
+msgstr "Съобщение, когато поръчката стане „%s“"
 
-#: src/Admin/TemplatesSection.php:95
+#: src/Admin/TemplatesSection.php:99
 msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
-msgstr "Изчакването ви позволява да отмените, като смените статуса отново. Съобщението се изпраща само ако поръчката все още е със статуса, за който е създадено."
+msgstr "Забавянето ви дава възможност да отмените съобщението, като смените статуса отново. Съобщението се изпраща само ако поръчката все още е със статуса, за който е създадено."
 
-#: src/Admin/TemplatesSection.php:121
+#: src/Admin/TemplatesSection.php:109
+msgid "Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available."
+msgstr "Viber още не е наличен: шаблоните за Viber не са включени за вашия акаунт в Povikvane. Съобщенията за поръчки се изпращат като SMS. Тази страница ще предложи Viber, щом стане наличен."
+
+#: src/Admin/TemplatesSection.php:110
+msgid "Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS."
+msgstr "Viber още не е наличен: вашият акаунт в Povikvane няма Viber изпращач. Съобщенията за поръчки се изпращат като SMS."
+
+#: src/Admin/TemplatesSection.php:111
+msgid "Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day."
+msgstr "Viber е на пауза: Povikvane още не е включил резервния SMS за вашия акаунт, затова съобщенията за поръчки се изпращат като SMS. Добавката опитва отново всеки ден."
+
+#: src/Admin/TemplatesSection.php:112
+msgid "Viber has not been checked yet. Open the Connection tab and press \"Check connection\"."
+msgstr "Viber още не е проверен. Отворете раздел „Връзка“ и натиснете „Провери връзката“."
+
+#: src/Admin/TemplatesSection.php:141
 msgid "Send via"
 msgstr "Изпращане през"
 
-#: src/Admin/TemplatesSection.php:124
+#: src/Admin/TemplatesSection.php:144
 msgid "SMS"
 msgstr "SMS"
 
-#: src/Admin/TemplatesSection.php:126
+#: src/Admin/TemplatesSection.php:146
 msgid "Viber, SMS if not delivered"
 msgstr "Viber, SMS ако не е доставено"
 
-#: src/Admin/TemplatesSection.php:132
+#: src/Admin/TemplatesSection.php:152
 msgid "Viber template"
 msgstr "Шаблон за Viber"
 
-#: src/Admin/TemplatesSection.php:134
+#: src/Admin/TemplatesSection.php:154
 msgid "Choose a template"
 msgstr "Изберете шаблон"
 
-#: src/Admin/TemplatesSection.php:166
+#: src/Admin/TemplatesSection.php:186
 msgid "No template chosen, so this message is sent as an SMS."
 msgstr "Не е избран шаблон, затова това съобщение се изпраща като SMS."
 
 #. translators: %s: reason, for example "awaiting approval".
-#: src/Admin/TemplatesSection.php:171
+#: src/Admin/TemplatesSection.php:191
 #, php-format
 msgid "This template cannot be used yet (%s), so this message is sent as an SMS."
 msgstr "Този шаблон още не може да се използва (%s), затова съобщението се изпраща като SMS."
 
-#: src/Admin/TemplatesSection.php:185
+#: src/Admin/TemplatesSection.php:205
 msgid "awaiting approval"
 msgstr "чака одобрение"
 
-#: src/Admin/TemplatesSection.php:186
+#: src/Admin/TemplatesSection.php:206
 msgid "not transactional"
 msgstr "не е транзакционен"
 
-#: src/Admin/TemplatesSection.php:187
+#: src/Admin/TemplatesSection.php:207
 msgid "has a variable the plugin cannot fill"
 msgstr "има променлива, която добавката не може да попълни"
 
-#: src/Admin/TemplatesSection.php:188
+#: src/Admin/TemplatesSection.php:208
 msgid "contains a link"
 msgstr "съдържа връзка"
 
-#: src/Admin/TemplatesSection.php:242
+#: src/Admin/TemplatesSection.php:262
 msgid "Standard SMS"
 msgstr "Стандартно SMS"
 
-#: src/Admin/TemplatesSection.php:243
+#: src/Admin/TemplatesSection.php:263
 msgid "Unicode SMS (e.g. Cyrillic)"
 msgstr "Unicode SMS (напр. кирилица)"
 
-#: src/Admin/TemplatesSection.php:244
+#: src/Admin/TemplatesSection.php:264
 msgid "characters"
 msgstr "знака"
 
-#: src/Admin/TemplatesSection.php:245
+#: src/Admin/TemplatesSection.php:265
 msgid "SMS part"
 msgstr "SMS част"
 
-#: src/Admin/TemplatesSection.php:246
+#: src/Admin/TemplatesSection.php:266
 msgid "SMS parts"
 msgstr "SMS части"
 
-#: src/Admin/TemplatesSection.php:247
+#: src/Admin/TemplatesSection.php:267
 msgid "credit"
 msgstr "кредит"
 
-#: src/Admin/TemplatesSection.php:249
+#: src/Admin/TemplatesSection.php:269
 msgid "With a Cyrillic name:"
 msgstr "С име на кирилица:"
 
-#: src/Admin/TemplatesSection.php:250
+#: src/Admin/TemplatesSection.php:270
 msgid "Unknown placeholder:"
-msgstr "Непознат параметър:"
+msgstr "Непозната променлива:"
 
-#: src/Admin/TemplatesSection.php:251
+#: src/Admin/TemplatesSection.php:271
 msgid "Empty message: nothing will be sent."
 msgstr "Празно съобщение: нищо няма да бъде изпратено."
 
@@ -1375,7 +1419,7 @@ msgstr "Тестовото съобщение е добавено в опашк�
 #: src/Balance/WpMailer.php:32
 #, php-format
 msgid "[%s] Low SMS credits"
-msgstr "[%s] Малко SMS кредити"
+msgstr "[%s] Ниски кредити за съобщения"
 
 #. translators: 1: credits left, 2: warning threshold, 3: settings page URL.
 #: src/Balance/WpMailer.php:37
@@ -1390,14 +1434,14 @@ msgid ""
 msgstr ""
 "Вашият акаунт в Povikvane има още %1$s кредита (праг за предупреждение: %2$d).\n"
 "\n"
-"SMS съобщения не могат да бъдат изпращани, когато кредитите свършат. Заредете кредити във вашия акаунт в Povikvane.\n"
+"Когато кредитите свършат, съобщения не могат да се изпращат. Заредете кредити във вашия акаунт в Povikvane.\n"
 "\n"
 "Това предупреждение се изпраща най-много веднъж дневно. Можете да промените нивото тук:\n"
 "%3$s"
 
 #: src/Marketing/AccountConsent.php:82
 msgid "Add a mobile number to your billing address first, so we know where to send messages."
-msgstr "Първо добавете мобилен номер към адреса си за фактуриране, за да знаем накъде да изпращаме съобщения."
+msgstr "Първо добавете мобилен номер към адреса си за фактуриране, за да знаем къде да изпращаме съобщенията."
 
 #: src/Marketing/OptOutEndpoint.php:54
 msgid "This unsubscribe link is not valid."
@@ -1421,7 +1465,7 @@ msgstr "Отписан"
 #: src/Plugin.php:428
 #, php-format
 msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
-msgstr "Povikvane SMS за WooCommerce изисква WooCommerce %s или по-нова версия и не беше заредена."
+msgstr "Povikvane SMS за WooCommerce изисква WooCommerce %s или по-нова версия и не е зареден."
 
 #: src/Privacy/Privacy.php:66 src/Privacy/Privacy.php:122
 msgid "SMS messages"
@@ -1429,7 +1473,7 @@ msgstr "SMS съобщения"
 
 #: src/Privacy/Privacy.php:67
 msgid "Suggested wording. Review and adapt it to how you use the plugin."
-msgstr "Предложен текст. Прегледайте го и го приспособете към начина, по който използвате добавката."
+msgstr "Предложен текст. Прегледайте го и го адаптирайте към начина, по който използвате добавката."
 
 #: src/Privacy/Privacy.php:68
 msgid "When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them on our behalf, so your phone number and the message text are passed to that service."
@@ -1437,7 +1481,7 @@ msgstr "Когато направите поръчка, можем да ви и�
 
 #: src/Privacy/Privacy.php:69
 msgid "If you agreed to it, we also send occasional promotional text messages. You can withdraw your agreement at any time using the link in each message or in your account. We keep a record of your agreement and of any withdrawal."
-msgstr "Ако сте се съгласили, изпращаме и инцидентни промоционални текстови съобщения. Можете да оттеглите съгласието си по всяко време чрез връзката във всяко съобщение или в акаунта си. Пазим запис на съгласието ви и на евентуалното му оттегляне."
+msgstr "Ако сте се съгласили, от време на време изпращаме и промоционални текстови съобщения. Можете да оттеглите съгласието си по всяко време чрез връзката във всяко съобщение или в акаунта си. Пазим запис на съгласието ви и на евентуалното му оттегляне."
 
 #: src/Privacy/Privacy.php:70
 msgid "We keep the text of messages for a limited time and the record of each message (order, status, phone number) for longer, as set in the plugin settings."

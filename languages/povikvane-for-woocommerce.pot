@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.6.0\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.6.1\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-15 12:11+0300\n"
+"POT-Creation-Date: 2026-10-15 13:25+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: src/Admin/BalanceNotice.php:61 src/Admin/Layout.php:40
-#: src/Admin/OrderMetabox.php:78 src/Admin/PauseControls.php:61
-#: src/Admin/SettingsPage.php:118 src/Admin/SettingsPage.php:119
-#: src/Admin/SetupNotice.php:64
-msgid "Povikvane SMS"
+#: src/Admin/BalanceNotice.php:61 src/Admin/OrderMetabox.php:78
+#: src/Admin/PauseControls.php:61 src/Admin/SetupNotice.php:64
+msgid "Povikvane"
 msgstr ""
 
 #. translators: 1: credits left, 2: warning level.
@@ -154,100 +152,130 @@ msgstr ""
 msgid "View logs"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:53 src/Admin/OverviewPanel.php:159
+#: src/Admin/DeliveryPanel.php:55 src/Admin/OverviewPanel.php:159
 #: src/Admin/OverviewPanel.php:162
 msgid "Delivery reports"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:53
-msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later."
+#: src/Admin/DeliveryPanel.php:55
+msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later. After adding it, send a test message from the Overview tab: \"Last report received\" shows when Povikvane has reached your site."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:55 src/Admin/SetupWizard.php:398
+#: src/Admin/DeliveryPanel.php:57 src/Admin/SetupWizard.php:398
 msgid "Webhook address"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:59 src/Admin/SetupWizard.php:399
+#: src/Admin/DeliveryPanel.php:61 src/Admin/SetupWizard.php:399
 msgid "Copied"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:60 src/Admin/SetupWizard.php:400
+#: src/Admin/DeliveryPanel.php:62 src/Admin/SetupWizard.php:400
 msgid "Copy"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:66
+#: src/Admin/DeliveryPanel.php:68
 msgid "Last report received"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:69
+#: src/Admin/DeliveryPanel.php:71
 msgid "Never"
 msgstr ""
 
 #. translators: 1: date and time, 2: result of handling it.
-#: src/Admin/DeliveryPanel.php:74
+#: src/Admin/DeliveryPanel.php:76
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:86
+#: src/Admin/DeliveryPanel.php:88
 msgid "Message queue"
 msgstr ""
 
 #. translators: %d: minutes.
-#: src/Admin/DeliveryPanel.php:92
+#: src/Admin/DeliveryPanel.php:94
 #, php-format
 msgid "Running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:97
+#: src/Admin/DeliveryPanel.php:99
 msgid "On time"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:103
+#: src/Admin/DeliveryPanel.php:104
 msgid "Need a different address?"
 msgstr ""
 
 #: src/Admin/DeliveryPanel.php:112
-msgid "Create a new webhook address"
+msgid "Test the webhook address"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:112
-msgid "Create a new webhook address? The current one stops working and must be updated in Povikvane."
-msgstr ""
-
-#: src/Admin/DeliveryPanel.php:124 src/Admin/MarketingSection.php:179
-#: src/Admin/MessageLogPage.php:284 src/Admin/OrderMetabox.php:157
-#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:370
-#: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:679
+#: src/Admin/DeliveryPanel.php:124 src/Admin/DeliveryPanel.php:177
+#: src/Admin/MarketingSection.php:179 src/Admin/MessageLogPage.php:305
+#: src/Admin/OrderMetabox.php:157 src/Admin/PauseControls.php:173
+#: src/Admin/SettingsPage.php:370 src/Admin/SetupNotice.php:88
+#: src/Admin/SetupWizard.php:679
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:128
+#: src/Admin/DeliveryPanel.php:152
+msgid "The webhook address works. To see that Povikvane can reach it, send a test message and watch \"Last report received\"."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:153
+msgid "The webhook address was not found. Check that pretty permalinks are on and the REST API is not disabled, or create a new address."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:154
+msgid "The webhook address was blocked, probably by a security plugin or a firewall. Allow requests to /wp-json/povikvane/ and try again."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:155
+msgid "This server could not reach its own webhook address. That does not always mean Povikvane cannot; send a test message and watch \"Last report received\"."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:156
+msgid "The webhook address gave an unexpected answer. Try again, or create a new address."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:165
+msgid "Create a new webhook address"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:165
+msgid "Create a new webhook address? The current one stops working and must be updated in Povikvane."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:181
 msgid "A new webhook address was created. Update it in Povikvane."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:141 src/Admin/OverviewPanel.php:257
+#: src/Admin/DeliveryPanel.php:194 src/Admin/OverviewPanel.php:257
 msgid "updated a message"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:142 src/Admin/OverviewPanel.php:258
+#: src/Admin/DeliveryPanel.php:195 src/Admin/OverviewPanel.php:258
 msgid "already known"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:143
+#: src/Admin/DeliveryPanel.php:196
 msgid "not one of this plugin's messages"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:144 src/Admin/OverviewPanel.php:260
+#: src/Admin/DeliveryPanel.php:197 src/Admin/OverviewPanel.php:260
 msgid "not understood"
 msgstr ""
 
+#: src/Admin/Layout.php:40 src/Admin/SettingsPage.php:118
+#: src/Admin/SettingsPage.php:119
+msgid "Povikvane - Viber & SMS"
+msgstr ""
+
 #: src/Admin/Layout.php:50
-msgid "SMS for WooCommerce"
+msgid "Viber & SMS for WooCommerce"
 msgstr ""
 
 #: src/Admin/Layout.php:63
-msgid "Povikvane SMS sections"
+msgid "Povikvane sections"
 msgstr ""
 
 #: src/Admin/Layout.php:66
@@ -446,41 +474,41 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:80 src/Admin/MessageLogPage.php:81
-msgid "Povikvane messages"
+#: src/Admin/MessageLogPage.php:82 src/Admin/MessageLogPage.php:83
+msgid "Povikvane message log"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:105 src/Admin/SettingsPage.php:206
+#: src/Admin/MessageLogPage.php:126 src/Admin/SettingsPage.php:206
 #: src/Admin/SetupWizard.php:166
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:117 src/Admin/Navigation.php:56
+#: src/Admin/MessageLogPage.php:138 src/Admin/Navigation.php:56
 #: src/Admin/SettingsPage.php:242
 msgid "Message log"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:121
+#: src/Admin/MessageLogPage.php:142
 msgid "Export CSV"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:126
+#: src/Admin/MessageLogPage.php:147
 msgid "Search order number, reference or message ID"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:145
+#: src/Admin/MessageLogPage.php:166
 msgid "This message cannot be sent again."
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:150 src/Admin/OrderMetabox.php:176
+#: src/Admin/MessageLogPage.php:171 src/Admin/OrderMetabox.php:176
 msgid "This site is not confirmed as the live shop yet. Confirm it first."
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:169 src/Admin/OrderMetabox.php:199
+#: src/Admin/MessageLogPage.php:190 src/Admin/OrderMetabox.php:199
 msgid "Another message was just queued. Wait a second and try again."
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:171
+#: src/Admin/MessageLogPage.php:192
 msgid "The message was queued again."
 msgstr ""
 
@@ -817,8 +845,8 @@ msgstr ""
 #. translators: %d: number of waiting messages.
 #: src/Admin/PauseControls.php:144
 #, php-format
-msgid "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard it."
-msgid_plural "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane SMS, then send or discard them."
+msgid "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard it."
+msgid_plural "Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard them."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -894,7 +922,7 @@ msgstr ""
 msgid "Warn me below"
 msgstr ""
 
-#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:248
+#: src/Admin/SafetyPanel.php:69 src/Admin/TemplatesSection.php:268
 msgid "credits"
 msgstr ""
 
@@ -985,7 +1013,7 @@ msgid "Dismiss"
 msgstr ""
 
 #: src/Admin/SetupWizard.php:116 src/Admin/SetupWizard.php:117
-msgid "Povikvane SMS setup"
+msgid "Povikvane setup"
 msgstr ""
 
 #: src/Admin/SetupWizard.php:154 src/Admin/SetupWizard.php:364
@@ -1253,107 +1281,123 @@ msgstr ""
 msgid "Order messages"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:59
+#: src/Admin/TemplatesSection.php:63
 msgid "Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:72
+#: src/Admin/TemplatesSection.php:76
 msgid "Wait"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:75
+#: src/Admin/TemplatesSection.php:79
 msgid "minutes first"
 msgstr ""
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:85
+#: src/Admin/TemplatesSection.php:89
 #, php-format
 msgid "Message when an order becomes \"%s\""
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:95
+#: src/Admin/TemplatesSection.php:99
 msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:121
+#: src/Admin/TemplatesSection.php:109
+msgid "Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:110
+msgid "Viber is not available yet: your Povikvane account has no Viber sender. Order messages go out as SMS."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:111
+msgid "Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:112
+msgid "Viber has not been checked yet. Open the Connection tab and press \"Check connection\"."
+msgstr ""
+
+#: src/Admin/TemplatesSection.php:141
 msgid "Send via"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:124
+#: src/Admin/TemplatesSection.php:144
 msgid "SMS"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:126
+#: src/Admin/TemplatesSection.php:146
 msgid "Viber, SMS if not delivered"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:132
+#: src/Admin/TemplatesSection.php:152
 msgid "Viber template"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:134
+#: src/Admin/TemplatesSection.php:154
 msgid "Choose a template"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:166
+#: src/Admin/TemplatesSection.php:186
 msgid "No template chosen, so this message is sent as an SMS."
 msgstr ""
 
 #. translators: %s: reason, for example "awaiting approval".
-#: src/Admin/TemplatesSection.php:171
+#: src/Admin/TemplatesSection.php:191
 #, php-format
 msgid "This template cannot be used yet (%s), so this message is sent as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:185
+#: src/Admin/TemplatesSection.php:205
 msgid "awaiting approval"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:186
+#: src/Admin/TemplatesSection.php:206
 msgid "not transactional"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:187
+#: src/Admin/TemplatesSection.php:207
 msgid "has a variable the plugin cannot fill"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:188
+#: src/Admin/TemplatesSection.php:208
 msgid "contains a link"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:242
+#: src/Admin/TemplatesSection.php:262
 msgid "Standard SMS"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:243
+#: src/Admin/TemplatesSection.php:263
 msgid "Unicode SMS (e.g. Cyrillic)"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:244
+#: src/Admin/TemplatesSection.php:264
 msgid "characters"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:245
+#: src/Admin/TemplatesSection.php:265
 msgid "SMS part"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:246
+#: src/Admin/TemplatesSection.php:266
 msgid "SMS parts"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:247
+#: src/Admin/TemplatesSection.php:267
 msgid "credit"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:249
+#: src/Admin/TemplatesSection.php:269
 msgid "With a Cyrillic name:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:250
+#: src/Admin/TemplatesSection.php:270
 msgid "Unknown placeholder:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:251
+#: src/Admin/TemplatesSection.php:271
 msgid "Empty message: nothing will be sent."
 msgstr ""
 

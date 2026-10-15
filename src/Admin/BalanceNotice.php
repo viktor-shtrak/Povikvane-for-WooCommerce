@@ -58,7 +58,7 @@ final class BalanceNotice {
 
 		printf(
 			'<div class="notice notice-warning"><p><strong>%1$s</strong> %2$s <a href="%3$s">%4$s</a></p></div>',
-			esc_html__( 'Povikvane SMS', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ),
 			esc_html(
 				sprintf(
 					/* translators: 1: credits left, 2: warning level. */

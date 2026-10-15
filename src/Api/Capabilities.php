@@ -88,6 +88,12 @@ final class Capabilities {
 		return $caps;
 	}
 
+	public const VIBER_READY            = 'ready';
+	public const VIBER_NOT_CHECKED      = 'not_checked';
+	public const VIBER_TEMPLATES_OFF    = 'templates_off';
+	public const VIBER_NO_SENDER        = 'no_sender';
+	public const VIBER_FALLBACK_REFUSED = 'fallback_refused';
+
 	/**
 	 * Whether Viber can be used: the account has a Viber sender, the API offers the
 	 * templates endpoint, and the service has not refused the SMS fallback.
@@ -95,13 +101,35 @@ final class Capabilities {
 	 * @param mixed $stored The stored capabilities option.
 	 */
 	public static function viber_ready( mixed $stored ): bool {
-		if ( ! is_array( $stored ) || true !== ( $stored['templates'] ?? null ) || false === ( $stored['fallback'] ?? null ) || ! is_array( $stored['balance'] ?? null ) ) {
-			return false;
+		return self::VIBER_READY === self::viber_status( $stored );
+	}
+
+	/**
+	 * Why Viber is or is not available.
+	 *
+	 * @param mixed $stored The stored capabilities option.
+	 * @return string One of the VIBER_* constants.
+	 */
+	public static function viber_status( mixed $stored ): string {
+		if ( ! is_array( $stored ) || null === ( $stored['templates'] ?? null ) ) {
+			return self::VIBER_NOT_CHECKED;
+		}
+
+		if ( true !== $stored['templates'] ) {
+			return self::VIBER_TEMPLATES_OFF;
+		}
+
+		if ( ! is_array( $stored['balance'] ?? null ) ) {
+			return self::VIBER_NOT_CHECKED;
 		}
 
 		$channels = $stored['balance']['channels'] ?? null;
 
-		return is_array( $channels ) && in_array( 'viber', $channels, true );
+		if ( ! is_array( $channels ) || ! in_array( 'viber', $channels, true ) ) {
+			return self::VIBER_NO_SENDER;
+		}
+
+		return false === ( $stored['fallback'] ?? null ) ? self::VIBER_FALLBACK_REFUSED : self::VIBER_READY;
 	}
 
 	/**

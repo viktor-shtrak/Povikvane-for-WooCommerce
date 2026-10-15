@@ -45,6 +45,7 @@ use Povikvane\WooCommerce\Viber\TemplateSync;
 use Povikvane\WooCommerce\Viber\VariableMapper;
 use Povikvane\WooCommerce\Viber\ViberPlanner;
 use Povikvane\WooCommerce\Viber\ViberTemplate;
+use Povikvane\WooCommerce\Webhook\SelfTest;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
 
 /**
@@ -418,6 +419,58 @@ final class ViberTest extends TestCase {
 		$this->assertSame( 'tpl-1', $repository->for_status( 'processing' )->viber_template );
 		$this->assertSame( 'sms', $repository->for_status( 'completed' )->channel );
 		$this->assertSame( '', $repository->for_status( 'cancelled' )->viber_template );
+	}
+
+	/**
+	 * The page can say why Viber is missing.
+	 */
+	public function test_viber_status_explains_why(): void {
+		$channels = array( 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
+
+		$this->assertSame( Capabilities::VIBER_NOT_CHECKED, Capabilities::viber_status( '' ) );
+		$this->assertSame( Capabilities::VIBER_NOT_CHECKED, Capabilities::viber_status( array( 'templates' => null ) ) );
+		$this->assertSame( Capabilities::VIBER_TEMPLATES_OFF, Capabilities::viber_status( array( 'templates' => false ) + $channels ) );
+		$this->assertSame( Capabilities::VIBER_NOT_CHECKED, Capabilities::viber_status( array( 'templates' => true ) ) );
+		$this->assertSame(
+			Capabilities::VIBER_NO_SENDER,
+			Capabilities::viber_status(
+				array(
+					'templates' => true,
+					'balance'   => array( 'channels' => array( 'sms' ) ),
+				)
+			)
+		);
+		$this->assertSame(
+			Capabilities::VIBER_FALLBACK_REFUSED,
+			Capabilities::viber_status(
+				array(
+					'templates' => true,
+					'fallback'  => false,
+				) + $channels
+			)
+		);
+		$this->assertSame(
+			Capabilities::VIBER_READY,
+			Capabilities::viber_status(
+				array(
+					'templates' => true,
+					'fallback'  => null,
+				) + $channels
+			)
+		);
+	}
+
+	/**
+	 * The webhook self-test result is read from the answer.
+	 */
+	public function test_webhook_self_test_results(): void {
+		$this->assertSame( SelfTest::OK, SelfTest::interpret( 200, array( 'result' => 'test' ) ) );
+		$this->assertSame( SelfTest::UNEXPECTED, SelfTest::interpret( 200, array( 'result' => 'updated' ) ) );
+		$this->assertSame( SelfTest::NOT_FOUND, SelfTest::interpret( 404, array() ) );
+		$this->assertSame( SelfTest::BLOCKED, SelfTest::interpret( 403, array() ) );
+		$this->assertSame( SelfTest::UNREACHABLE, SelfTest::interpret( 0, array() ) );
+		$this->assertSame( SelfTest::UNEXPECTED, SelfTest::interpret( 500, array() ) );
+		$this->assertSame( 'povikvane.self_test', json_decode( SelfTest::body(), true )['event'] );
 	}
 
 	// ---- Order event ----
