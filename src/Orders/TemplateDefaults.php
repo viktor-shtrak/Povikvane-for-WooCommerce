@@ -18,23 +18,23 @@ defined( 'ABSPATH' ) || exit;
 final class TemplateDefaults {
 
 	private const BG = array(
-		'processing' => 'Здравейте, {first_name}! Получихме поръчка №{order_number} ({order_total}). {shop_name}',
-		'completed'  => 'Здравейте, {first_name}! Поръчка №{order_number} е изпълнена. Благодарим! {shop_name}',
-		'on-hold'    => 'Поръчка №{order_number} изчаква потвърждение. {shop_name}',
-		'cancelled'  => 'Поръчка №{order_number} беше отказана. {shop_name}',
-		'refunded'   => 'Сумата за поръчка №{order_number} беше възстановена. {shop_name}',
-		'failed'     => 'Плащането за поръчка №{order_number} не успя. {shop_name}',
-		'_other'     => 'Статусът на поръчка №{order_number} е променен. {shop_name}',
+		'processing' => 'Получихме поръчка №{order_number} ({order_total}) от {shop_name}. Благодарим ви!',
+		'completed'  => 'Поръчка №{order_number} от {shop_name} е изпълнена. Благодарим ви!',
+		'on-hold'    => 'Поръчка №{order_number} от {shop_name} изчаква потвърждение. Ще ви уведомим скоро.',
+		'cancelled'  => 'Поръчка №{order_number} от {shop_name} беше отказана. Свържете се с нас при въпроси.',
+		'refunded'   => 'Сумата за поръчка №{order_number} от {shop_name} беше възстановена.',
+		'failed'     => 'Плащането за поръчка №{order_number} от {shop_name} не успя. Опитайте отново.',
+		'_other'     => 'Статусът на поръчка №{order_number} от {shop_name} е променен.',
 	);
 
 	private const EN = array(
-		'processing' => 'Hi {first_name}, we received your order #{order_number} ({order_total}). {shop_name}',
-		'completed'  => 'Hi {first_name}, your order #{order_number} is complete. Thank you! {shop_name}',
-		'on-hold'    => 'Your order #{order_number} is on hold. We will update you soon. {shop_name}',
-		'cancelled'  => 'Your order #{order_number} was cancelled. {shop_name}',
-		'refunded'   => 'Your order #{order_number} was refunded. {shop_name}',
-		'failed'     => 'Payment for order #{order_number} failed. {shop_name}',
-		'_other'     => 'The status of your order #{order_number} has changed. {shop_name}',
+		'processing' => 'We received your order #{order_number} ({order_total}) from {shop_name}. Thank you!',
+		'completed'  => 'Your order #{order_number} from {shop_name} is complete. Thank you!',
+		'on-hold'    => 'Your order #{order_number} from {shop_name} is on hold. We will update you soon.',
+		'cancelled'  => 'Your order #{order_number} from {shop_name} was cancelled. Contact us with any questions.',
+		'refunded'   => 'Your order #{order_number} from {shop_name} was refunded.',
+		'failed'     => 'Payment for your order #{order_number} from {shop_name} failed. Please try again.',
+		'_other'     => 'The status of your order #{order_number} from {shop_name} has changed.',
 	);
 
 	/**

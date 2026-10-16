@@ -105,3 +105,4 @@ class PvkWpdb {
 $GLOBALS['wpdb'] = new PvkWpdb();
 
 require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
+function get_user_meta( $id, $key = '', $single = false ) { return ''; }

@@ -42,7 +42,7 @@ final class SettingsPage {
 	/**
 	 * Tab IDs, in order.
 	 */
-	private const TABS = array( 'overview', 'messages', 'promotions', 'settings', 'advanced' );
+	private const TABS = array( 'overview', 'messages', 'promotions', 'reviews', 'settings', 'advanced' );
 
 	/**
 	 * Old tab IDs that still work in bookmarks and links.
@@ -241,6 +241,10 @@ final class SettingsPage {
 					'label' => __( 'Promotions', 'povikvane-for-woocommerce' ),
 				),
 				array(
+					'id'    => 'reviews',
+					'label' => __( 'Review request', 'povikvane-for-woocommerce' ),
+				),
+				array(
 					'id'    => 'settings',
 					'label' => __( 'Settings', 'povikvane-for-woocommerce' ),
 					'dot'   => Capabilities::CONNECTION_OK !== $data->connection,
@@ -271,6 +275,10 @@ final class SettingsPage {
 
 		$this->panel_open( 'promotions' );
 		$this->marketing->render();
+		echo '</div>';
+
+		$this->panel_open( 'reviews' );
+		$this->marketing->render_reviews();
 		echo '</div>';
 
 		$this->panel_open( 'settings' );
@@ -368,7 +376,7 @@ final class SettingsPage {
 					$report,
 					null !== $last_report,
 					$this->templates->viber_fallback_count(),
-					Capabilities::viber_status( $caps ),
+					Capabilities::viber_status( $caps, $this->settings->viber_sms_fallback() ),
 					array(
 						'settings' => $this->tab_url( 'settings' ),
 						'messages' => $this->tab_url( 'messages' ),

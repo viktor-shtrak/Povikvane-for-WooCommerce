@@ -10,7 +10,6 @@ declare( strict_types=1 );
 namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Api\Capabilities;
-use Povikvane\WooCommerce\Viber\ViberPlanner;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,40 +26,9 @@ final class ViberView {
 	public static function reason( string $status ): string {
 		return match ( $status ) {
 			Capabilities::VIBER_READY            => __( 'Viber is available on your account.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day.', 'povikvane-for-woocommerce' ),
-			default                              => __( 'Viber has not been checked yet. Open the Connection tab and press "Check connection".', 'povikvane-for-woocommerce' ),
-		};
-	}
-
-	/**
-	 * Name of an order value the shop can put into a template field.
-	 *
-	 * @param string $placeholder Placeholder name.
-	 */
-	public static function placeholder_label( string $placeholder ): string {
-		return match ( $placeholder ) {
-			'order_number'    => __( 'Order number', 'povikvane-for-woocommerce' ),
-			'order_total'     => __( 'Order total', 'povikvane-for-woocommerce' ),
-			'first_name'      => __( 'First name', 'povikvane-for-woocommerce' ),
-			'last_name'       => __( 'Last name', 'povikvane-for-woocommerce' ),
-			'shop_name'       => __( 'Shop name', 'povikvane-for-woocommerce' ),
-			'tracking_number' => __( 'Tracking number', 'povikvane-for-woocommerce' ),
-			default           => $placeholder,
-		};
-	}
-
-	/**
-	 * Short reason a template cannot be used.
-	 *
-	 * @param string $problem A ViberPlanner::PROBLEM_* constant.
-	 */
-	public static function problem_label( string $problem ): string {
-		return match ( $problem ) {
-			ViberPlanner::PROBLEM_NOT_APPROVED      => __( 'awaiting approval', 'povikvane-for-woocommerce' ),
-			ViberPlanner::PROBLEM_NOT_TRANSACTIONAL => __( 'not transactional', 'povikvane-for-woocommerce' ),
-			ViberPlanner::PROBLEM_UNMAPPED          => __( 'choose what to fill each field with', 'povikvane-for-woocommerce' ),
-			default                                 => __( 'contains a link', 'povikvane-for-woocommerce' ),
+			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS.', 'povikvane-for-woocommerce' ),
+			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Povikvane refused the SMS fallback for your account (it is not part of every plan), so order messages go out as SMS. Turn off "Send an SMS if Viber cannot deliver" to use Viber without it.', 'povikvane-for-woocommerce' ),
+			default                              => __( 'Viber has not been checked yet. Open the Settings tab and press "Check connection".', 'povikvane-for-woocommerce' ),
 		};
 	}
 }

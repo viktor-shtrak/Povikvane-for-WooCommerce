@@ -291,7 +291,7 @@ final class SetupWizard {
 
 		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-step__title">' . esc_html__( 'Choose your messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-step__lead">' . esc_html__( 'Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later.', 'povikvane-for-woocommerce' ) . '</p><p class="pvk-card__intro" style="margin-top:8px">' . esc_html__( 'You can use:', 'povikvane-for-woocommerce' ) . ' ';
 		foreach ( Placeholders::NAMES as $name ) {
-			if ( ! in_array( $name, array( 'optout_link', 'tracking_url', 'tracking_number' ), true ) ) {
+			if ( ! in_array( $name, array( 'optout_link', 'tracking_url' ), true ) ) {
 				echo '<code>{' . esc_html( $name ) . '}</code> ';
 			}
 		}

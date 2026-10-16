@@ -53,6 +53,8 @@ final class SettingsTest extends TestCase {
 				'retention_row_days'    => 365,
 				'export_full_numbers'   => false,
 				'delete_on_uninstall'   => false,
+				'viber_enabled'         => false,
+				'viber_sms_fallback'    => false,
 				'plugin_language'       => 'auto',
 			),
 			$all

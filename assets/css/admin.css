@@ -1236,3 +1236,26 @@
 		align-items: flex-start;
 	}
 }
+
+.pvk-viber-badge {
+	margin-top: 6px;
+	font-size: 13px;
+}
+
+.pvk-viber-changed {
+	margin-top: 6px;
+	padding: 8px 10px;
+	font-size: 13px;
+	background: var(--pvk-warn-bg);
+	border-left: 3px solid var(--pvk-warn);
+	border-radius: 4px;
+}
+
+.pvk-request-bar {
+	padding: 12px 20px 0;
+}
+
+.pvk-request-result {
+	margin-top: 8px;
+	color: var(--pvk-muted);
+}

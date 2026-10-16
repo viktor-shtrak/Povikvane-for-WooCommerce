@@ -23,11 +23,7 @@ final class Placeholders {
 	public const NAMES = array(
 		'order_number',
 		'order_total',
-		'first_name',
-		'last_name',
 		'shop_name',
-		'order_status_url',
-		'tracking_number',
 		'tracking_url',
 		'shop_url',
 		'optout_link',

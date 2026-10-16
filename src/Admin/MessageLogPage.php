@@ -282,7 +282,7 @@ final class MessageLogPage {
 		$new->kind      = $old->kind;
 		$new->channel   = 'sms';
 		$new->recipient = $old->recipient;
-		$new->body      = null === $old->viber ? $old->body : $old->viber['fallback_sms'];
+		$new->body      = null === $old->viber ? $old->body : $old->viber['fallback_sms'] ?? $old->body;
 		$new->reference = Reference::for_event(
 			SiteIdentity::token(),
 			$old->order_id,

@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Marketing;
 
+use Povikvane\WooCommerce\Messages\LegacyPlaceholders;
+
 use DateTimeZone;
 
 defined( 'ABSPATH' ) || exit;
@@ -115,7 +117,7 @@ final class MarketingSettings {
 	 */
 	public function followup(): FollowupConfig {
 		$all      = $this->all();
-		$template = trim( $all['followup_template'] );
+		$template = LegacyPlaceholders::strip( $all['followup_template'] );
 
 		return new FollowupConfig(
 			$all['enabled'] && $all['followup_enabled'],

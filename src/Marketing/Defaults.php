@@ -35,8 +35,8 @@ final class Defaults {
 	 */
 	public static function followup_template( string $locale ): string {
 		return self::is_bulgarian( $locale )
-			? 'Здравейте, {first_name}! Как ви хареса поръчката от {shop_name}? Ще се радваме на мнението ви: {shop_url}'
-			: 'Hi {first_name}, how was your order from {shop_name}? We would love your feedback: {shop_url}';
+			? 'Как ви хареса поръчката от {shop_name}? Ще се радваме на мнението ви: {shop_url}'
+			: 'How was your order from {shop_name}? We would love your feedback: {shop_url}';
 	}
 
 	/**

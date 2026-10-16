@@ -66,7 +66,7 @@ final class Message {
 	 * Viber details: template ID, variable values and the SMS text the API falls back to.
 	 * Null for SMS messages. Holds personal data, so it is erased with the message text.
 	 *
-	 * @var array{template_id:string,params:array<string,string>,fallback_sms:string}|null
+	 * @var array{template_id:string,params:array<string,string>,fallback_sms:string|null}|null
 	 */
 	public ?array $viber = null;
 

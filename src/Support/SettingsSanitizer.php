@@ -85,6 +85,8 @@ final class SettingsSanitizer {
 			'retention_row_days'    => min( 3650, max( 0, (int) ( $input['retention_row_days'] ?? $current['retention_row_days'] ) ) ),
 			'export_full_numbers'   => ! empty( $input['export_full_numbers'] ),
 			'delete_on_uninstall'   => ! empty( $input['delete_on_uninstall'] ),
+			'viber_enabled'         => ! empty( $input['viber_enabled'] ),
+			'viber_sms_fallback'    => ! empty( $input['viber_sms_fallback'] ),
 			'plugin_language'       => Language::normalize( (string) ( $input['plugin_language'] ?? $current['plugin_language'] ) ),
 		);
 	}

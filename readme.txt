@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.7.2
+Stable tag: 0.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,10 +16,10 @@ Povikvane SMS for WooCommerce sends text messages to your customers when their o
 
 **What it does**
 
-* Order messages: choose which statuses send a text (processing, completed, on hold, and more), edit the wording with placeholders such as the customer's name, order number and tracking link, and see the SMS length and credit estimate while you type.
+* Order messages: choose which statuses send a text (processing, completed, on hold, and more), edit the wording with placeholders such as the order number, order total and shop name, and see the SMS length and credit estimate while you type.
 * Delivery tracking: each message is marked Delivered or Failed through a webhook and regular checks, with a note on the order.
 * Promotions (off by default): optional marketing messages to customers who agree at checkout or in My Account. Every promotional message carries an unsubscribe link, respects sending hours and a frequency limit, and checks consent again just before it is sent.
-* Viber: send order updates over Viber using your approved templates, with an automatic SMS fallback (when your account has Viber).
+* Viber: one switch sends order updates over Viber whenever an approved Viber template has the same wording as the message. Each message shows whether it is approved, and messages without an approved template go out as SMS. An SMS fallback is optional.
 * Message log: every message with its status, the reason when one was skipped, and a CSV export.
 * Credits: your balance is shown and kept current, with a warning when it runs low.
 * Safety: no messages for old orders, landline numbers or copied sites, and sending pauses if many messages are created at once.
@@ -71,6 +71,15 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.8.0 =
+* Viber is now one switch for the whole shop instead of a choice per message. When it is on, the Messages tab shows how many approved Viber templates you have, and each message shows whether it is approved, awaiting approval, rejected or not approved yet. A message goes out over Viber when an approved template has the same wording; the fields of the template are matched to the order values automatically, so there is nothing to map by hand.
+* Editing a message that is approved for Viber warns that the new wording goes out as SMS until it is approved, and offers to send it for approval.
+* A "Send selected messages for approval" button with a confirmation that the Povikvane team will review them. It switches on as soon as Povikvane enables template requests for your account.
+* The SMS fallback is off by default, because the Starter and Bronze plans do not include it. Turn it on in the Viber card if your plan has it.
+* The placeholders {first_name}, {last_name}, {order_status_url} and {tracking_number} are no longer offered. Texts that still contain them lose them automatically. The default texts were rewritten so they can be approved as Viber templates.
+* The review request has its own tab.
+* The Users list and each user profile show whether the customer agreed to promotional SMS and when, and the WooCommerce Customers report gets the same column. A "Sync customers to Povikvane" button (to a group of its own) switches on when Povikvane enables it; until then use the CSV download.
 
 = 0.7.2 =
 * New switch in Advanced > Data and privacy: "Delete all Povikvane data when the plugin is deleted". When it is on, deleting the plugin removes the message log, the consent records, the settings and the saved API key. It is off by default, and deactivating the plugin never deletes anything.

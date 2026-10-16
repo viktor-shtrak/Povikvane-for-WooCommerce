@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Schema {
 
-	public const VERSION = '5';
+	public const VERSION = '6';
 	public const OPTION  = 'povikvane_db_version';
 
 	/**
@@ -96,6 +96,7 @@ final class Schema {
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY phone_hash (phone_hash,id),
+  KEY user_id (user_id),
   KEY email (email)
 ) {$charset};";
 

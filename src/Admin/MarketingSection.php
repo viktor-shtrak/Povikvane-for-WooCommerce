@@ -11,6 +11,8 @@ namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Marketing\ConsentEvent;
 use Povikvane\WooCommerce\Marketing\ConsentRepository;
+use Povikvane\WooCommerce\Marketing\ContactSync;
+use Povikvane\WooCommerce\Marketing\UnavailableContactSync;
 use Povikvane\WooCommerce\Marketing\Defaults;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Support\Csv;
@@ -33,11 +35,13 @@ final class MarketingSection {
 	 * @param MarketingSettings $settings Promotional settings.
 	 * @param ConsentRepository $ledger   Consent records.
 	 * @param string            $locale   Site locale.
+	 * @param ContactSync       $sync     Copies customers to Povikvane.
 	 */
 	public function __construct(
 		private readonly MarketingSettings $settings,
 		private readonly ConsentRepository $ledger,
-		private readonly string $locale
+		private readonly string $locale,
+		private readonly ContactSync $sync = new UnavailableContactSync()
 	) {}
 
 	/**
@@ -45,6 +49,7 @@ final class MarketingSection {
 	 */
 	public function register(): void {
 		add_action( 'admin_post_povikvane_export_consents', array( $this, 'handle_export' ) );
+		add_action( 'admin_post_povikvane_sync_contacts', array( $this, 'handle_sync' ) );
 	}
 
 	/**
@@ -126,7 +131,50 @@ final class MarketingSection {
 
 		Ui::card_close();
 
+		$count = $this->ledger->count_opted_in();
+
+		Ui::card_open( __( 'Customers who agreed', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'Opted in', 'povikvane-for-woocommerce' ), '', __( 'The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data.', 'povikvane-for-woocommerce' ) );
+		printf(
+			'<p><strong>%1$s</strong></p><p><a class="pvk-btn" href="%2$s">%3$s</a></p>',
+			esc_html(
+				sprintf(
+					/* translators: %d: number of customers. */
+					_n( '%d customer has agreed to promotional messages.', '%d customers have agreed to promotional messages.', $count, 'povikvane-for-woocommerce' ),
+					$count
+				)
+			),
+			esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=povikvane_export_consents' ), 'povikvane_export_consents' ) ),
+			esc_html__( 'Download list (CSV)', 'povikvane-for-woocommerce' )
+		);
+		Ui::field_close();
+
+		Ui::field_open( __( 'Send to Povikvane', 'povikvane-for-woocommerce' ), '', __( 'Copies the customers who agreed into a group of their own in Povikvane, ready for your campaigns there. New customers are added each time you press the button.', 'povikvane-for-woocommerce' ) );
+
+		if ( $this->sync->available() ) {
+			echo '<p>';
+			Layout::action_button( __( 'Sync customers to Povikvane', 'povikvane-for-woocommerce' ), 'povikvane_sync_contacts', array(), 'pvk-btn pvk-btn--primary', sprintf( /* translators: %s: group name. */ __( 'Send the customers who agreed to Povikvane, into the group "%s"?', 'povikvane-for-woocommerce' ), ContactSync::GROUP_NAME ) );
+			echo '</p>';
+		} else {
+			echo '<p><button type="button" class="pvk-btn pvk-btn--primary" disabled>' . esc_html__( 'Sync customers to Povikvane', 'povikvane-for-woocommerce' ) . '</button></p><p class="pvk-field__hint">' . esc_html__( 'Syncing from here is coming soon. Until then, download the list above and import it in Povikvane.', 'povikvane-for-woocommerce' ) . '</p>';
+		}
+
+		Ui::field_close();
+		Ui::card_close();
+	}
+
+	/**
+	 * The review-request card, on its own tab.
+	 */
+	public function render_reviews(): void {
+		$all  = $this->settings->all();
+		$name = MarketingSettings::OPTION;
+
 		Ui::card_open( __( 'Review request', 'povikvane-for-woocommerce' ), __( 'Ask customers who agreed for feedback after their order is completed.', 'povikvane-for-woocommerce' ) );
+
+		if ( ! $all['enabled'] ) {
+			Ui::note( __( 'Review requests are promotional messages and only go to customers who agreed. Switch on promotional messages in the Promotions tab first.', 'povikvane-for-woocommerce' ), 'warn' );
+		}
 
 		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
 		Ui::toggle( $name . '[followup_enabled]', $all['followup_enabled'], __( 'Send a review request', 'povikvane-for-woocommerce' ) );
@@ -148,25 +196,68 @@ final class MarketingSection {
 		Ui::field_close();
 
 		Ui::card_close();
+	}
 
-		$count = $this->ledger->count_opted_in();
+	/**
+	 * Copy the customers who agreed to a group in Povikvane.
+	 */
+	public function handle_sync(): void {
+		check_admin_referer( 'povikvane_sync_contacts' );
 
-		Ui::card_open( __( 'Customers who agreed', 'povikvane-for-woocommerce' ) );
-		Ui::field_open( __( 'Opted in', 'povikvane-for-woocommerce' ), '', __( 'The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data.', 'povikvane-for-woocommerce' ) );
-		printf(
-			'<p><strong>%1$s</strong></p><p><a class="pvk-btn" href="%2$s">%3$s</a></p>',
-			esc_html(
-				sprintf(
-					/* translators: %d: number of customers. */
-					_n( '%d customer has agreed to promotional messages.', '%d customers have agreed to promotional messages.', $count, 'povikvane-for-woocommerce' ),
-					$count
-				)
-			),
-			esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=povikvane_export_consents' ), 'povikvane_export_consents' ) ),
-			esc_html__( 'Download list (CSV)', 'povikvane-for-woocommerce' )
-		);
-		Ui::field_close();
-		Ui::card_close();
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+		}
+
+		if ( ! $this->sync->available() ) {
+			Flash::add( 'error', __( 'Syncing customers to Povikvane is not available yet.', 'povikvane-for-woocommerce' ) );
+		} else {
+			$sent = 0;
+			$fail = false;
+
+			for ( $offset = 0; $offset < self::EXPORT_MAX; $offset += self::PAGE_SIZE ) {
+				$events   = $this->ledger->opted_in( self::PAGE_SIZE, $offset );
+				$contacts = array();
+
+				foreach ( $events as $event ) {
+					$contacts[] = array(
+						'phone'      => (string) $event->phone,
+						'first_name' => $this->name_for( $event, 'first' ),
+						'last_name'  => $this->name_for( $event, 'last' ),
+						'agreed_at'  => $event->created_at,
+					);
+				}
+
+				$done = array() === $contacts ? 0 : $this->sync->sync( $contacts );
+
+				if ( $done < 0 ) {
+					$fail = true;
+					break;
+				}
+
+				$sent += $done;
+
+				if ( count( $events ) < self::PAGE_SIZE ) {
+					break;
+				}
+			}
+
+			if ( $fail ) {
+				Flash::add( 'error', __( 'Povikvane did not accept the customers. Try again in a moment.', 'povikvane-for-woocommerce' ) );
+			} else {
+				Flash::add(
+					'success',
+					sprintf(
+						/* translators: 1: number of customers, 2: group name. */
+						_n( '%1$d customer was sent to Povikvane, into the group "%2$s".', '%1$d customers were sent to Povikvane, into the group "%2$s".', $sent, 'povikvane-for-woocommerce' ),
+						$sent,
+						ContactSync::GROUP_NAME
+					)
+				);
+			}
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=promotions' ) );
+		exit;
 	}
 
 	/**

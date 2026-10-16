@@ -63,28 +63,18 @@ final class OrderContext {
 	 */
 	public function values( WC_Order $order ): array {
 		return array(
-			'order_number'     => (string) $order->get_order_number(),
+			'order_number' => (string) $order->get_order_number(),
 			// The currency code (not its symbol) keeps messages in the cheaper GSM-7 encoding.
-			'order_total'      => number_format( (float) $order->get_total(), wc_get_price_decimals(), '.', '' ) . ' ' . $order->get_currency(),
-			'first_name'       => $order->get_billing_first_name(),
-			'last_name'        => $order->get_billing_last_name(),
-			'shop_name'        => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			'order_status_url' => $order->get_checkout_order_received_url(),
-			'shop_url'         => untrailingslashit( home_url() ),
-			/**
-			 * Tracking number for the {tracking_number} placeholder.
-			 *
-			 * @param string   $number Tracking number; empty by default.
-			 * @param WC_Order $order  Order.
-			 */
-			'tracking_number'  => (string) apply_filters( 'povikvane_tracking_number', '', $order ),
+			'order_total'  => number_format( (float) $order->get_total(), wc_get_price_decimals(), '.', '' ) . ' ' . $order->get_currency(),
+			'shop_name'    => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'shop_url'     => untrailingslashit( home_url() ),
 			/**
 			 * Tracking URL for the {tracking_url} placeholder.
 			 *
 			 * @param string   $url   Tracking URL; empty by default.
 			 * @param WC_Order $order Order.
 			 */
-			'tracking_url'     => (string) apply_filters( 'povikvane_tracking_url', '', $order ),
+			'tracking_url' => (string) apply_filters( 'povikvane_tracking_url', '', $order ),
 		);
 	}
 }

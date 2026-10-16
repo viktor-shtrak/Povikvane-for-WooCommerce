@@ -25,12 +25,10 @@ final class ConnectionPanel {
 	 *
 	 * @param Settings      $settings Settings.
 	 * @param DeliveryPanel $delivery Delivery reports card.
-	 * @param ViberPanel    $viber    Viber card.
 	 */
 	public function __construct(
 		private readonly Settings $settings,
-		private readonly DeliveryPanel $delivery,
-		private readonly ViberPanel $viber = new ViberPanel()
+		private readonly DeliveryPanel $delivery
 	) {}
 
 	/**
@@ -99,8 +97,6 @@ final class ConnectionPanel {
 		Ui::field_close();
 
 		Ui::card_close();
-
-		$this->viber->render();
 
 		$this->delivery->render();
 	}

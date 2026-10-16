@@ -85,6 +85,86 @@ final class ConsentRepository implements ConsentLedger {
 	}
 
 	/**
+	 * Current agreements of some accounts: the newest "agreed" event per number that
+	 * still agrees, matched by account or, for purchases made as a guest, by email.
+	 *
+	 * @param array<int,string> $accounts User ID => email.
+	 * @return array<int,ConsentEvent> User ID => the event that gave the agreement.
+	 */
+	public function granted_for_accounts( array $accounts ): array {
+		global $wpdb;
+
+		if ( array() === $accounts ) {
+			return array();
+		}
+
+		$table  = Schema::consent_table();
+		$ids    = array_map( 'intval', array_keys( $accounts ) );
+		$emails = array_values( array_filter( array_map( 'strtolower', $accounts ), static fn( string $email ): bool => '' !== $email ) );
+		$clause = 'c.user_id IN (' . implode( ', ', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+		$args   = $ids;
+
+		if ( array() !== $emails ) {
+			$clause .= ' OR c.email IN (' . implode( ', ', array_fill( 0, count( $emails ), '%s' ) ) . ')';
+			$args    = array_merge( $args, $emails );
+		}
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT c.* FROM {$table} c INNER JOIN (SELECT MAX(id) AS id FROM {$table} GROUP BY phone_hash) latest ON c.id = latest.id WHERE c.granted = 1 AND ({$clause}) ORDER BY c.id ASC", // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholders are generated to match the arguments.
+				$args
+			),
+			ARRAY_A
+		);
+
+		$by_email = array_flip( array_map( 'strtolower', $accounts ) );
+		$out      = array();
+
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$event   = $this->hydrate( $row );
+			$user_id = isset( $accounts[ $event->user_id ] ) ? $event->user_id : ( $by_email[ strtolower( (string) $event->email ) ] ?? 0 );
+
+			if ( $user_id > 0 && ( ! isset( $out[ $user_id ] ) || $event->created_at >= $out[ $user_id ]->created_at ) ) {
+				$out[ (int) $user_id ] = $event;
+			}
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Who currently agrees, as account IDs and emails with the time they agreed, for
+	 * marking customers in lists. Capped so a huge list cannot bloat a page.
+	 *
+	 * @param int $limit Most rows to return.
+	 * @return array<int,array{user_id:int,email:string,time:int}>
+	 */
+	public function granted_summary( int $limit ): array {
+		global $wpdb;
+
+		$table = Schema::consent_table();
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT c.user_id, c.email, c.created_at FROM {$table} c INNER JOIN (SELECT MAX(id) AS id FROM {$table} GROUP BY phone_hash) latest ON c.id = latest.id WHERE c.granted = 1 ORDER BY c.id DESC LIMIT %d",
+				$limit
+			),
+			ARRAY_A
+		);
+
+		$out = array();
+
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$out[] = array(
+				'user_id' => (int) $row['user_id'],
+				'email'   => strtolower( (string) $row['email'] ),
+				'time'    => (int) strtotime( (string) $row['created_at'] . ' UTC' ),
+			);
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Number of customers who currently agree.
 	 */
 	public function count_opted_in(): int {

@@ -22,19 +22,19 @@ final class ViberPlan {
 	 * @param string               $template_id  Template ID.
 	 * @param array<string,string> $params       Variable values.
 	 * @param string               $text         Filled Viber text, for the log.
-	 * @param string               $fallback_sms SMS text, one segment.
+	 * @param string|null          $fallback_sms SMS text, one segment; null when the account sends no fallback.
 	 */
 	public function __construct(
 		public readonly string $template_id,
 		public readonly array $params,
 		public readonly string $text,
-		public readonly string $fallback_sms
+		public readonly ?string $fallback_sms
 	) {}
 
 	/**
 	 * What is stored with the message.
 	 *
-	 * @return array{template_id:string,params:array<string,string>,fallback_sms:string}
+	 * @return array{template_id:string,params:array<string,string>,fallback_sms:string|null}
 	 */
 	public function payload(): array {
 		return array(

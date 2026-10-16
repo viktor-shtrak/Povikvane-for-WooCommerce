@@ -36,7 +36,7 @@ final class AttentionItems {
 	 * @param int                  $queue_late       Seconds the oldest waiting message is overdue.
 	 * @param DeliveryReport       $report           Results of the period.
 	 * @param bool                 $webhook_seen     Whether a delivery report ever arrived.
-	 * @param int                  $viber_fallbacks  Statuses set to Viber that go out as SMS.
+	 * @param int                  $viber_fallbacks  Switched-on messages that go out as SMS although Viber is on.
 	 * @param string               $viber_status     A Capabilities::VIBER_* value.
 	 * @param array<string,string> $urls             Addresses: settings, messages, failed, app.
 	 * @return array<int,array{key:string,tone:string,title:string,text:string,label:string,url:string,external:bool}>
@@ -98,11 +98,11 @@ final class AttentionItems {
 				'viber_fallback',
 				'warn',
 				sprintf(
-					/* translators: %d: number of order statuses. */
-					_n( '%d order status is set to Viber but goes out as SMS', '%d order statuses are set to Viber but go out as SMS', $viber_fallbacks, 'povikvane-for-woocommerce' ),
+					/* translators: %d: number of order messages. */
+					_n( '%d order message goes out as SMS although Viber is on', '%d order messages go out as SMS although Viber is on', $viber_fallbacks, 'povikvane-for-woocommerce' ),
 					$viber_fallbacks
 				),
-				Capabilities::VIBER_READY === $viber_status ? __( 'Choose an approved template and a value for each of its fields.', 'povikvane-for-woocommerce' ) : ViberView::reason( $viber_status ),
+				Capabilities::VIBER_READY === $viber_status ? __( 'No approved Viber template has their wording. Send them for approval, or change the wording to match a template you already have.', 'povikvane-for-woocommerce' ) : ViberView::reason( $viber_status ),
 				__( 'Open order messages', 'povikvane-for-woocommerce' ),
 				$urls['messages']
 			);

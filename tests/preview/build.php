@@ -60,7 +60,7 @@ if ( ! is_link( $out . '/assets-root' ) ) {
  */
 function pvk_page( string $title, string $body ): string {
 	$config = 'window.povikvaneAdmin=' . json_encode( array(
-		'names'   => array( 'order_number', 'order_total', 'first_name', 'last_name', 'shop_name', 'order_status_url', 'tracking_number', 'tracking_url', 'shop_url', 'optout_link' ),
+		'names'   => array( 'order_number', 'order_total', 'shop_name', 'tracking_url', 'shop_url', 'optout_link' ),
 		'samples' => array(
 			'latin'    => array( 'order_number' => '1234', 'order_total' => '45.00 EUR', 'first_name' => 'Maria', 'last_name' => 'Petrova', 'shop_name' => 'Demo Shop', 'shop_url' => 'https://shop.example.com', 'order_status_url' => 'https://shop.example.com/checkout/order-received/1234/?key=wc_order_abcdefghijklm', 'optout_link' => 'https://shop.example.com/?po=0123456789ab-0123456789ab' ),
 			'cyrillic' => array( 'order_number' => '1234', 'order_total' => '45.00 EUR', 'first_name' => 'Мария', 'last_name' => 'Петрова', 'shop_name' => 'Demo Shop', 'shop_url' => 'https://shop.example.com', 'order_status_url' => 'https://shop.example.com/checkout/order-received/1234/?key=wc_order_abcdefghijklm', 'optout_link' => 'https://shop.example.com/?po=0123456789ab-0123456789ab' ),
@@ -74,7 +74,7 @@ function pvk_page( string $title, string $body ): string {
 		. '<style>body{margin:0;background:#f0f0f1}#pvk-bar{height:32px;background:#1d2327}#pvk-side{position:absolute;top:32px;left:0;bottom:0;width:160px;background:#1d2327}#wpcontent{margin-left:160px;padding-left:20px;padding-top:0}@media(max-width:782px){#pvk-side{display:none}#wpcontent{margin-left:0;padding-left:10px}}</style></head>'
 		. '<body class="wp-admin wp-core-ui"><div id="pvk-bar"></div><div id="pvk-side"></div><div id="wpcontent"><div id="wpbody-content">' . $body . '</div></div>'
 		. '<script>' . $config . '</script>'
-		. '<script src="assets-root/assets/js/tabs.js"></script><script src="assets-root/assets/js/segments.js"></script><script src="assets-root/assets/js/admin.js"></script><script src="assets-root/assets/js/status.js"></script><script src="assets-root/assets/js/select.js"></script></body></html>';
+		. '<script src="assets-root/assets/js/tabs.js"></script><script src="assets-root/assets/js/segments.js"></script><script src="assets-root/assets/js/admin.js"></script><script src="assets-root/assets/js/status.js"></script><script src="assets-root/assets/js/select.js"></script><script src="assets-root/assets/js/viber.js"></script></body></html>';
 }
 
 /**
@@ -104,7 +104,7 @@ function pvk_settings_page(): SettingsPage {
 	$repo      = new Repository();
 	$state     = new OptionSendingState();
 	$triggers  = new TriggerRepository( get_locale() );
-	$templates = new TemplatesSection( $triggers );
+	$templates = new TemplatesSection( $triggers, $settings );
 	$activity  = new OptionActivity();
 	$delivery  = new DeliveryPanel( new Token(), $activity, $repo );
 	$marketing = new MarketingSection( new MarketingSettings( get_locale() ), new ConsentRepository(), get_locale() );
@@ -127,7 +127,7 @@ function pvk_wizard(): SetupWizard {
 
 	return new SetupWizard(
 		$settings, new SettingsSanitizer( $settings, $state ), $triggers, $repo, $tester, new SetupState(),
-		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers ), static fn() => null
+		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), static fn() => null
 	);
 }
 
@@ -152,13 +152,12 @@ function pvk_rows(): array {
 
 $jobs = array();
 
-foreach ( array( 'overview', 'messages', 'promotions', 'settings', 'advanced' ) as $tab ) {
+foreach ( array( 'overview', 'messages', 'promotions', 'reviews', 'settings', 'advanced' ) as $tab ) {
 	$jobs[ 'tab-' . $tab ] = array( 'settings', $tab, true );
 }
 $jobs['tab-overview-new'] = array( 'settings', 'overview', false );
 $jobs['tab-overview-attention'] = array( 'settings', 'overview', true );
 $jobs['tab-messages-viber'] = array( 'settings', 'messages', true );
-$jobs['tab-connection-viber'] = array( 'settings', 'settings', true );
 
 foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) as $step ) {
 	$jobs[ 'wizard-' . $step ] = array( 'wizard', $step, 'wizard-test' === 'x' );
@@ -179,18 +178,21 @@ foreach ( $jobs as $name => $job ) {
 		);
 	}
 
-	if ( in_array( $name, array( 'tab-messages-viber', 'tab-connection-viber' ), true ) ) {
+	if ( 'tab-messages-viber' === $name ) {
 		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
+		$GLOBALS['pvk_options'][ Settings::OPTION ]          = array( 'service_id' => 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'default_country' => 'BG', 'viber_enabled' => true );
 		$GLOBALS['pvk_options'][ TriggerRepository::OPTION ] = array(
-			'processing' => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-1', 'viber_map' => array( 'tpl-1' => array( 'customField1' => 'order_number' ) ), 'template' => 'Order {order_number} is being processed.' ),
-			'completed'  => array( 'enabled' => true, 'channel' => 'viber', 'viber_template' => 'tpl-2', 'template' => 'Order {order_number} shipped.' ),
+			'processing' => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is being processed.' ),
+			'completed'  => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is complete. Thank you!' ),
+			'on-hold'    => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is on hold.' ),
+			'cancelled'  => array( 'enabled' => true, 'template' => '{shop_name}: your order was cancelled.' ),
 		);
 		$GLOBALS['pvk_options'][ Povikvane\WooCommerce\Viber\TemplateCatalog::OPTION ] = array(
 			'fetched_at' => time(),
 			'items'      => array(
-				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Hi {firstName}, order {customField1}.', 'variables' => array( 'firstName', 'customField1' ), 'status' => 'approved', 'message_type' => 'transactional' ),
-				array( 'id' => 'tpl-2', 'name' => 'Shipped notice', 'content' => 'Track {customField1} total {customField2}', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'message_type' => 'transactional' ),
-				array( 'id' => 'tpl-3', 'name' => 'New offer', 'content' => 'Hi {firstName}', 'variables' => array( 'firstName' ), 'status' => 'pending', 'message_type' => null ),
+				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Order {customField1} from {customField2} is being processed.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-2', 'name' => 'Hold notice', 'content' => 'Order {customField1} from {customField2} is on hold.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'pending', 'message_type' => null ),
+				array( 'id' => 'tpl-3', 'name' => 'Old offer', 'content' => 'Order {customField1} from {customField2} is complete. Thank you!', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'rejected', 'message_type' => null ),
 			),
 		);
 	}

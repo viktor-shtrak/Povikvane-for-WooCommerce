@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-16 10:29+0300\n"
+"POT-Creation-Date: 2026-10-16 11:18+0300\n"
 "PO-Revision-Date: 2026-10-14 16:00+0300\n"
 "Last-Translator: Povikvane <support@povikvane.com>\n"
 "Language-Team: Bulgarian\n"
@@ -39,7 +39,7 @@ msgid "Do not message orders older than"
 msgstr "Не изпращай съобщения за поръчки, по-стари от"
 
 #: src/Admin/AdvancedPanel.php:47 src/Admin/AdvancedPanel.php:102
-#: src/Admin/AdvancedPanel.php:112 src/Admin/MarketingSection.php:123
+#: src/Admin/AdvancedPanel.php:112 src/Admin/MarketingSection.php:128
 msgid "days"
 msgstr "дни"
 
@@ -108,7 +108,7 @@ msgstr "Показва известие в администрацията и и�
 msgid "Warn me below"
 msgstr "Предупреждавай ме под"
 
-#: src/Admin/AdvancedPanel.php:88 src/Admin/TemplatesSection.php:339
+#: src/Admin/AdvancedPanel.php:88 src/Admin/TemplatesSection.php:358
 msgid "credits"
 msgstr "кредита"
 
@@ -273,17 +273,17 @@ msgstr "Настройте отчетите за доставка"
 msgid "Statuses still update, only a few minutes late. Add the webhook address in Povikvane to get them straight away."
 msgstr "Статусите пак се обновяват, но с няколко минути закъснение. Добавете webhook адреса в Povikvane, за да ги получавате веднага."
 
-#. translators: %d: number of order statuses.
+#. translators: %d: number of order messages.
 #: src/Admin/AttentionItems.php:102
 #, php-format
-msgid "%d order status is set to Viber but goes out as SMS"
-msgid_plural "%d order statuses are set to Viber but go out as SMS"
-msgstr[0] "%d статус на поръчка е зададен за Viber, но се изпраща като SMS"
-msgstr[1] "%d статуса на поръчки са зададени за Viber, но се изпращат като SMS"
+msgid "%d order message goes out as SMS although Viber is on"
+msgid_plural "%d order messages go out as SMS although Viber is on"
+msgstr[0] "%d съобщение за поръчка се изпраща като SMS, въпреки че Viber е включен"
+msgstr[1] "%d съобщения за поръчки се изпращат като SMS, въпреки че Viber е включен"
 
 #: src/Admin/AttentionItems.php:105
-msgid "Choose an approved template and a value for each of its fields."
-msgstr "Изберете одобрен шаблон и стойност за всяко негово поле."
+msgid "No approved Viber template has their wording. Send them for approval, or change the wording to match a template you already have."
+msgstr "Няма одобрен шаблон за Viber с техния текст. Изпратете ги за одобрение или променете текста, така че да съвпада с шаблон, който вече имате."
 
 #: src/Admin/AttentionItems.php:106
 msgid "Open order messages"
@@ -340,7 +340,7 @@ msgstr "обновява се…"
 msgid "as of %s"
 msgstr "към %s"
 
-#: src/Admin/ChannelLabel.php:28 src/Admin/TemplatesSection.php:172
+#: src/Admin/ChannelLabel.php:28
 msgid "SMS"
 msgstr "SMS"
 
@@ -349,70 +349,113 @@ msgid "Viber, delivered by SMS"
 msgstr "Viber, доставено по SMS"
 
 #: src/Admin/ChannelLabel.php:33 src/Admin/OverviewPanel.php:272
-#: src/Admin/ViberPanel.php:39
+#: src/Admin/TemplatesSection.php:110
 msgid "Viber"
 msgstr "Viber"
 
-#: src/Admin/ConnectionPanel.php:45
+#: src/Admin/ConnectionPanel.php:43
 msgid "Find your API key and service ID in Povikvane under Settings > API. They stay on this site, and the key is stored encrypted."
 msgstr "Намерете API ключа и Service ID в Povikvane, под Настройки > API. Те остават на този сайт, а ключът се съхранява криптиран."
 
-#: src/Admin/ConnectionPanel.php:45
+#: src/Admin/ConnectionPanel.php:43
 msgid "Your Povikvane account"
 msgstr "Вашият Povikvane акаунт"
 
-#: src/Admin/ConnectionPanel.php:47 src/Admin/SetupWizard.php:244
+#: src/Admin/ConnectionPanel.php:45 src/Admin/SetupWizard.php:244
 #: src/Admin/SetupWizard.php:248
 msgid "API key"
 msgstr "API ключ"
 
-#: src/Admin/ConnectionPanel.php:50 src/Admin/SetupWizard.php:245
+#: src/Admin/ConnectionPanel.php:48 src/Admin/SetupWizard.php:245
 msgid "Set in wp-config.php"
 msgstr "Зададен в wp-config.php"
 
-#: src/Admin/ConnectionPanel.php:55 src/Admin/SetupWizard.php:251
+#: src/Admin/ConnectionPanel.php:53 src/Admin/SetupWizard.php:251
 msgid "Saved. Type a new key to replace it."
 msgstr "Запазен. Въведете нов ключ, за да го смените."
 
-#: src/Admin/ConnectionPanel.php:59
+#: src/Admin/ConnectionPanel.php:57
 msgid "The saved key can no longer be read (the site security keys changed). Enter it again."
 msgstr "Запазеният ключ вече не може да бъде прочетен (сменени са защитните ключове на сайта). Въведете го отново."
 
-#: src/Admin/ConnectionPanel.php:63
+#: src/Admin/ConnectionPanel.php:61
 msgid "Remove the saved key"
 msgstr "Премахни запазения ключ"
 
-#: src/Admin/ConnectionPanel.php:69 src/Admin/SetupWizard.php:257
+#: src/Admin/ConnectionPanel.php:67 src/Admin/SetupWizard.php:257
 msgid "Service ID"
 msgstr "Service ID"
 
-#: src/Admin/ConnectionPanel.php:77 src/Admin/SetupWizard.php:203
+#: src/Admin/ConnectionPanel.php:75 src/Admin/SetupWizard.php:203
 msgid "Open Povikvane"
 msgstr "Отвори Povikvane"
 
-#: src/Admin/ConnectionPanel.php:79
+#: src/Admin/ConnectionPanel.php:77
 msgid "Defaults"
 msgstr "По подразбиране"
 
-#: src/Admin/ConnectionPanel.php:81
+#: src/Admin/ConnectionPanel.php:79
 msgid "Default country"
 msgstr "Държава по подразбиране"
 
-#: src/Admin/ConnectionPanel.php:81 src/Admin/SetupWizard.php:261
+#: src/Admin/ConnectionPanel.php:79 src/Admin/SetupWizard.php:261
 msgid "Used to read phone numbers written without a country code."
 msgstr "Използва се за разпознаване на телефонни номера, записани без код на държава."
 
-#: src/Admin/ConnectionPanel.php:89
+#: src/Admin/ConnectionPanel.php:87
 msgid "Language"
 msgstr "Език"
 
-#: src/Admin/ConnectionPanel.php:89
+#: src/Admin/ConnectionPanel.php:87
 msgid "Used for these screens and for the default message wording. \"Automatic\" follows the site language."
 msgstr "Използва се за тези екрани и за текста на съобщенията по подразбиране. „Автоматично“ следва езика на сайта."
 
-#: src/Admin/ConnectionPanel.php:92
+#: src/Admin/ConnectionPanel.php:90
 msgid "Automatic (follow the site language)"
 msgstr "Автоматично (според езика на сайта)"
+
+#: src/Admin/ConsentColumns.php:60 src/Admin/ConsentColumns.php:151
+msgid "SMS promotions"
+msgstr "Промоционални SMS"
+
+#: src/Admin/ConsentColumns.php:84
+msgid "Has not agreed"
+msgstr "Няма съгласие"
+
+#: src/Admin/ConsentColumns.php:87 src/Admin/ConsentColumns.php:152
+#: src/Privacy/Privacy.php:165
+msgid "Agreed"
+msgstr "Съгласие"
+
+#: src/Admin/ConsentColumns.php:102
+msgid "Consent"
+msgstr "Съгласие"
+
+#: src/Admin/ConsentColumns.php:102
+msgid "Promotional SMS"
+msgstr "Промоционални SMS"
+
+#: src/Admin/ConsentColumns.php:105
+msgid "Has not agreed to promotional messages."
+msgstr "Не се е съгласил с промоционални съобщения."
+
+#. translators: 1: date and time, 2: where the customer agreed, for example "at checkout".
+#: src/Admin/ConsentColumns.php:110
+#, php-format
+msgid "Agreed on %1$s %2$s."
+msgstr "Съгласие от %1$s %2$s."
+
+#: src/Admin/ConsentColumns.php:117
+msgid "Recorded by the Povikvane plugin. Only the customer can change it."
+msgstr "Записано от добавката на Povikvane. Само клиентът може да го промени."
+
+#: src/Admin/ConsentColumns.php:180
+msgid "at checkout"
+msgstr "при поръчка"
+
+#: src/Admin/ConsentColumns.php:181
+msgid "in My Account"
+msgstr "в „Моят профил“"
 
 #: src/Admin/DeliveryPanel.php:55 src/Admin/OverviewPanel.php:165
 #: src/Admin/OverviewPanel.php:168
@@ -468,10 +511,10 @@ msgid "Test the webhook address"
 msgstr "Провери webhook адреса"
 
 #: src/Admin/DeliveryPanel.php:124 src/Admin/DeliveryPanel.php:177
-#: src/Admin/MarketingSection.php:179 src/Admin/MessageLogPage.php:406
-#: src/Admin/OrderMetabox.php:157 src/Admin/PauseControls.php:173
-#: src/Admin/SettingsPage.php:431 src/Admin/SetupNotice.php:88
-#: src/Admin/SetupWizard.php:679
+#: src/Admin/MarketingSection.php:208 src/Admin/MarketingSection.php:270
+#: src/Admin/MessageLogPage.php:406 src/Admin/OrderMetabox.php:157
+#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:439
+#: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:679
 msgid "You do not have permission to do that."
 msgstr "Нямате право да правите това."
 
@@ -540,135 +583,177 @@ msgstr "Раздели на Povikvane"
 msgid "Needs attention"
 msgstr "Изисква внимание"
 
-#: src/Admin/MarketingSection.php:83
+#: src/Admin/MarketingSection.php:88
 msgid "Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on."
 msgstr "Промоционални SMS могат да се изпращат само на клиенти, които са се съгласили да ги получават. Добавката пита с неотбелязана отметка при плащането, проверява съгласието отново непосредствено преди всяко съобщение, добавя връзка за отписване към всяко промоционално съобщение и изпраща само в часовете по-долу. Нека текстът бъде прегледан, преди да включите това."
 
-#: src/Admin/MarketingSection.php:83
+#: src/Admin/MarketingSection.php:88
 msgid "Promotional messages"
 msgstr "Промоционални съобщения"
 
-#: src/Admin/MarketingSection.php:85 src/Admin/MarketingSection.php:131
+#: src/Admin/MarketingSection.php:90 src/Admin/MarketingSection.php:179
 #: src/Admin/MessageListTable.php:62 src/Admin/OverviewPanel.php:327
-#: src/Admin/ViberPanel.php:41 src/Privacy/Privacy.php:138
+#: src/Admin/TemplatesSection.php:118 src/Privacy/Privacy.php:138
 msgid "Status"
 msgstr "Статус"
 
-#: src/Admin/MarketingSection.php:86
+#: src/Admin/MarketingSection.php:91
 msgid "Ask customers for their agreement and allow promotional messages"
 msgstr "Искай съгласие от клиентите и разреши промоционални съобщения"
 
-#: src/Admin/MarketingSection.php:86
+#: src/Admin/MarketingSection.php:91
 msgid "Off by default. Nothing promotional is ever sent while this is off."
 msgstr "По подразбиране е изключено. Докато е изключено, никога не се изпраща нищо промоционално."
 
-#: src/Admin/MarketingSection.php:89
+#: src/Admin/MarketingSection.php:94
 msgid "Checkbox wording"
 msgstr "Текст до отметката"
 
-#: src/Admin/MarketingSection.php:89
+#: src/Admin/MarketingSection.php:94
 msgid "Shown next to the unticked checkbox at checkout and in My Account. A short fingerprint of the wording is stored with each agreement."
 msgstr "Показва се до неотбелязаната отметка при плащането и в „Моят акаунт“. Заедно с всяко съгласие се съхранява кратък отпечатък на текста."
 
-#: src/Admin/MarketingSection.php:99
+#: src/Admin/MarketingSection.php:104
 msgid "When and how often"
 msgstr "Кога и колко често"
 
-#: src/Admin/MarketingSection.php:101
+#: src/Admin/MarketingSection.php:106
 msgid "Sending hours"
 msgstr "Часове за изпращане"
 
-#: src/Admin/MarketingSection.php:101
+#: src/Admin/MarketingSection.php:106
 msgid "Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit."
 msgstr "Цели часове в часовата зона на магазина. Промоционалните съобщения изчакват следващото отваряне. Съобщенията за поръчки не се засягат. Еднакви часове означават, че няма ограничение."
 
-#: src/Admin/MarketingSection.php:104 src/Admin/MessageListTable.php:229
+#: src/Admin/MarketingSection.php:109 src/Admin/MessageListTable.php:229
 msgid "From"
 msgstr "От"
 
-#: src/Admin/MarketingSection.php:107
+#: src/Admin/MarketingSection.php:112
 msgid "Opening hour"
 msgstr "Начален час"
 
-#: src/Admin/MarketingSection.php:108
+#: src/Admin/MarketingSection.php:113
 msgid "to"
 msgstr "до"
 
-#: src/Admin/MarketingSection.php:110
+#: src/Admin/MarketingSection.php:115
 msgid "Closing hour"
 msgstr "Краен час"
 
-#: src/Admin/MarketingSection.php:114
+#: src/Admin/MarketingSection.php:119
 msgid "0 turns the limit off."
 msgstr "0 изключва ограничението."
 
-#: src/Admin/MarketingSection.php:114
+#: src/Admin/MarketingSection.php:119
 msgid "Frequency limit"
 msgstr "Ограничение на честотата"
 
-#: src/Admin/MarketingSection.php:119
+#: src/Admin/MarketingSection.php:124
 msgid "Messages allowed"
 msgstr "Позволени съобщения"
 
-#: src/Admin/MarketingSection.php:120
+#: src/Admin/MarketingSection.php:125
 msgid "message(s) per phone number in"
 msgstr "съобщение(я) на телефонен номер за период от"
 
-#: src/Admin/MarketingSection.php:122
+#: src/Admin/MarketingSection.php:127
 msgid "Period in days"
 msgstr "Период в дни"
 
-#: src/Admin/MarketingSection.php:129
-msgid "Ask customers who agreed for feedback after their order is completed."
-msgstr "Поискайте мнение от клиентите, които са се съгласили, след като поръчката им е завършена."
-
-#: src/Admin/MarketingSection.php:129
-msgid "Review request"
-msgstr "Покана за отзив"
-
-#: src/Admin/MarketingSection.php:132
-msgid "Send a review request"
-msgstr "Изпращай покана за отзив"
-
-#: src/Admin/MarketingSection.php:137
-msgid "Days after completion"
-msgstr "Дни след завършване"
-
-#: src/Admin/MarketingSection.php:138
-msgid "days after an order is completed"
-msgstr "дни след завършване на поръчката"
-
-#: src/Admin/MarketingSection.php:142
-msgid "An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length."
-msgstr "Връзка за отписване се добавя автоматично, ако текстът не съдържа {optout_link}. Връзката се брои към дължината на съобщението."
-
-#: src/Admin/MarketingSection.php:142
-msgid "Message"
-msgstr "Съобщение"
-
-#: src/Admin/MarketingSection.php:154
+#: src/Admin/MarketingSection.php:136
 msgid "Customers who agreed"
 msgstr "Клиенти със съгласие"
 
-#: src/Admin/MarketingSection.php:155
+#: src/Admin/MarketingSection.php:137
 msgid "Opted in"
 msgstr "Със съгласие"
 
-#: src/Admin/MarketingSection.php:155
+#: src/Admin/MarketingSection.php:137
 msgid "The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data."
 msgstr "Файлът съдържа пълни телефонни номера, готови за импортиране като контакти в Povikvane за ваши собствени кампании. Третирайте го като лични данни."
 
 #. translators: %d: number of customers.
-#: src/Admin/MarketingSection.php:161
+#: src/Admin/MarketingSection.php:143
 #, php-format
 msgid "%d customer has agreed to promotional messages."
 msgid_plural "%d customers have agreed to promotional messages."
 msgstr[0] "%d клиент се е съгласил да получава промоционални съобщения."
 msgstr[1] "%d клиенти са се съгласили да получават промоционални съобщения."
 
-#: src/Admin/MarketingSection.php:166
+#: src/Admin/MarketingSection.php:148
 msgid "Download list (CSV)"
 msgstr "Изтегли списъка (CSV)"
+
+#: src/Admin/MarketingSection.php:152
+msgid "Copies the customers who agreed into a group of their own in Povikvane, ready for your campaigns there. New customers are added each time you press the button."
+msgstr "Копира клиентите със съгласие в отделна група в Povikvane, готова за вашите кампании там. При всяко натискане на бутона се добавят новите клиенти."
+
+#: src/Admin/MarketingSection.php:152
+msgid "Send to Povikvane"
+msgstr "Изпращане към Povikvane"
+
+#. translators: %s: group name.
+#: src/Admin/MarketingSection.php:156
+#, php-format
+msgid "Send the customers who agreed to Povikvane, into the group \"%s\"?"
+msgstr "Да изпратя ли клиентите със съгласие към Povikvane, в група „%s“?"
+
+#: src/Admin/MarketingSection.php:156 src/Admin/MarketingSection.php:159
+msgid "Sync customers to Povikvane"
+msgstr "Синхронизирай клиентите с Povikvane"
+
+#: src/Admin/MarketingSection.php:159
+msgid "Syncing from here is coming soon. Until then, download the list above and import it in Povikvane."
+msgstr "Синхронизирането оттук ще бъде добавено скоро. Дотогава изтеглете списъка по-горе и го импортирайте в Povikvane."
+
+#: src/Admin/MarketingSection.php:173
+msgid "Ask customers who agreed for feedback after their order is completed."
+msgstr "Поискайте мнение от клиентите, които са се съгласили, след като поръчката им е завършена."
+
+#: src/Admin/MarketingSection.php:173 src/Admin/SettingsPage.php:245
+msgid "Review request"
+msgstr "Покана за отзив"
+
+#: src/Admin/MarketingSection.php:176
+msgid "Review requests are promotional messages and only go to customers who agreed. Switch on promotional messages in the Promotions tab first."
+msgstr "Поканите за отзив са промоционални съобщения и се изпращат само до клиенти със съгласие. Първо включете промоционалните съобщения в раздел „Промоции“."
+
+#: src/Admin/MarketingSection.php:180
+msgid "Send a review request"
+msgstr "Изпращай покана за отзив"
+
+#: src/Admin/MarketingSection.php:185
+msgid "Days after completion"
+msgstr "Дни след завършване"
+
+#: src/Admin/MarketingSection.php:186
+msgid "days after an order is completed"
+msgstr "дни след завършване на поръчката"
+
+#: src/Admin/MarketingSection.php:190
+msgid "An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length."
+msgstr "Връзка за отписване се добавя автоматично, ако текстът не съдържа {optout_link}. Връзката се брои към дължината на съобщението."
+
+#: src/Admin/MarketingSection.php:190
+msgid "Message"
+msgstr "Съобщение"
+
+#: src/Admin/MarketingSection.php:212
+msgid "Syncing customers to Povikvane is not available yet."
+msgstr "Синхронизирането на клиенти с Povikvane още не е налично."
+
+#: src/Admin/MarketingSection.php:245
+msgid "Povikvane did not accept the customers. Try again in a moment."
+msgstr "Povikvane не прие клиентите. Опитайте отново след малко."
+
+#. translators: 1: number of customers, 2: group name.
+#: src/Admin/MarketingSection.php:251
+#, php-format
+msgid "%1$d customer was sent to Povikvane, into the group \"%2$s\"."
+msgid_plural "%1$d customers were sent to Povikvane, into the group \"%2$s\"."
+msgstr[0] "%1$d клиент беше изпратен към Povikvane, в група „%2$s“."
+msgstr[1] "%1$d клиенти бяха изпратени към Povikvane, в група „%2$s“."
 
 #: src/Admin/MessageListTable.php:57
 msgid "Select all messages that can be sent again"
@@ -740,7 +825,7 @@ msgid "You do not have permission to access this page."
 msgstr "Нямате право за достъп до тази страница."
 
 #: src/Admin/MessageLogPage.php:141 src/Admin/Navigation.php:56
-#: src/Admin/SettingsPage.php:254
+#: src/Admin/SettingsPage.php:258
 msgid "Message log"
 msgstr "Дневник на съобщенията"
 
@@ -802,11 +887,11 @@ msgstr "Съобщения"
 msgid "Promotions"
 msgstr "Промоции"
 
-#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:245
+#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:249
 msgid "Settings"
 msgstr "Настройки"
 
-#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:250
+#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:254
 msgid "Advanced"
 msgstr "Разширени"
 
@@ -1018,7 +1103,7 @@ msgstr "Адресът на сайта е променен: потвърдете
 msgid "Many messages at once: review and release them."
 msgstr "Много съобщения наведнъж: прегледайте и ги освободете."
 
-#: src/Admin/OverviewPanel.php:158 src/Admin/SettingsPage.php:451
+#: src/Admin/OverviewPanel.php:158 src/Admin/SettingsPage.php:459
 msgid "The API key or service ID was rejected."
 msgstr "API ключът или Service ID са отхвърлени."
 
@@ -1196,31 +1281,31 @@ msgstr[1] "Бяха създадени много съобщения навед�
 msgid "The API key or service ID was rejected, so no messages are being sent. Check the connection settings."
 msgstr "API ключът или Service ID бяха отхвърлени, затова не се изпращат съобщения. Проверете настройките на връзката."
 
-#: src/Admin/SettingsPage.php:286
+#: src/Admin/SettingsPage.php:294
 msgid "Save changes"
 msgstr "Запази промените"
 
-#: src/Admin/SettingsPage.php:287
+#: src/Admin/SettingsPage.php:295
 msgid "You have unsaved changes"
 msgstr "Имате незапазени промени"
 
-#: src/Admin/SettingsPage.php:288
+#: src/Admin/SettingsPage.php:296
 msgid "All changes saved"
 msgstr "Всички промени са запазени"
 
-#: src/Admin/SettingsPage.php:450
+#: src/Admin/SettingsPage.php:458
 msgid "Connected."
 msgstr "Свързано."
 
-#: src/Admin/SettingsPage.php:452
+#: src/Admin/SettingsPage.php:460
 msgid "The service could not be reached."
 msgstr "Няма връзка с услугата."
 
-#: src/Admin/SettingsPage.php:453
+#: src/Admin/SettingsPage.php:461
 msgid "The service rejected the request; check the service ID."
 msgstr "Услугата отхвърли заявката; проверете Service ID."
 
-#: src/Admin/SettingsPage.php:454
+#: src/Admin/SettingsPage.php:462
 msgid "Not checked yet."
 msgstr "Още не е проверено."
 
@@ -1317,7 +1402,7 @@ msgstr "Изберете съобщенията си"
 msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
 msgstr "Включете известията за поръчки, които клиентите ви да получават, и променете текста, ако желаете. Всичко това можете да промените и по-късно."
 
-#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:50
+#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:67
 msgid "You can use:"
 msgstr "Можете да използвате:"
 
@@ -1499,109 +1584,227 @@ msgstr "На изчакване (без кредити)"
 msgid "Expired"
 msgstr "Изтекло"
 
-#: src/Admin/TemplatesSection.php:48
+#: src/Admin/TemplatesSection.php:65
 msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
 msgstr "Изберете при кои статуси на поръчка се изпраща текстово съобщение до клиента и какво да пише в него. Тук се пише само информация, свързана с поръчката; за всичко промоционално използвайте раздел „Промоции“."
 
-#: src/Admin/TemplatesSection.php:48
+#: src/Admin/TemplatesSection.php:65
 msgid "Order messages"
 msgstr "Съобщения за поръчки"
 
-#: src/Admin/TemplatesSection.php:65
-msgid "How Viber works"
-msgstr "Как работи Viber"
+#: src/Admin/TemplatesSection.php:83
+msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
+msgstr "Забавянето ви дава възможност да отмените съобщението, като смените статуса отново. Съобщението се изпраща само ако поръчката все още е със статуса, за който е създадено."
 
-#: src/Admin/TemplatesSection.php:65
-msgid "Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection."
-msgstr "Viber изисква одобрен транзакционен шаблон от вашия акаунт в Povikvane. Ако Viber не може да се използва за дадено съобщение, то се изпраща като SMS. Съобщение във Viber струва 0,8 кредита, когато е доставено през Viber; резервният SMS се таксува по ценовата листа на Povikvane. Текстът на SMS-а трябва да се побира в една SMS част (160 знака, 70 с кирилица), за да работи автоматичното връщане към SMS, а шаблон, който изисква връзка или дълга стойност, се изпраща като SMS. Новите шаблони се появяват до 15 минути или когато проверите връзката."
+#: src/Admin/TemplatesSection.php:102
+msgid "Send the selected messages to Povikvane for approval? The Povikvane team will review them as soon as possible. Until a message is approved it keeps going out as an SMS."
+msgstr "Да изпратя ли избраните съобщения към Povikvane за одобрение? Екипът на Povikvane ще ги прегледа възможно най-скоро. Докато съобщението не бъде одобрено, то продължава да се изпраща като SMS."
 
-#: src/Admin/TemplatesSection.php:79
+#: src/Admin/TemplatesSection.php:103
+msgid "Send this message to Povikvane for approval? The Povikvane team will review it as soon as possible. Until it is approved it keeps going out as an SMS."
+msgstr "Да изпратя ли това съобщение към Povikvane за одобрение? Екипът на Povikvane ще го прегледа възможно най-скоро. Докато не бъде одобрено, то продължава да се изпраща като SMS."
+
+#: src/Admin/TemplatesSection.php:104
+msgid "Sending..."
+msgstr "Изпращане..."
+
+#: src/Admin/TemplatesSection.php:105
+msgid "Nothing to send: every selected message already has a template or was already sent."
+msgstr "Няма какво да се изпрати: всяко избрано съобщение вече има шаблон или вече е изпратено."
+
+#: src/Admin/TemplatesSection.php:106
+msgid "Could not reach the server. Try again."
+msgstr "Няма връзка със сървъра. Опитайте отново."
+
+#: src/Admin/TemplatesSection.php:107 src/Admin/TemplatesSection.php:243
+msgid "Sent for approval"
+msgstr "Изпратено за одобрение"
+
+#: src/Admin/TemplatesSection.php:110
+msgid "Send order updates over Viber instead of SMS. A message goes out over Viber when an approved Viber template has the same wording as the message; otherwise it goes out as an SMS."
+msgstr "Изпращайте известията за поръчки през Viber вместо по SMS. Съобщението се изпраща през Viber, когато одобрен шаблон за Viber има същия текст; в противен случай се изпраща като SMS."
+
+#: src/Admin/TemplatesSection.php:112
+msgid "Use Viber"
+msgstr "Използване на Viber"
+
+#: src/Admin/TemplatesSection.php:113
+msgid "A Viber message costs 0.8 credits. Messages without an approved template are still sent as SMS."
+msgstr "Съобщение през Viber струва 0,8 кредита. Съобщенията без одобрен шаблон се изпращат като SMS."
+
+#: src/Admin/TemplatesSection.php:113
+msgid "Send order messages over Viber when possible"
+msgstr "Изпращай съобщенията за поръчки през Viber, когато е възможно"
+
+#: src/Admin/TemplatesSection.php:119
+msgid "Available"
+msgstr "Наличен"
+
+#: src/Admin/TemplatesSection.php:119
+msgid "Not available"
+msgstr "Не е наличен"
+
+#: src/Admin/TemplatesSection.php:122
+msgid "Your templates"
+msgstr "Вашите шаблони"
+
+#: src/Admin/TemplatesSection.php:125
+msgid "None approved"
+msgstr "Няма одобрени"
+
+#: src/Admin/TemplatesSection.php:125
+msgid "You have no approved Viber templates yet, so every message goes out as an SMS. Send your messages for approval below."
+msgstr "Все още нямате одобрени шаблони за Viber, затова всяко съобщение се изпраща като SMS. Изпратете съобщенията си за одобрение по-долу."
+
+#. translators: %d: number of templates.
+#: src/Admin/TemplatesSection.php:127
+#, php-format
+msgid "%d approved"
+msgid_plural "%d approved"
+msgstr[0] "%d одобрен"
+msgstr[1] "%d одобрени"
+
+#: src/Admin/TemplatesSection.php:127
+msgid "Messages with the same wording as one of these go out over Viber. The badge under each message below shows which."
+msgstr "Съобщенията със същия текст като някой от тях се изпращат през Viber. Етикетът под всяко съобщение по-долу показва кои."
+
+#: src/Admin/TemplatesSection.php:131
+msgid "Refresh templates"
+msgstr "Обнови шаблоните"
+
+#: src/Admin/TemplatesSection.php:135
+msgid "SMS fallback"
+msgstr "Резервен SMS"
+
+#: src/Admin/TemplatesSection.php:136
+msgid "Not included in the Starter and Bronze plans: turn it on only if your plan has it, otherwise Povikvane refuses the message and it goes out as an SMS. With it on, the SMS text must fit in one SMS part."
+msgstr "Не е включен в плановете Starter и Bronze: включете го само ако вашият план го има, иначе Povikvane отказва съобщението и то се изпраща като SMS. Когато е включен, SMS текстът трябва да се събира в една SMS част."
+
+#: src/Admin/TemplatesSection.php:136
+msgid "Send an SMS if Viber cannot deliver"
+msgstr "Изпрати SMS, ако Viber не може да достави"
+
+#: src/Admin/TemplatesSection.php:164
 msgid "Wait"
 msgstr "Изчакай"
 
-#: src/Admin/TemplatesSection.php:82
+#: src/Admin/TemplatesSection.php:167
 msgid "minutes first"
 msgstr "минути преди изпращане"
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:92
+#: src/Admin/TemplatesSection.php:176
 #, php-format
 msgid "Message when an order becomes \"%s\""
 msgstr "Съобщение, когато поръчката стане „%s“"
 
-#: src/Admin/TemplatesSection.php:102
-msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
-msgstr "Забавянето ви дава възможност да отмените съобщението, като смените статуса отново. Съобщението се изпраща само ако поръчката все още е със статуса, за който е създадено."
+#: src/Admin/TemplatesSection.php:186
+msgid "You changed a message that is approved for Viber. As edited it goes out as an SMS until Povikvane approves it."
+msgstr "Променихте съобщение, одобрено за Viber. В новия вид то се изпраща като SMS, докато Povikvane не го одобри."
 
-#: src/Admin/TemplatesSection.php:169
-msgid "Send via"
-msgstr "Изпращане през"
+#: src/Admin/TemplatesSection.php:189
+msgid "Send for approval"
+msgstr "Изпрати за одобрение"
 
-#: src/Admin/TemplatesSection.php:174
-msgid "Viber, SMS if not delivered"
-msgstr "Viber, SMS ако не е доставено"
+#: src/Admin/TemplatesSection.php:207
+msgid "Approved for Viber"
+msgstr "Одобрено за Viber"
 
-#: src/Admin/TemplatesSection.php:180
-msgid "Viber template"
-msgstr "Шаблон за Viber"
-
-#: src/Admin/TemplatesSection.php:182
-msgid "Choose a template"
-msgstr "Изберете шаблон"
-
-#. translators: %s: name of a field in a Viber template, for example customField1.
-#: src/Admin/TemplatesSection.php:241
+#. translators: %s: template name.
+#: src/Admin/TemplatesSection.php:210
 #, php-format
-msgid "Fill %s with"
-msgstr "Попълни %s с"
+msgid "Matches the template \"%s\"."
+msgstr "Съответства на шаблона „%s“."
 
-#: src/Admin/TemplatesSection.php:248
-msgid "Choose a value"
-msgstr "Изберете стойност"
+#: src/Admin/TemplatesSection.php:215
+msgid "Not usable"
+msgstr "Не може да се ползва"
+
+#. translators: %s: template name.
+#: src/Admin/TemplatesSection.php:218
+#, php-format
+msgid "Matches the template \"%s\", but it is not registered as a transactional template, so this message goes out as an SMS."
+msgstr "Съответства на шаблона „%s“, но той не е регистриран като транзакционен, затова съобщението се изпраща като SMS."
+
+#: src/Admin/TemplatesSection.php:223
+msgid "Awaiting approval"
+msgstr "Чака одобрение"
+
+#. translators: %s: template name.
+#: src/Admin/TemplatesSection.php:226
+#, php-format
+msgid "Matches the template \"%s\", which is still being reviewed. Until then it goes out as an SMS."
+msgstr "Съответства на шаблона „%s“, който още се преглежда. Дотогава се изпраща като SMS."
+
+#: src/Admin/TemplatesSection.php:231
+msgid "Rejected"
+msgstr "Отхвърлено"
+
+#. translators: %s: template name.
+#: src/Admin/TemplatesSection.php:234
+#, php-format
+msgid "The template \"%s\" was rejected, so this message goes out as an SMS. Change the wording to send a new one."
+msgstr "Шаблонът „%s“ беше отхвърлен, затова съобщението се изпраща като SMS. Променете текста, за да изпратите нов."
+
+#. translators: %s: date and time.
+#: src/Admin/TemplatesSection.php:246
+#, php-format
+msgid "Sent on %s. Until it is approved it goes out as an SMS."
+msgstr "Изпратено на %s. Докато не бъде одобрено, се изпраща като SMS."
+
+#: src/Admin/TemplatesSection.php:254
+msgid "Not approved"
+msgstr "Не е одобрено"
+
+#: src/Admin/TemplatesSection.php:256
+msgid "No approved template has this wording, so it goes out as an SMS. Send it for approval to use Viber."
+msgstr "Няма одобрен шаблон с този текст, затова се изпраща като SMS. Изпратете го за одобрение, за да ползвате Viber."
+
+#: src/Admin/TemplatesSection.php:270 src/Admin/TemplatesSection.php:273
+msgid "Send selected messages for approval"
+msgstr "Изпрати избраните съобщения за одобрение"
 
 #: src/Admin/TemplatesSection.php:271
-msgid "No template chosen, so this message is sent as an SMS."
-msgstr "Не е избран шаблон, затова това съобщение се изпраща като SMS."
+msgid "Sends every switched-on message that has no approved template. The Povikvane team reviews them as soon as possible."
+msgstr "Изпраща всяко включено съобщение, което няма одобрен шаблон. Екипът на Povikvane ги преглежда възможно най-скоро."
 
-#. translators: %s: reason, for example "awaiting approval".
-#: src/Admin/TemplatesSection.php:276
-#, php-format
-msgid "This template cannot be used yet (%s), so this message is sent as an SMS."
-msgstr "Този шаблон още не може да се използва (%s), затова съобщението се изпраща като SMS."
+#: src/Admin/TemplatesSection.php:274
+msgid "Sending messages for approval from here is coming soon. Until then, create the templates in Povikvane; they appear here once approved."
+msgstr "Изпращането на съобщения за одобрение оттук ще бъде добавено скоро. Дотогава създайте шаблоните в Povikvane; те се показват тук, след като бъдат одобрени."
 
-#: src/Admin/TemplatesSection.php:333
+#: src/Admin/TemplatesSection.php:352
 msgid "Standard SMS"
 msgstr "Стандартно SMS"
 
-#: src/Admin/TemplatesSection.php:334
+#: src/Admin/TemplatesSection.php:353
 msgid "Unicode SMS (e.g. Cyrillic)"
 msgstr "Unicode SMS (напр. кирилица)"
 
-#: src/Admin/TemplatesSection.php:335
+#: src/Admin/TemplatesSection.php:354
 msgid "characters"
 msgstr "знака"
 
-#: src/Admin/TemplatesSection.php:336
+#: src/Admin/TemplatesSection.php:355
 msgid "SMS part"
 msgstr "SMS част"
 
-#: src/Admin/TemplatesSection.php:337
+#: src/Admin/TemplatesSection.php:356
 msgid "SMS parts"
 msgstr "SMS части"
 
-#: src/Admin/TemplatesSection.php:338
+#: src/Admin/TemplatesSection.php:357
 msgid "credit"
 msgstr "кредит"
 
-#: src/Admin/TemplatesSection.php:340
-msgid "With a Cyrillic name:"
-msgstr "С име на кирилица:"
+#: src/Admin/TemplatesSection.php:359
+msgid "With a Cyrillic shop name:"
+msgstr "С име на магазина на кирилица:"
 
-#: src/Admin/TemplatesSection.php:341
+#: src/Admin/TemplatesSection.php:360
 msgid "Unknown placeholder:"
 msgstr "Непозната променлива:"
 
-#: src/Admin/TemplatesSection.php:342
+#: src/Admin/TemplatesSection.php:361
 msgid "Empty message: nothing will be sent."
 msgstr "Празно съобщение: нищо няма да бъде изпратено."
 
@@ -1623,93 +1826,21 @@ msgstr "Току-що беше изпратено тестово съобщен�
 msgid "Test message queued. It should reach your phone within a minute."
 msgstr "Тестовото съобщение е добавено в опашката. Трябва да стигне до телефона ви до минута."
 
-#: src/Admin/ViberPanel.php:39
-msgid "Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs an approved transactional template in your Povikvane account."
-msgstr "Изпращайте известия за поръчки през Viber, с автоматичен SMS, ако Viber не може да достави съобщението. Нужен е одобрен транзакционен шаблон във вашия акаунт в Povikvane."
-
-#: src/Admin/ViberPanel.php:42
-msgid "Available"
-msgstr "Наличен"
-
-#: src/Admin/ViberPanel.php:42
-msgid "Not available"
-msgstr "Не е наличен"
-
-#: src/Admin/ViberPanel.php:45
-msgid "Create and register templates in Povikvane. They are listed here once they exist."
-msgstr "Създайте и регистрирайте шаблоните в Povikvane. Те се показват тук, щом съществуват."
-
-#: src/Admin/ViberPanel.php:45
-msgid "Templates"
-msgstr "Шаблони"
-
-#: src/Admin/ViberPanel.php:48
-msgid "No Viber templates yet."
-msgstr "Още няма шаблони за Viber."
-
-#: src/Admin/ViberPanel.php:62
-msgid "Check connection and refresh templates"
-msgstr "Провери връзката и обнови шаблоните"
-
-#: src/Admin/ViberPanel.php:75
-msgid "Ready to use"
-msgstr "Готов за употреба"
-
-#: src/Admin/ViberView.php:29
+#: src/Admin/ViberView.php:28
 msgid "Viber is available on your account."
 msgstr "Viber е наличен във вашия акаунт."
 
+#: src/Admin/ViberView.php:29
+msgid "Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS."
+msgstr "Viber още не е наличен: шаблоните за Viber не са включени за вашия акаунт в Povikvane. Съобщенията за поръчки се изпращат като SMS."
+
 #: src/Admin/ViberView.php:30
-msgid "Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS. This page offers Viber as soon as it is available."
-msgstr "Viber още не е наличен: шаблоните за Viber не са включени за вашия акаунт в Povikvane. Съобщенията за поръчки се изпращат като SMS. Тази страница ще предложи Viber, щом стане наличен."
+msgid "Povikvane refused the SMS fallback for your account (it is not part of every plan), so order messages go out as SMS. Turn off \"Send an SMS if Viber cannot deliver\" to use Viber without it."
+msgstr "Povikvane отказа резервния SMS за вашия акаунт (не е част от всеки план), затова съобщенията за поръчки се изпращат като SMS. Изключете „Изпрати SMS, ако Viber не може да достави“, за да ползвате Viber без него."
 
 #: src/Admin/ViberView.php:31
-msgid "Viber is paused: Povikvane has not enabled the SMS fallback for your account yet, so order messages go out as SMS. The plugin tries again every day."
-msgstr "Viber е на пауза: Povikvane още не е включил резервния SMS за вашия акаунт, затова съобщенията за поръчки се изпращат като SMS. Добавката опитва отново всеки ден."
-
-#: src/Admin/ViberView.php:32
-msgid "Viber has not been checked yet. Open the Connection tab and press \"Check connection\"."
-msgstr "Viber още не е проверен. Отворете раздел „Връзка“ и натиснете „Провери връзката“."
-
-#: src/Admin/ViberView.php:43
-msgid "Order number"
-msgstr "Номер на поръчката"
-
-#: src/Admin/ViberView.php:44
-msgid "Order total"
-msgstr "Сума на поръчката"
-
-#: src/Admin/ViberView.php:45
-msgid "First name"
-msgstr "Собствено име"
-
-#: src/Admin/ViberView.php:46
-msgid "Last name"
-msgstr "Фамилия"
-
-#: src/Admin/ViberView.php:47
-msgid "Shop name"
-msgstr "Име на магазина"
-
-#: src/Admin/ViberView.php:48
-msgid "Tracking number"
-msgstr "Номер за проследяване"
-
-#: src/Admin/ViberView.php:60
-msgid "awaiting approval"
-msgstr "чака одобрение"
-
-#: src/Admin/ViberView.php:61
-msgid "not transactional"
-msgstr "не е транзакционен"
-
-#: src/Admin/ViberView.php:62
-msgid "choose what to fill each field with"
-msgstr "изберете с какво да се попълни всяко поле"
-
-#: src/Admin/ViberView.php:63
-msgid "contains a link"
-msgstr "съдържа връзка"
+msgid "Viber has not been checked yet. Open the Settings tab and press \"Check connection\"."
+msgstr "Viber още не е проверен. Отворете раздел „Настройки“ и натиснете „Провери връзката“."
 
 #. translators: %s: shop name.
 #: src/Balance/WpMailer.php:32
@@ -1786,7 +1917,7 @@ msgid "The message could not be sent. See the message log detail, or resend it."
 msgstr "Съобщението не можа да бъде изпратено. Вижте подробностите в дневника на съобщенията или го изпратете отново."
 
 #. translators: %s: minimum required WooCommerce version.
-#: src/Plugin.php:437
+#: src/Plugin.php:447
 #, php-format
 msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
 msgstr "Povikvane SMS за WooCommerce изисква WooCommerce %s или по-нова версия и не е зареден."
@@ -1830,10 +1961,6 @@ msgstr "Съгласие за промоционални SMS"
 #: src/Privacy/Privacy.php:164
 msgid "Decision"
 msgstr "Решение"
-
-#: src/Privacy/Privacy.php:165
-msgid "Agreed"
-msgstr "Съгласие"
 
 #: src/Privacy/Privacy.php:165
 msgid "Withdrew"
@@ -1971,6 +2098,30 @@ msgstr "Povikvane: не беше изпратено SMS, защото %s."
 msgid "Povikvane: SMS to %s was not sent because it waited too long."
 msgstr "Povikvane: SMS до %s не беше изпратено, защото е чакало твърде дълго."
 
+#: src/Viber/TemplateRequestService.php:113
+msgid "The message is empty."
+msgstr "Съобщението е празно."
+
+#: src/Viber/TemplateRequestService.php:114
+msgid "A Viber message cannot start or end with a field such as {order_number} or {shop_name}. Put some words before and after it."
+msgstr "Съобщение за Viber не може да започва или завършва с поле като {order_number} или {shop_name}. Добавете думи преди и след него."
+
+#: src/Viber/TemplateRequestService.php:115
+msgid "A Viber message cannot contain a field that is a link."
+msgstr "Съобщение за Viber не може да съдържа поле, което е връзка."
+
+#: src/Viber/TemplateRequestService.php:116
+msgid "A Viber message can have at most three different fields."
+msgstr "Съобщение за Viber може да има най-много три различни полета."
+
+#: src/Viber/TemplateRequestService.php:117
+msgid "The message is too long for Viber."
+msgstr "Съобщението е твърде дълго за Viber."
+
+#: src/Viber/UnavailableSubmitter.php:33
+msgid "Sending templates for review from the plugin is not available yet."
+msgstr "Изпращането на шаблони за преглед от добавката още не е налично."
+
 #: src/Webhook/RestController.php:70
 msgid "No route was found matching the URL and request method."
 msgstr "Не е намерен маршрут, който съответства на адреса и метода на заявката."
@@ -1986,3 +2137,83 @@ msgstr "Заявката е твърде голяма."
 #: src/Webhook/RestController.php:94
 msgid "Expected a JSON body."
 msgstr "Очаква се тяло на заявката във формат JSON."
+
+#, php-format
+#~ msgid "%d order status is set to Viber but goes out as SMS"
+#~ msgid_plural "%d order statuses are set to Viber but go out as SMS"
+#~ msgstr[0] "%d статус на поръчка е зададен за Viber, но се изпраща като SMS"
+#~ msgstr[1] "%d статуса на поръчки са зададени за Viber, но се изпращат като SMS"
+
+#~ msgid "Choose an approved template and a value for each of its fields."
+#~ msgstr "Изберете одобрен шаблон и стойност за всяко негово поле."
+
+#~ msgid "How Viber works"
+#~ msgstr "Как работи Viber"
+
+#~ msgid "Viber needs an approved transactional template from your Povikvane account. If Viber cannot be used for a message, it goes out as an SMS. A Viber message costs 0.8 credits when Viber delivers it; a fallback SMS is charged as in your Povikvane price list. The SMS text must fit in one SMS part (160 characters, 70 with Cyrillic) for the automatic fallback, and a template that needs a link or a long value is sent as an SMS. New templates appear within 15 minutes, or when you check the connection."
+#~ msgstr "Viber изисква одобрен транзакционен шаблон от вашия акаунт в Povikvane. Ако Viber не може да се използва за дадено съобщение, то се изпраща като SMS. Съобщение във Viber струва 0,8 кредита, когато е доставено през Viber; резервният SMS се таксува по ценовата листа на Povikvane. Текстът на SMS-а трябва да се побира в една SMS част (160 знака, 70 с кирилица), за да работи автоматичното връщане към SMS, а шаблон, който изисква връзка или дълга стойност, се изпраща като SMS. Новите шаблони се появяват до 15 минути или когато проверите връзката."
+
+#~ msgid "Send via"
+#~ msgstr "Изпращане през"
+
+#~ msgid "Choose a template"
+#~ msgstr "Изберете шаблон"
+
+#, php-format
+#~ msgid "Fill %s with"
+#~ msgstr "Попълни %s с"
+
+#~ msgid "Choose a value"
+#~ msgstr "Изберете стойност"
+
+#~ msgid "No template chosen, so this message is sent as an SMS."
+#~ msgstr "Не е избран шаблон, затова това съобщение се изпраща като SMS."
+
+#, php-format
+#~ msgid "This template cannot be used yet (%s), so this message is sent as an SMS."
+#~ msgstr "Този шаблон още не може да се използва (%s), затова съобщението се изпраща като SMS."
+
+#~ msgid "Send order updates over Viber with an automatic SMS if Viber cannot deliver. It needs an approved transactional template in your Povikvane account."
+#~ msgstr "Изпращайте известия за поръчки през Viber, с автоматичен SMS, ако Viber не може да достави съобщението. Нужен е одобрен транзакционен шаблон във вашия акаунт в Povikvane."
+
+#~ msgid "Create and register templates in Povikvane. They are listed here once they exist."
+#~ msgstr "Създайте и регистрирайте шаблоните в Povikvane. Те се показват тук, щом съществуват."
+
+#~ msgid "Templates"
+#~ msgstr "Шаблони"
+
+#~ msgid "No Viber templates yet."
+#~ msgstr "Още няма шаблони за Viber."
+
+#~ msgid "Check connection and refresh templates"
+#~ msgstr "Провери връзката и обнови шаблоните"
+
+#~ msgid "Ready to use"
+#~ msgstr "Готов за употреба"
+
+#~ msgid "Order number"
+#~ msgstr "Номер на поръчката"
+
+#~ msgid "Order total"
+#~ msgstr "Сума на поръчката"
+
+#~ msgid "First name"
+#~ msgstr "Собствено име"
+
+#~ msgid "Last name"
+#~ msgstr "Фамилия"
+
+#~ msgid "Shop name"
+#~ msgstr "Име на магазина"
+
+#~ msgid "Tracking number"
+#~ msgstr "Номер за проследяване"
+
+#~ msgid "not transactional"
+#~ msgstr "не е транзакционен"
+
+#~ msgid "choose what to fill each field with"
+#~ msgstr "изберете с какво да се попълни всяко поле"
+
+#~ msgid "contains a link"
+#~ msgstr "съдържа връзка"

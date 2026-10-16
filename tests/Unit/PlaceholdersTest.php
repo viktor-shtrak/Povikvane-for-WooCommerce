@@ -71,7 +71,7 @@ final class PlaceholdersTest extends TestCase {
 	 * Unsupported placeholders can be reported to the editor.
 	 */
 	public function test_unknown_placeholders_are_listed(): void {
-		$this->assertSame( array( 'frist_name', 'nope' ), Placeholders::unknown( 'Hi {frist_name} {first_name} {nope} {nope}' ) );
+		$this->assertSame( array( 'frist_name', 'nope' ), Placeholders::unknown( 'Hi {frist_name} {shop_name} {nope} {nope}' ) );
 		$this->assertSame( array(), Placeholders::unknown( 'Order {order_number}' ) );
 	}
 
@@ -80,8 +80,8 @@ final class PlaceholdersTest extends TestCase {
 	 */
 	public function test_default_template_follows_site_language(): void {
 		$this->assertStringContainsString( 'Поръчка', TemplateDefaults::for_status( 'completed', 'bg_BG' ) );
-		$this->assertStringContainsString( 'your order', TemplateDefaults::for_status( 'completed', 'en_US' ) );
-		$this->assertStringContainsString( 'your order', TemplateDefaults::for_status( 'completed', 'de_DE' ) );
+		$this->assertStringContainsString( 'Your order', TemplateDefaults::for_status( 'completed', 'en_US' ) );
+		$this->assertStringContainsString( 'Your order', TemplateDefaults::for_status( 'completed', 'de_DE' ) );
 	}
 
 	/**

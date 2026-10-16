@@ -98,19 +98,21 @@ final class Capabilities {
 	 * has not refused the SMS fallback. The account's own sender list is not consulted,
 	 * because accounts without their own originator send through Povikvane's.
 	 *
-	 * @param mixed $stored The stored capabilities option.
+	 * @param mixed $stored          The stored capabilities option.
+	 * @param bool  $fallback_wanted Whether messages carry an SMS fallback; a refusal only matters then.
 	 */
-	public static function viber_ready( mixed $stored ): bool {
-		return self::VIBER_READY === self::viber_status( $stored );
+	public static function viber_ready( mixed $stored, bool $fallback_wanted = true ): bool {
+		return self::VIBER_READY === self::viber_status( $stored, $fallback_wanted );
 	}
 
 	/**
 	 * Why Viber is or is not available.
 	 *
-	 * @param mixed $stored The stored capabilities option.
+	 * @param mixed $stored          The stored capabilities option.
+	 * @param bool  $fallback_wanted Whether messages carry an SMS fallback; a refusal only matters then.
 	 * @return string One of the VIBER_* constants.
 	 */
-	public static function viber_status( mixed $stored ): string {
+	public static function viber_status( mixed $stored, bool $fallback_wanted = true ): string {
 		if ( ! is_array( $stored ) || null === ( $stored['templates'] ?? null ) ) {
 			return self::VIBER_NOT_CHECKED;
 		}
@@ -119,7 +121,7 @@ final class Capabilities {
 			return self::VIBER_TEMPLATES_OFF;
 		}
 
-		return false === ( $stored['fallback'] ?? null ) ? self::VIBER_FALLBACK_REFUSED : self::VIBER_READY;
+		return $fallback_wanted && false === ( $stored['fallback'] ?? null ) ? self::VIBER_FALLBACK_REFUSED : self::VIBER_READY;
 	}
 
 	/**

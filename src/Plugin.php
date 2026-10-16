@@ -26,6 +26,8 @@ use Povikvane\WooCommerce\Admin\SettingsPage;
 use Povikvane\WooCommerce\Admin\SetupNotice;
 use Povikvane\WooCommerce\Admin\SetupWizard;
 use Povikvane\WooCommerce\Admin\SupportInfo;
+use Povikvane\WooCommerce\Admin\ConsentColumns;
+use Povikvane\WooCommerce\Admin\TemplateRequestAjax;
 use Povikvane\WooCommerce\Admin\TemplatesSection;
 use Povikvane\WooCommerce\Admin\TestSender;
 use Povikvane\WooCommerce\Api\Capabilities;
@@ -87,6 +89,9 @@ use Povikvane\WooCommerce\Webhook\OptionActivity;
 use Povikvane\WooCommerce\Webhook\RestController;
 use Povikvane\WooCommerce\Webhook\Token;
 use Povikvane\WooCommerce\Viber\TemplateCatalog;
+use Povikvane\WooCommerce\Viber\TemplateRequests;
+use Povikvane\WooCommerce\Viber\TemplateRequestService;
+use Povikvane\WooCommerce\Viber\UnavailableSubmitter;
 use Povikvane\WooCommerce\Viber\TemplateSync;
 use Povikvane\WooCommerce\Viber\ViberPlan;
 use Povikvane\WooCommerce\Viber\ViberPlanner;
@@ -186,12 +191,17 @@ final class Plugin {
 		) )->register();
 
 		if ( is_admin() ) {
-			$templates = new TemplatesSection( $this->triggers() );
-			$delivery  = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
+			$catalog   = new TemplateCatalog();
+			$requests  = new TemplateRequests();
+			$submitter = new UnavailableSubmitter();
+			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter );
+			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
+			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
 			$delivery->register();
 
 			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), Language::content_locale() );
 			$marketing_section->register();
+			( new ConsentColumns( new ConsentRepository() ) )->register();
 
 			( new MessageLogPage( $this->repository(), $this->enqueuer(), $this->settings(), $this->state() ) )->register();
 
@@ -328,7 +338,7 @@ final class Plugin {
 				'connection' => $caps['connection'],
 				'account'    => $caps['account'],
 				'lookup'     => $caps['lookup'],
-				'viber'      => Capabilities::viber_status( $caps ),
+				'viber'      => Capabilities::viber_status( $caps, $this->settings()->viber_sms_fallback() ),
 				'paused'     => $this->state()->paused_reason(),
 			)
 		);
@@ -388,7 +398,7 @@ final class Plugin {
 		$this->balance_refresher()->refresh();
 
 		// Templates are approved within minutes, so the list is kept fresh alongside the balance.
-		if ( Capabilities::viber_ready( $caps ) ) {
+		if ( Capabilities::viber_ready( $caps, false ) ) {
 			$this->template_sync()->refresh_if_stale( time(), 15 * MINUTE_IN_SECONDS );
 		}
 	}
@@ -618,14 +628,14 @@ final class Plugin {
 			 * @param string $status   New order status slug without "wc-".
 			 */
 			static fn( OrderFacts $facts ): bool => (bool) apply_filters( 'povikvane_should_send', true, $facts->order_id, $facts->status ),
-			static fn( Trigger $trigger, array $values, string $sms_text ): ?ViberPlan => ViberPlanner::plan(
-				$trigger->channel,
-				$trigger->viber_template,
+			fn( Trigger $trigger, array $values, string $sms_text ): ?ViberPlan => ViberPlanner::plan(
+				$this->settings()->viber_enabled(),
+				Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ), $this->settings()->viber_sms_fallback() ),
+				$this->settings()->viber_sms_fallback(),
+				$trigger->template,
 				$values,
 				$sms_text,
-				Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ) ),
-				new TemplateCatalog(),
-				$trigger->viber_map
+				new TemplateCatalog()
 			)
 		);
 	}

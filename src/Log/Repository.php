@@ -650,12 +650,12 @@ final class Repository implements MessageStore, ReportSource {
 	 * Read the stored Viber details.
 	 *
 	 * @param mixed $value Column value.
-	 * @return array{template_id:string,params:array<string,string>,fallback_sms:string}|null
+	 * @return array{template_id:string,params:array<string,string>,fallback_sms:string|null}|null
 	 */
 	private function decode_viber( mixed $value ): ?array {
 		$data = is_string( $value ) && '' !== $value ? json_decode( $value, true ) : null;
 
-		if ( ! is_array( $data ) || ! isset( $data['template_id'], $data['fallback_sms'] ) || ! is_string( $data['template_id'] ) || ! is_string( $data['fallback_sms'] ) ) {
+		if ( ! is_array( $data ) || ! isset( $data['template_id'] ) || ! is_string( $data['template_id'] ) || ! array_key_exists( 'fallback_sms', $data ) || ( null !== $data['fallback_sms'] && ! is_string( $data['fallback_sms'] ) ) ) {
 			return null;
 		}
 
