@@ -26,6 +26,8 @@ final class ViberTemplate {
 	 * @param string      $status       "approved", "pending" or "rejected".
 	 * @param string|null $message_type  "transactional", "marketing" or null.
 	 * @param string|null $why_not       Carrier reason when it is not transactional.
+	 * @param string|null $provider_status Review state at the carrier, when the account reports the two stages apart.
+	 * @param string|null $lang          Language the template was submitted in.
 	 */
 	public function __construct(
 		public readonly string $id,
@@ -34,7 +36,9 @@ final class ViberTemplate {
 		public readonly array $variables,
 		public readonly string $status,
 		public readonly ?string $message_type,
-		public readonly ?string $why_not = null
+		public readonly ?string $why_not = null,
+		public readonly ?string $provider_status = null,
+		public readonly ?string $lang = null
 	) {}
 
 	/**
@@ -71,6 +75,13 @@ final class ViberTemplate {
 		$status    = $row['approval_status'] ?? $row['status'] ?? '';
 		$type      = $row['message_type'] ?? null;
 		$why       = $row['why_not_transactional'] ?? $row['why_not'] ?? null;
+		$provider  = $row['provider_status'] ?? null;
+		$lang      = $row['lang'] ?? null;
+		// An account that reports both review stages says "rejected" if either stage said no.
+		$internal = $row['internal_status'] ?? null;
+		if ( is_string( $internal ) && str_contains( strtolower( $internal ), 'reject' ) ) {
+			$status = 'rejected';
+		}
 
 		return new self(
 			$id,
@@ -79,7 +90,9 @@ final class ViberTemplate {
 			$variables,
 			is_string( $status ) ? $status : '',
 			is_string( $type ) ? $type : null,
-			is_string( $why ) ? $why : null
+			is_string( $why ) ? $why : null,
+			is_string( $provider ) ? $provider : null,
+			is_string( $lang ) ? $lang : null
 		);
 	}
 
@@ -90,13 +103,15 @@ final class ViberTemplate {
 	 */
 	public function to_array(): array {
 		return array(
-			'id'           => $this->id,
-			'name'         => $this->name,
-			'content'      => $this->content,
-			'variables'    => $this->variables,
-			'status'       => $this->status,
-			'message_type' => $this->message_type,
-			'why_not'      => $this->why_not,
+			'id'              => $this->id,
+			'name'            => $this->name,
+			'content'         => $this->content,
+			'variables'       => $this->variables,
+			'status'          => $this->status,
+			'message_type'    => $this->message_type,
+			'why_not'         => $this->why_not,
+			'provider_status' => $this->provider_status,
+			'lang'            => $this->lang,
 		);
 	}
 

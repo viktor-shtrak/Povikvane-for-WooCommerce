@@ -131,11 +131,22 @@ final class TemplateMatcher {
 	 * @param ViberTemplate $template Template.
 	 */
 	private static function state_of( ViberTemplate $template ): string {
-		if ( $template->is_approved() ) {
-			return $template->is_transactional() ? TemplateMatch::READY : TemplateMatch::NOT_TRANSACTION;
+		$provider = strtolower( (string) $template->provider_status );
+
+		if ( str_contains( strtolower( $template->status ), 'reject' ) || str_contains( $provider, 'reject' ) || str_contains( $provider, 'declin' ) ) {
+			return TemplateMatch::REJECTED;
 		}
 
-		return str_contains( strtolower( $template->status ), 'reject' ) ? TemplateMatch::REJECTED : TemplateMatch::PENDING;
+		if ( ! $template->is_approved() ) {
+			return TemplateMatch::PENDING;
+		}
+
+		if ( $template->is_transactional() ) {
+			return TemplateMatch::READY;
+		}
+
+		// Approved by Povikvane but the carrier has not answered yet: it counts as transactional only once it does.
+		return 'pending' === $provider || str_contains( strtolower( (string) $template->why_not ), 'awaiting' ) ? TemplateMatch::PENDING : TemplateMatch::NOT_TRANSACTION;
 	}
 
 	/**

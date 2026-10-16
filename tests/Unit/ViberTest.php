@@ -272,6 +272,75 @@ final class ViberTest extends TestCase {
 	}
 
 	/**
+	 * Approved by Povikvane but still with the carrier counts as waiting, not as a wrong kind of template.
+	 */
+	public function test_template_waiting_for_the_carrier_is_pending(): void {
+		$waiting = $this->catalog(
+			array(
+				$this->api_item(
+					array(
+						'approval_status'       => 'approved',
+						'internal_status'       => 'approved',
+						'provider_status'       => 'pending',
+						'message_type'          => 'marketing',
+						'why_not_transactional' => 'awaiting provider approval',
+					)
+				),
+			)
+		);
+		$this->assertSame( TemplateMatch::PENDING, TemplateMatcher::find( $this->text(), $waiting )->state );
+
+		$declined = $this->catalog(
+			array(
+				$this->api_item(
+					array(
+						'approval_status' => 'approved',
+						'provider_status' => 'rejected',
+						'message_type'    => 'marketing',
+					)
+				),
+			)
+		);
+		$this->assertSame( TemplateMatch::REJECTED, TemplateMatcher::find( $this->text(), $declined )->state );
+
+		$internal = $this->catalog(
+			array(
+				$this->api_item(
+					array(
+						'approval_status' => 'pending',
+						'internal_status' => 'rejected',
+						'message_type'    => null,
+					)
+				),
+			)
+		);
+		$this->assertSame( TemplateMatch::REJECTED, TemplateMatcher::find( $this->text(), $internal )->state );
+
+		$marketing = $this->catalog(
+			array(
+				$this->api_item(
+					array(
+						'message_type'          => 'marketing',
+						'why_not_transactional' => 'content looks promotional',
+					)
+				),
+			)
+		);
+		$this->assertSame( TemplateMatch::NOT_TRANSACTION, TemplateMatcher::find( $this->text(), $marketing )->state );
+
+		$template = ViberTemplate::from_api(
+			$this->api_item(
+				array(
+					'lang'            => 'en',
+					'provider_status' => 'approved',
+				)
+			)
+		);
+		$this->assertSame( 'en', $template?->lang );
+		$this->assertSame( 'approved', ViberTemplate::from_array( (array) $template?->to_array() )?->provider_status );
+	}
+
+	/**
 	 * A text becomes a template with numbered fields, or is refused with a reason.
 	 */
 	public function test_draft_turns_a_text_into_a_template(): void {
