@@ -22,15 +22,32 @@
 			button.addEventListener( 'click', function () {
 				var label = button.textContent;
 
-				field.select();
+				function done() {
+					button.textContent = button.getAttribute( 'data-copied' );
+					window.setTimeout( function () {
+						button.textContent = label;
+					}, 1500 );
+				}
 
-				if ( navigator.clipboard && navigator.clipboard.writeText ) {
-					navigator.clipboard.writeText( field.value ).then( function () {
-						button.textContent = button.getAttribute( 'data-copied' );
-						window.setTimeout( function () {
-							button.textContent = label;
-						}, 1500 );
-					} );
+				field.focus();
+				field.select();
+				field.setSelectionRange( 0, field.value.length );
+
+				// The clipboard API only exists on secure (https) pages; the older command works everywhere.
+				function fallback() {
+					try {
+						if ( document.execCommand( 'copy' ) ) {
+							done();
+						}
+					} catch ( e ) {
+						// The text stays selected, so the shortcut still works.
+					}
+				}
+
+				if ( window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText ) {
+					navigator.clipboard.writeText( field.value ).then( done, fallback );
+				} else {
+					fallback();
 				}
 			} );
 		} );

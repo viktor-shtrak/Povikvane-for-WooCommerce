@@ -105,7 +105,7 @@ final class MessagesTabTest extends TestCase {
 
 		$first = $service->send( array( 'completed' => $text ), $labels, 'Demo', 1000 );
 		$this->assertSame( TemplateRequestService::SENT, $first['completed']['result'] );
-		$this->assertSame( array( array( 'Demo - Completed', 'Order {customField1} from {customField2} is complete.' ) ), $submitter->sent );
+		$this->assertSame( array( array( 'Demo - Completed', 'Order {customField1} from {customField3} is complete.' ) ), $submitter->sent );
 		$this->assertSame( 1000, ( new TemplateRequests() )->sent_at( 'completed', $text ) );
 
 		$again = $service->send( array( 'completed' => $text ), $labels, 'Demo', 2000 );

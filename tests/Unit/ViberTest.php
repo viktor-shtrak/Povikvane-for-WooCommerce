@@ -278,13 +278,14 @@ final class ViberTest extends TestCase {
 		$draft = TemplateDraft::from_text( 'Order {order_number} from {shop_name} is shipped. Thanks, {shop_name} team.' );
 
 		$this->assertNull( $draft->problem );
-		$this->assertSame( 'Order {customField1} from {customField2} is shipped. Thanks, {customField2} team.', $draft->content );
+		$this->assertSame( 'Order {customField1} from {customField3} is shipped. Thanks, {customField3} team.', $draft->content );
 		$this->assertSame(
 			array(
 				'customField1' => 'order_number',
-				'customField2' => 'shop_name',
+				'customField3' => 'shop_name',
 			),
-			$draft->mapping
+			$draft->mapping,
+			'the order number is always field 1, the total field 2, the shop name field 3'
 		);
 
 		$this->assertSame( TemplateDraft::PROBLEM_EDGE, TemplateDraft::from_text( '{shop_name}: your order is shipped.' )->problem, 'starts with a field' );

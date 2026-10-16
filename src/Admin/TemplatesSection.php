@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Messages\Placeholders;
 use Povikvane\WooCommerce\Orders\Trigger;
@@ -39,18 +40,20 @@ final class TemplatesSection {
 	/**
 	 * Constructor.
 	 *
-	 * @param TriggerRepository $triggers  Trigger configuration.
-	 * @param Settings          $settings  Plugin settings.
-	 * @param TemplateCatalog   $catalog   Viber templates.
-	 * @param TemplateRequests  $requests  Texts already sent for review.
-	 * @param TemplateSubmitter $submitter Sends templates for review.
+	 * @param TriggerRepository     $triggers  Trigger configuration.
+	 * @param Settings              $settings  Plugin settings.
+	 * @param TemplateCatalog       $catalog   Viber templates.
+	 * @param TemplateRequests      $requests  Texts already sent for review.
+	 * @param TemplateSubmitter     $submitter Sends templates for review.
+	 * @param FieldLabelsPanel|null $labels Custom field label check.
 	 */
 	public function __construct(
 		private readonly TriggerRepository $triggers,
 		private readonly Settings $settings,
 		private readonly TemplateCatalog $catalog = new TemplateCatalog(),
 		private readonly TemplateRequests $requests = new TemplateRequests(),
-		private readonly TemplateSubmitter $submitter = new UnavailableSubmitter()
+		private readonly TemplateSubmitter $submitter = new UnavailableSubmitter(),
+		private readonly ?FieldLabelsPanel $labels = null
 	) {}
 
 	/**
@@ -109,9 +112,7 @@ final class TemplatesSection {
 
 		echo '<section class="pvk-card" data-pvk-viber-card data-pvk-requests="' . esc_attr( (string) wp_json_encode( $ajax ) ) . '"><div class="pvk-card__head"><h2 class="pvk-card__title">' . esc_html__( 'Viber', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-card__intro">' . esc_html__( 'Send order updates over Viber instead of SMS. A message goes out over Viber when an approved Viber template has the same wording as the message; otherwise it goes out as an SMS.', 'povikvane-for-woocommerce' ) . '</p></div><div class="pvk-card__body">';
 
-		Ui::field_open( __( 'Use Viber', 'povikvane-for-woocommerce' ) );
-		Ui::toggle( $name . '[viber_enabled]', $enabled, __( 'Send order messages over Viber when possible', 'povikvane-for-woocommerce' ), __( 'A Viber message costs 0.8 credits. Messages without an approved template are still sent as SMS.', 'povikvane-for-woocommerce' ), '', 'data-pvk-viber-switch' );
-		Ui::field_close();
+		ViberControls::render_switch( $enabled, $name . '[viber_enabled]' );
 
 		echo '<div data-pvk-viber-only' . ( $enabled ? '' : ' hidden' ) . '>';
 
@@ -132,9 +133,11 @@ final class TemplatesSection {
 		echo '</p>';
 		Ui::field_close();
 
-		Ui::field_open( __( 'SMS fallback', 'povikvane-for-woocommerce' ) );
-		Ui::toggle( $name . '[viber_sms_fallback]', $fallback, __( 'Send an SMS if Viber cannot deliver', 'povikvane-for-woocommerce' ), __( 'Not included in the Starter and Bronze plans: turn it on only if your plan has it, otherwise Povikvane refuses the message and it goes out as an SMS. With it on, the SMS text must fit in one SMS part.', 'povikvane-for-woocommerce' ) );
-		Ui::field_close();
+		ViberControls::render_fallback( $fallback, AccountInfo::sms_fallback_allowed( $caps ), $name . '[viber_sms_fallback]' );
+
+		if ( null !== $this->labels ) {
+			$this->labels->render( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=messages' ) );
+		}
 
 		echo '</div></div></section>';
 	}

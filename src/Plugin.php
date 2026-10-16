@@ -27,6 +27,7 @@ use Povikvane\WooCommerce\Admin\SetupNotice;
 use Povikvane\WooCommerce\Admin\SetupWizard;
 use Povikvane\WooCommerce\Admin\SupportInfo;
 use Povikvane\WooCommerce\Admin\ConsentColumns;
+use Povikvane\WooCommerce\Admin\FieldLabelsPanel;
 use Povikvane\WooCommerce\Admin\TemplateRequestAjax;
 use Povikvane\WooCommerce\Admin\TemplatesSection;
 use Povikvane\WooCommerce\Admin\TestSender;
@@ -52,6 +53,7 @@ use Povikvane\WooCommerce\Marketing\FrequencyCap;
 use Povikvane\WooCommerce\Marketing\MarketingGate;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Marketing\OptOutEndpoint;
+use Povikvane\WooCommerce\Marketing\OptOutForm;
 use Povikvane\WooCommerce\Marketing\OptOutToken;
 use Povikvane\WooCommerce\Messages\CompositeGate;
 use Povikvane\WooCommerce\Messages\DeliveryUpdater;
@@ -194,7 +196,9 @@ final class Plugin {
 			$catalog   = new TemplateCatalog();
 			$requests  = new TemplateRequests();
 			$submitter = new UnavailableSubmitter();
-			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter );
+			$labels    = new FieldLabelsPanel( array( $this, 'run_probe' ) );
+			$labels->register();
+			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter, $labels );
 			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
 			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
 			$delivery->register();
@@ -240,6 +244,7 @@ final class Plugin {
 				new Token(),
 				$activity,
 				$templates,
+				$labels,
 				array( $this, 'run_probe' )
 			) )->register();
 
@@ -586,6 +591,7 @@ final class Plugin {
 	 */
 	private function register_marketing_hooks(): void {
 		( new OptOutEndpoint( $this->consent(), new OptOutToken( $this->consent_secret() ) ) )->register();
+		( new OptOutForm( $this->consent(), new Normalizer(), $this->settings()->default_country() ) )->register();
 
 		if ( ! $this->marketing()->enabled() ) {
 			return;

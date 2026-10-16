@@ -15,6 +15,7 @@ use Povikvane\WooCommerce\Reports\DeliveryReport;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
+use Povikvane\WooCommerce\Setup\SetupChecklist;
 use Povikvane\WooCommerce\Setup\SetupProgress;
 use Povikvane\WooCommerce\Support\ActionSchedulerScheduler;
 use Povikvane\WooCommerce\Support\SettingsSanitizer;
@@ -362,7 +363,7 @@ final class SettingsPage {
 			null === $overdue ? 0 : time() - $overdue,
 			$this->repository->recent( 5 ),
 			$this->progress->checklist(),
-			admin_url( 'admin.php?page=' . SetupWizard::SLUG ),
+			$this->wizard_url(),
 			admin_url( 'admin.php?page=' . MessageLogPage::SLUG ),
 			'',
 			$report,
@@ -390,6 +391,16 @@ final class SettingsPage {
 			$days,
 			$this->tab_url( 'overview' )
 		);
+	}
+
+	/**
+	 * Address of the setup wizard, at the first step that is still open, so "continue"
+	 * never starts over.
+	 */
+	private function wizard_url(): string {
+		$step = SetupChecklist::next_step( $this->progress->checklist() );
+
+		return admin_url( 'admin.php?page=' . SetupWizard::SLUG . ( null === $step ? '' : '&step=' . $step ) );
 	}
 
 	/**

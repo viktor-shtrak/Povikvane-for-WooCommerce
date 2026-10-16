@@ -71,7 +71,7 @@ final class SetupNotice {
 			)
 		) . '</p><p>';
 
-		printf( '<a class="button button-primary" href="%1$s">%2$s</a> ', esc_url( admin_url( 'admin.php?page=' . SetupWizard::SLUG ) ), esc_html__( 'Continue setup', 'povikvane-for-woocommerce' ) );
+		printf( '<a class="button button-primary" href="%1$s">%2$s</a> ', esc_url( admin_url( 'admin.php?page=' . SetupWizard::SLUG . ( null === SetupChecklist::next_step( $items ) ? '' : '&step=' . SetupChecklist::next_step( $items ) ) ) ), esc_html__( 'Continue setup', 'povikvane-for-woocommerce' ) );
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="display:inline"><input type="hidden" name="action" value="povikvane_dismiss_setup">';
 		wp_nonce_field( 'povikvane_dismiss_setup' );

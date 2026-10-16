@@ -14,6 +14,8 @@
 		return;
 	}
 
+	var fallback = document.querySelector( '[data-pvk-fallback-switch]' );
+	var root = document.querySelector( '.pvk' );
 	var config = {};
 
 	try {
@@ -36,11 +38,28 @@
 		} );
 	}
 
+	/**
+	 * With Viber on and no SMS fallback, an SMS length estimate means nothing for the
+	 * messages that go over Viber, so it is hidden.
+	 */
+	function estimates() {
+		if ( root ) {
+			root.classList.toggle( 'pvk-hide-estimates', !! ( toggle && toggle.checked && fallback && ! fallback.checked ) );
+		}
+	}
+
 	if ( toggle ) {
 		toggle.addEventListener( 'change', function () {
 			show( toggle.checked );
+			estimates();
 		} );
 	}
+
+	if ( fallback ) {
+		fallback.addEventListener( 'change', estimates );
+	}
+
+	estimates();
 
 	// Offer approval for an edited message that was approved as it was.
 	rows().forEach( function ( row ) {

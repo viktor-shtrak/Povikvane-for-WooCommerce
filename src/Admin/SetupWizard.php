@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Messages\Placeholders;
@@ -74,6 +75,7 @@ final class SetupWizard {
 	 * @param Token             $token      Webhook secret.
 	 * @param WebhookActivity   $activity   Last delivery report.
 	 * @param TemplatesSection  $templates  Provides the message length estimate script.
+	 * @param FieldLabelsPanel  $labels     Custom field label check.
 	 * @param callable          $probe      Runs a capability probe.
 	 */
 	public function __construct(
@@ -87,6 +89,7 @@ final class SetupWizard {
 		private readonly Token $token,
 		private readonly WebhookActivity $activity,
 		private readonly TemplatesSection $templates,
+		private readonly FieldLabelsPanel $labels,
 		callable $probe
 	) {
 		$this->probe = $probe;
@@ -289,6 +292,8 @@ final class SetupWizard {
 		echo '<form method="post" id="' . esc_attr( $form ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="povikvane_wizard_messages">';
 		wp_nonce_field( 'povikvane_wizard_messages' );
 
+		$this->viber_card();
+
 		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-step__title">' . esc_html__( 'Choose your messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-step__lead">' . esc_html__( 'Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later.', 'povikvane-for-woocommerce' ) . '</p><p class="pvk-card__intro" style="margin-top:8px">' . esc_html__( 'You can use:', 'povikvane-for-woocommerce' ) . ' ';
 		foreach ( Placeholders::NAMES as $name ) {
 			if ( ! in_array( $name, array( 'optout_link', 'tracking_url' ), true ) ) {
@@ -329,6 +334,22 @@ final class SetupWizard {
 			esc_attr( $form ),
 			esc_html__( 'Save and continue', 'povikvane-for-woocommerce' )
 		);
+	}
+
+	/**
+	 * The optional Viber choices at the top of the messages step.
+	 */
+	private function viber_card(): void {
+		$caps = get_option( Capabilities::OPTION, array() );
+
+		echo '<section class="pvk-card" data-pvk-viber-card><div class="pvk-card__head"><h2 class="pvk-card__title">' . esc_html__( 'Viber', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-card__intro">' . esc_html__( 'Optional. Send order updates over Viber instead of SMS when you have an approved Viber template with the same wording. Everything else still goes out as an SMS.', 'povikvane-for-woocommerce' ) . '</p></div><div class="pvk-card__body">';
+
+		ViberControls::render_switch( $this->settings->viber_enabled(), 'viber_enabled' );
+
+		echo '<div data-pvk-viber-only' . ( $this->settings->viber_enabled() ? '' : ' hidden' ) . '>';
+		ViberControls::render_fallback( $this->settings->viber_sms_fallback(), AccountInfo::sms_fallback_allowed( $caps ), 'viber_sms_fallback' );
+		$this->labels->render( $this->step_url( WizardSteps::MESSAGES ) );
+		echo '</div></div></section>';
 	}
 
 	/**
@@ -541,6 +562,23 @@ final class SetupWizard {
 		}
 
 		update_option( TriggerRepository::OPTION, $this->triggers->sanitize( $merged ) );
+
+		$caps    = get_option( Capabilities::OPTION, array() );
+		$allowed = false !== AccountInfo::sms_fallback_allowed( $caps );
+
+		update_option(
+			Settings::OPTION,
+			$this->sanitizer->sanitize(
+				array_merge(
+					$this->settings->all(),
+					array(
+						'api_key'            => '',
+						'viber_enabled'      => ! empty( $_POST['viber_enabled'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+						'viber_sms_fallback' => $allowed && ! empty( $_POST['viber_sms_fallback'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+					)
+				)
+			)
+		);
 
 		Flash::add( 'success', __( 'Your messages are saved.', 'povikvane-for-woocommerce' ) );
 		$this->go( WizardSteps::TEST );

@@ -78,7 +78,7 @@ final class MarketingSettingsTest extends TestCase {
 		$bulgarian = new MarketingSettings( 'bg_BG' );
 		$english   = new MarketingSettings( 'en_US' );
 
-		$this->assertStringContainsString( 'отпиша', $bulgarian->consent_text() );
+		$this->assertStringContainsString( 'отпишете', $bulgarian->consent_text() );
 		$this->assertNotSame( $bulgarian->wording_hash(), $english->wording_hash(), 'each language has its own default wording' );
 
 		update_option( MarketingSettings::OPTION, array( 'consent_text' => 'My own words' ) );

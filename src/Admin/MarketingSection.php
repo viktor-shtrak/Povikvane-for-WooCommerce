@@ -15,6 +15,7 @@ use Povikvane\WooCommerce\Marketing\ContactSync;
 use Povikvane\WooCommerce\Marketing\UnavailableContactSync;
 use Povikvane\WooCommerce\Marketing\Defaults;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
+use Povikvane\WooCommerce\Marketing\OptOutForm;
 use Povikvane\WooCommerce\Support\Csv;
 
 defined( 'ABSPATH' ) || exit;
@@ -160,6 +161,36 @@ final class MarketingSection {
 		}
 
 		Ui::field_close();
+		Ui::card_close();
+
+		$this->render_optout();
+	}
+
+	/**
+	 * How customers can stop promotional messages, with the shortcode to copy.
+	 */
+	private function render_optout(): void {
+		Ui::card_open( __( 'How customers can opt out', 'povikvane-for-woocommerce' ), __( 'Anyone can stop promotional messages at any time. There are three ways, and none of them needs a login.', 'povikvane-for-woocommerce' ) );
+
+		Ui::field_open( __( 'In every message', 'povikvane-for-woocommerce' ) );
+		echo '<p>' . esc_html__( 'Every promotional message contains an unsubscribe link. One tap and the customer is off the list. This is always on.', 'povikvane-for-woocommerce' ) . '</p>';
+		Ui::field_close();
+
+		Ui::field_open( __( 'In My Account', 'povikvane-for-woocommerce' ) );
+		echo '<p>' . esc_html__( 'Customers with an account can untick the promotional messages box under My Account > Account details.', 'povikvane-for-woocommerce' ) . '</p>';
+		Ui::field_close();
+
+		Ui::field_open( __( 'On a page of your shop', 'povikvane-for-woocommerce' ), 'povikvane-optout-shortcode', __( 'For people without an account, or who lost the message: a page where they type their phone number.', 'povikvane-for-woocommerce' ) );
+		printf(
+			'<div class="pvk-inline"><input type="text" id="povikvane-optout-shortcode" class="pvk-mono" readonly value="%1$s"> <button type="button" class="pvk-btn" data-povikvane-copy="#povikvane-optout-shortcode" data-copied="%2$s">%3$s</button></div>',
+			esc_attr( '[' . OptOutForm::SHORTCODE . ']' ),
+			esc_attr__( 'Copied', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Copy', 'povikvane-for-woocommerce' )
+		);
+		echo '<ol style="margin:12px 0 0 18px;padding:0"><li>' . esc_html__( 'In WordPress, go to Pages > Add New and give the page a name, for example "Stop promotional SMS".', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Add a Shortcode block (or paste into the text editor) and paste the shortcode above.', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Publish the page and link to it from your footer or privacy page.', 'povikvane-for-woocommerce' ) . '</li></ol>';
+		echo '<p class="pvk-field__hint" style="margin-top:8px">' . esc_html__( 'The form answers the same whether or not the number was on your list, so it tells nobody who is. It works even when promotional messages are switched off.', 'povikvane-for-woocommerce' ) . '</p>';
+		Ui::field_close();
+
 		Ui::card_close();
 	}
 

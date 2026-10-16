@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.8.0
+Stable tag: 0.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,7 +60,11 @@ No. Promotions are off by default, and only customers who tick the consent box, 
 
 = How do customers unsubscribe? =
 
-Every promotional message contains an unsubscribe link. A customer can also change their choice in My Account.
+Every promotional message contains an unsubscribe link. A customer can also change their choice in My Account, or use the [povikvane_optout] shortcode on a page of your shop, where anyone can type their phone number to stop promotional messages.
+
+= What happens if a Viber message cannot be delivered? =
+
+If you turned on the SMS fallback (not part of the Starter and Bronze plans), Povikvane sends the SMS itself when Viber cannot deliver. Separately, if Povikvane clearly refuses a Viber message (for example a template problem), the plugin sends that order update as an ordinary SMS instead. It does this only for clear refusals. If the answer is unclear (a timeout, "too many requests", "request in progress" or a server error), the Viber message may already be on its way, so the plugin never sends an SMS on top of it: it retries the same Viber message, or marks it as unconfirmed so you can check it in the message log.
 
 = What happens when my credits run out? =
 
@@ -71,6 +75,16 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.8.1 =
+* Setup wizard, messages step: an optional Viber switch with the SMS fallback beside it. If your plan has no SMS fallback the switch is greyed out with a tooltip that says so. The SMS length estimate under each message is only shown when it matters: it is hidden when Viber is on and the fallback is off.
+* The plugin checks the labels of your three custom fields in Povikvane and tells you whether you have none, some or all of them, then offers to fill in or replace them with the WooCommerce ones (order number, order total, shop name). Changing the labels from the plugin switches on when Povikvane supports it.
+* New Viber templates sent from the plugin always put the order number in custom field 1, the total in field 2 and the shop name in field 3, so the labels stay true.
+* New: the shortcode [povikvane_optout] puts a page on your shop where anyone can stop promotional SMS by typing their phone number. The Promotions tab explains all three ways to opt out (the link in every message, My Account, and this page) and how to add the page.
+* The copy buttons (webhook address, support information) now work on sites without https.
+* "Continue setup" on the Overview and in the reminder takes you to the first unfinished step instead of the start.
+* The consent checkbox text now reads "Искам да получавам съобщения с оферти и новини от магазина. Може да се отпишете по всяко време."
+* Bulgarian: "Service ID" is now "Идентификатор на услугата".
 
 = 0.8.0 =
 * Viber is now one switch for the whole shop instead of a choice per message. When it is on, the Messages tab shows how many approved Viber templates you have, and each message shows whether it is approved, awaiting approval, rejected or not approved yet. A message goes out over Viber when an approved template has the same wording; the fields of the template are matched to the order values automatically, so there is nothing to map by hand.

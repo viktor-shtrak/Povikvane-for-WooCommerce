@@ -24,8 +24,8 @@ final class Defaults {
 	 */
 	public static function consent_text( string $locale ): string {
 		return self::is_bulgarian( $locale )
-			? 'Искам да получавам SMS съобщения с оферти и новини от магазина. Мога да се отпиша по всяко време.'
-			: 'I would like to receive SMS messages with offers and news from this shop. I can opt out at any time.';
+			? 'Искам да получавам съобщения с оферти и новини от магазина. Може да се отпишете по всяко време.'
+			: 'I would like to receive messages with offers and news from this shop. You can opt out at any time.';
 	}
 
 	/**

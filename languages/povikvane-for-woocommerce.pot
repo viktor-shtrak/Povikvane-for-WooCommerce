@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.8.0\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.8.1\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-16 11:18+0300\n"
+"POT-Creation-Date: 2026-10-16 12:15+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,7 +43,7 @@ msgid "Do not message orders older than"
 msgstr ""
 
 #: src/Admin/AdvancedPanel.php:47 src/Admin/AdvancedPanel.php:102
-#: src/Admin/AdvancedPanel.php:112 src/Admin/MarketingSection.php:128
+#: src/Admin/AdvancedPanel.php:112 src/Admin/MarketingSection.php:129
 msgid "days"
 msgstr ""
 
@@ -112,7 +112,7 @@ msgstr ""
 msgid "Warn me below"
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:88 src/Admin/TemplatesSection.php:358
+#: src/Admin/AdvancedPanel.php:88 src/Admin/TemplatesSection.php:361
 msgid "credits"
 msgstr ""
 
@@ -201,7 +201,7 @@ msgid "Support information"
 msgstr ""
 
 #: src/Admin/AdvancedPanel.php:148 src/Admin/DeliveryPanel.php:61
-#: src/Admin/SetupWizard.php:399
+#: src/Admin/MarketingSection.php:187 src/Admin/SetupWizard.php:420
 msgid "Copied"
 msgstr ""
 
@@ -353,7 +353,7 @@ msgid "Viber, delivered by SMS"
 msgstr ""
 
 #: src/Admin/ChannelLabel.php:33 src/Admin/OverviewPanel.php:272
-#: src/Admin/TemplatesSection.php:110
+#: src/Admin/SetupWizard.php:345 src/Admin/TemplatesSection.php:113
 msgid "Viber"
 msgstr ""
 
@@ -365,16 +365,16 @@ msgstr ""
 msgid "Your Povikvane account"
 msgstr ""
 
-#: src/Admin/ConnectionPanel.php:45 src/Admin/SetupWizard.php:244
-#: src/Admin/SetupWizard.php:248
+#: src/Admin/ConnectionPanel.php:45 src/Admin/SetupWizard.php:247
+#: src/Admin/SetupWizard.php:251
 msgid "API key"
 msgstr ""
 
-#: src/Admin/ConnectionPanel.php:48 src/Admin/SetupWizard.php:245
+#: src/Admin/ConnectionPanel.php:48 src/Admin/SetupWizard.php:248
 msgid "Set in wp-config.php"
 msgstr ""
 
-#: src/Admin/ConnectionPanel.php:53 src/Admin/SetupWizard.php:251
+#: src/Admin/ConnectionPanel.php:53 src/Admin/SetupWizard.php:254
 msgid "Saved. Type a new key to replace it."
 msgstr ""
 
@@ -386,11 +386,11 @@ msgstr ""
 msgid "Remove the saved key"
 msgstr ""
 
-#: src/Admin/ConnectionPanel.php:67 src/Admin/SetupWizard.php:257
+#: src/Admin/ConnectionPanel.php:67 src/Admin/SetupWizard.php:260
 msgid "Service ID"
 msgstr ""
 
-#: src/Admin/ConnectionPanel.php:75 src/Admin/SetupWizard.php:203
+#: src/Admin/ConnectionPanel.php:75 src/Admin/SetupWizard.php:206
 msgid "Open Povikvane"
 msgstr ""
 
@@ -402,7 +402,7 @@ msgstr ""
 msgid "Default country"
 msgstr ""
 
-#: src/Admin/ConnectionPanel.php:79 src/Admin/SetupWizard.php:261
+#: src/Admin/ConnectionPanel.php:79 src/Admin/SetupWizard.php:264
 msgid "Used to read phone numbers written without a country code."
 msgstr ""
 
@@ -470,11 +470,12 @@ msgstr ""
 msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later. After adding it, send a test message from the Overview tab: \"Last report received\" shows when Povikvane has reached your site."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:57 src/Admin/SetupWizard.php:398
+#: src/Admin/DeliveryPanel.php:57 src/Admin/SetupWizard.php:419
 msgid "Webhook address"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:62 src/Admin/SetupWizard.php:400
+#: src/Admin/DeliveryPanel.php:62 src/Admin/MarketingSection.php:188
+#: src/Admin/SetupWizard.php:421
 msgid "Copy"
 msgstr ""
 
@@ -515,10 +516,11 @@ msgid "Test the webhook address"
 msgstr ""
 
 #: src/Admin/DeliveryPanel.php:124 src/Admin/DeliveryPanel.php:177
-#: src/Admin/MarketingSection.php:208 src/Admin/MarketingSection.php:270
-#: src/Admin/MessageLogPage.php:406 src/Admin/OrderMetabox.php:157
-#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:439
-#: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:679
+#: src/Admin/FieldLabelsPanel.php:125 src/Admin/MarketingSection.php:239
+#: src/Admin/MarketingSection.php:301 src/Admin/MessageLogPage.php:406
+#: src/Admin/OrderMetabox.php:157 src/Admin/PauseControls.php:173
+#: src/Admin/SettingsPage.php:450 src/Admin/SetupNotice.php:88
+#: src/Admin/SetupWizard.php:717
 msgid "You do not have permission to do that."
 msgstr ""
 
@@ -570,8 +572,96 @@ msgstr ""
 msgid "not understood"
 msgstr ""
 
-#: src/Admin/Layout.php:40 src/Admin/SettingsPage.php:128
-#: src/Admin/SettingsPage.php:129
+#: src/Admin/FieldLabelsPanel.php:60
+msgid "Order number"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:61
+msgid "Order total"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:62
+msgid "Shop name"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:81
+msgid "Custom field labels"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:81
+msgid "Viber templates use three custom fields for order values. Labels tell people in Povikvane what each one holds."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:84
+msgid "Your Povikvane account does not report its custom field labels yet, so they cannot be checked from here. The plugin uses field 1 for the order number, field 2 for the order total and field 3 for the shop name."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:91
+msgid "Field"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:91
+msgid "From WooCommerce"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:91
+msgid "In Povikvane now"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:98
+msgid "empty"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:111
+msgid "Changing the labels from here is coming soon. Until then, set them in Povikvane under Settings."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:132
+msgid "Changing custom field labels from here is not available yet."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:135
+msgid "The custom field labels were updated in Povikvane."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:137
+msgid "Povikvane did not accept the labels. Try again in a moment."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:151
+msgid "You have no custom field labels yet. Fill them in with the ones from WooCommerce?"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:152
+msgid "Some of your custom fields have labels and some do not. You can replace them with the ones from WooCommerce, or fill in only the empty ones."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:153
+msgid "You already have custom field labels. Replace them with the ones from WooCommerce?"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:154
+msgid "Your custom field labels already match the ones from WooCommerce."
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:166
+msgid "Fill them in"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:168
+msgid "Replace all"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:169
+msgid "Fill only the empty ones"
+msgstr ""
+
+#: src/Admin/FieldLabelsPanel.php:171
+msgid "Replace them"
+msgstr ""
+
+#: src/Admin/Layout.php:40 src/Admin/SettingsPage.php:129
+#: src/Admin/SettingsPage.php:130
 msgid "Povikvane - Viber & SMS"
 msgstr ""
 
@@ -587,172 +677,220 @@ msgstr ""
 msgid "Needs attention"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:88
+#: src/Admin/MarketingSection.php:89
 msgid "Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:88
+#: src/Admin/MarketingSection.php:89
 msgid "Promotional messages"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:90 src/Admin/MarketingSection.php:179
+#: src/Admin/MarketingSection.php:91 src/Admin/MarketingSection.php:210
 #: src/Admin/MessageListTable.php:62 src/Admin/OverviewPanel.php:327
-#: src/Admin/TemplatesSection.php:118 src/Privacy/Privacy.php:138
+#: src/Admin/TemplatesSection.php:119 src/Privacy/Privacy.php:138
 msgid "Status"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:91
+#: src/Admin/MarketingSection.php:92
 msgid "Ask customers for their agreement and allow promotional messages"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:91
+#: src/Admin/MarketingSection.php:92
 msgid "Off by default. Nothing promotional is ever sent while this is off."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:94
+#: src/Admin/MarketingSection.php:95
 msgid "Checkbox wording"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:94
+#: src/Admin/MarketingSection.php:95
 msgid "Shown next to the unticked checkbox at checkout and in My Account. A short fingerprint of the wording is stored with each agreement."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:104
+#: src/Admin/MarketingSection.php:105
 msgid "When and how often"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:106
+#: src/Admin/MarketingSection.php:107
 msgid "Sending hours"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:106
+#: src/Admin/MarketingSection.php:107
 msgid "Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:109 src/Admin/MessageListTable.php:229
+#: src/Admin/MarketingSection.php:110 src/Admin/MessageListTable.php:229
 msgid "From"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:112
+#: src/Admin/MarketingSection.php:113
 msgid "Opening hour"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:113
+#: src/Admin/MarketingSection.php:114
 msgid "to"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:115
+#: src/Admin/MarketingSection.php:116
 msgid "Closing hour"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:119
+#: src/Admin/MarketingSection.php:120
 msgid "0 turns the limit off."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:119
+#: src/Admin/MarketingSection.php:120
 msgid "Frequency limit"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:124
+#: src/Admin/MarketingSection.php:125
 msgid "Messages allowed"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:125
+#: src/Admin/MarketingSection.php:126
 msgid "message(s) per phone number in"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:127
+#: src/Admin/MarketingSection.php:128
 msgid "Period in days"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:136
+#: src/Admin/MarketingSection.php:137
 msgid "Customers who agreed"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:137
+#: src/Admin/MarketingSection.php:138
 msgid "Opted in"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:137
+#: src/Admin/MarketingSection.php:138
 msgid "The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data."
 msgstr ""
 
 #. translators: %d: number of customers.
-#: src/Admin/MarketingSection.php:143
+#: src/Admin/MarketingSection.php:144
 #, php-format
 msgid "%d customer has agreed to promotional messages."
 msgid_plural "%d customers have agreed to promotional messages."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/MarketingSection.php:148
+#: src/Admin/MarketingSection.php:149
 msgid "Download list (CSV)"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:152
+#: src/Admin/MarketingSection.php:153
 msgid "Copies the customers who agreed into a group of their own in Povikvane, ready for your campaigns there. New customers are added each time you press the button."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:152
+#: src/Admin/MarketingSection.php:153
 msgid "Send to Povikvane"
 msgstr ""
 
 #. translators: %s: group name.
-#: src/Admin/MarketingSection.php:156
+#: src/Admin/MarketingSection.php:157
 #, php-format
 msgid "Send the customers who agreed to Povikvane, into the group \"%s\"?"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:156 src/Admin/MarketingSection.php:159
+#: src/Admin/MarketingSection.php:157 src/Admin/MarketingSection.php:160
 msgid "Sync customers to Povikvane"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:159
+#: src/Admin/MarketingSection.php:160
 msgid "Syncing from here is coming soon. Until then, download the list above and import it in Povikvane."
 msgstr ""
 
 #: src/Admin/MarketingSection.php:173
-msgid "Ask customers who agreed for feedback after their order is completed."
+msgid "Anyone can stop promotional messages at any time. There are three ways, and none of them needs a login."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:173 src/Admin/SettingsPage.php:245
-msgid "Review request"
+#: src/Admin/MarketingSection.php:173
+msgid "How customers can opt out"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:175
+msgid "In every message"
 msgstr ""
 
 #: src/Admin/MarketingSection.php:176
-msgid "Review requests are promotional messages and only go to customers who agreed. Switch on promotional messages in the Promotions tab first."
+msgid "Every promotional message contains an unsubscribe link. One tap and the customer is off the list. This is always on."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:179
+msgid "In My Account"
 msgstr ""
 
 #: src/Admin/MarketingSection.php:180
+msgid "Customers with an account can untick the promotional messages box under My Account > Account details."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:183
+msgid "For people without an account, or who lost the message: a page where they type their phone number."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:183
+msgid "On a page of your shop"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:190
+msgid "Add a Shortcode block (or paste into the text editor) and paste the shortcode above."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:190
+msgid "In WordPress, go to Pages > Add New and give the page a name, for example \"Stop promotional SMS\"."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:190
+msgid "Publish the page and link to it from your footer or privacy page."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:191
+msgid "The form answers the same whether or not the number was on your list, so it tells nobody who is. It works even when promotional messages are switched off."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:204
+msgid "Ask customers who agreed for feedback after their order is completed."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:204 src/Admin/SettingsPage.php:246
+msgid "Review request"
+msgstr ""
+
+#: src/Admin/MarketingSection.php:207
+msgid "Review requests are promotional messages and only go to customers who agreed. Switch on promotional messages in the Promotions tab first."
+msgstr ""
+
+#: src/Admin/MarketingSection.php:211
 msgid "Send a review request"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:185
+#: src/Admin/MarketingSection.php:216
 msgid "Days after completion"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:186
+#: src/Admin/MarketingSection.php:217
 msgid "days after an order is completed"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:190
+#: src/Admin/MarketingSection.php:221
 msgid "An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:190
+#: src/Admin/MarketingSection.php:221
 msgid "Message"
 msgstr ""
 
-#: src/Admin/MarketingSection.php:212
+#: src/Admin/MarketingSection.php:243
 msgid "Syncing customers to Povikvane is not available yet."
 msgstr ""
 
-#: src/Admin/MarketingSection.php:245
+#: src/Admin/MarketingSection.php:276
 msgid "Povikvane did not accept the customers. Try again in a moment."
 msgstr ""
 
 #. translators: 1: number of customers, 2: group name.
-#: src/Admin/MarketingSection.php:251
+#: src/Admin/MarketingSection.php:282
 #, php-format
 msgid "%1$d customer was sent to Povikvane, into the group \"%2$s\"."
 msgid_plural "%1$d customers were sent to Povikvane, into the group \"%2$s\"."
@@ -823,13 +961,13 @@ msgstr ""
 msgid "Povikvane message log"
 msgstr ""
 
-#: src/Admin/MessageLogPage.php:129 src/Admin/SettingsPage.php:217
-#: src/Admin/SetupWizard.php:166
+#: src/Admin/MessageLogPage.php:129 src/Admin/SettingsPage.php:218
+#: src/Admin/SetupWizard.php:169
 msgid "You do not have permission to access this page."
 msgstr ""
 
 #: src/Admin/MessageLogPage.php:141 src/Admin/Navigation.php:56
-#: src/Admin/SettingsPage.php:258
+#: src/Admin/SettingsPage.php:259
 msgid "Message log"
 msgstr ""
 
@@ -878,24 +1016,24 @@ msgstr ""
 msgid "%1$d queued again, %2$d could not be sent again."
 msgstr ""
 
-#: src/Admin/Navigation.php:31 src/Admin/SettingsPage.php:232
+#: src/Admin/Navigation.php:31 src/Admin/SettingsPage.php:233
 msgid "Overview"
 msgstr ""
 
-#: src/Admin/Navigation.php:36 src/Admin/SettingsPage.php:237
-#: src/Admin/SetupWizard.php:620
+#: src/Admin/Navigation.php:36 src/Admin/SettingsPage.php:238
+#: src/Admin/SetupWizard.php:658
 msgid "Messages"
 msgstr ""
 
-#: src/Admin/Navigation.php:41 src/Admin/SettingsPage.php:241
+#: src/Admin/Navigation.php:41 src/Admin/SettingsPage.php:242
 msgid "Promotions"
 msgstr ""
 
-#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:249
+#: src/Admin/Navigation.php:46 src/Admin/SettingsPage.php:250
 msgid "Settings"
 msgstr ""
 
-#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:254
+#: src/Admin/Navigation.php:51 src/Admin/SettingsPage.php:255
 msgid "Advanced"
 msgstr ""
 
@@ -991,8 +1129,8 @@ msgstr ""
 msgid "Optional"
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:80 src/Admin/SetupWizard.php:456
-#: src/Admin/SetupWizard.php:623
+#: src/Admin/OverviewPanel.php:80 src/Admin/SetupWizard.php:477
+#: src/Admin/SetupWizard.php:661
 msgid "Done"
 msgstr ""
 
@@ -1000,11 +1138,11 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:87
-msgid "Run the setup wizard"
+#: src/Admin/OverviewPanel.php:87 src/Admin/SetupNotice.php:74
+msgid "Continue setup"
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:99 src/Admin/SetupWizard.php:230
+#: src/Admin/OverviewPanel.php:99 src/Admin/SetupWizard.php:233
 msgid "Connect your Povikvane account"
 msgstr ""
 
@@ -1107,7 +1245,7 @@ msgstr ""
 msgid "Many messages at once: review and release them."
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:158 src/Admin/SettingsPage.php:459
+#: src/Admin/OverviewPanel.php:158 src/Admin/SettingsPage.php:470
 msgid "The API key or service ID was rejected."
 msgstr ""
 
@@ -1205,11 +1343,11 @@ msgstr ""
 msgid "Try it"
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:301 src/Admin/SetupWizard.php:350
+#: src/Admin/OverviewPanel.php:301 src/Admin/SetupWizard.php:371
 msgid "Your phone number"
 msgstr ""
 
-#: src/Admin/OverviewPanel.php:303 src/Admin/SetupWizard.php:351
+#: src/Admin/OverviewPanel.php:303 src/Admin/SetupWizard.php:372
 msgid "Your phone, e.g. 0888 123 456"
 msgstr ""
 
@@ -1285,31 +1423,31 @@ msgstr[1] ""
 msgid "The API key or service ID was rejected, so no messages are being sent. Check the connection settings."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:294
+#: src/Admin/SettingsPage.php:295
 msgid "Save changes"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:295
+#: src/Admin/SettingsPage.php:296
 msgid "You have unsaved changes"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:296
+#: src/Admin/SettingsPage.php:297
 msgid "All changes saved"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:458
+#: src/Admin/SettingsPage.php:469
 msgid "Connected."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:460
+#: src/Admin/SettingsPage.php:471
 msgid "The service could not be reached."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:461
+#: src/Admin/SettingsPage.php:472
 msgid "The service rejected the request; check the service ID."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:462
+#: src/Admin/SettingsPage.php:473
 msgid "Not checked yet."
 msgstr ""
 
@@ -1319,240 +1457,240 @@ msgstr ""
 msgid "is almost ready: %1$d of %2$d steps done. Finish setting up so your customers get their order messages."
 msgstr ""
 
-#: src/Admin/SetupNotice.php:74
-msgid "Continue setup"
-msgstr ""
-
 #: src/Admin/SetupNotice.php:78
 msgid "Dismiss"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:116 src/Admin/SetupWizard.php:117
+#: src/Admin/SetupWizard.php:119 src/Admin/SetupWizard.php:120
 msgid "Povikvane setup"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:154 src/Admin/SetupWizard.php:364
+#: src/Admin/SetupWizard.php:157 src/Admin/SetupWizard.php:385
 msgid "Waiting for the result…"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:155
+#: src/Admin/SetupWizard.php:158
 msgid "Still waiting. You can carry on; the result will appear in the message log."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:199
+#: src/Admin/SetupWizard.php:202
 msgid "Let's get your order messages going"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:200
+#: src/Admin/SetupWizard.php:203
 msgid "In a few minutes your customers can get a text message when their order is completed. This takes about five minutes."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:202
+#: src/Admin/SetupWizard.php:205
 msgid "What you will need"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:203
+#: src/Admin/SetupWizard.php:206
 msgid "A Povikvane account with message credits."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:204
+#: src/Admin/SetupWizard.php:207
 msgid "Your API key and service ID, found in Povikvane under Settings > API."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:205
+#: src/Admin/SetupWizard.php:208
 msgid "Your own phone, to receive a test message."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:213
+#: src/Admin/SetupWizard.php:216
 msgid "Skip setup"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:215
+#: src/Admin/SetupWizard.php:218
 msgid "Start"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:231
+#: src/Admin/SetupWizard.php:234
 msgid "Paste your API key and service ID. The key is stored encrypted on this site."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:235
+#: src/Admin/SetupWizard.php:238
 msgid "Already connected. You can continue, or enter new details below to change them."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:261
+#: src/Admin/SetupWizard.php:264
 msgid "Your country"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:276 src/Admin/SetupWizard.php:328
-#: src/Admin/SetupWizard.php:374 src/Admin/SetupWizard.php:423
-#: src/Admin/SetupWizard.php:473
+#: src/Admin/SetupWizard.php:279 src/Admin/SetupWizard.php:333
+#: src/Admin/SetupWizard.php:395 src/Admin/SetupWizard.php:444
+#: src/Admin/SetupWizard.php:494
 msgid "Back"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:277 src/Admin/SetupWizard.php:378
-#: src/Admin/SetupWizard.php:426
+#: src/Admin/SetupWizard.php:280 src/Admin/SetupWizard.php:399
+#: src/Admin/SetupWizard.php:447
 msgid "Continue"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:279
+#: src/Admin/SetupWizard.php:282
 msgid "Save and test connection"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:292
+#: src/Admin/SetupWizard.php:297
 msgid "Choose your messages"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:292
+#: src/Admin/SetupWizard.php:297
 msgid "Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:292 src/Admin/TemplatesSection.php:67
+#: src/Admin/SetupWizard.php:297 src/Admin/TemplatesSection.php:70
 msgid "You can use:"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:330
+#: src/Admin/SetupWizard.php:335
 msgid "Save and continue"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:343
+#: src/Admin/SetupWizard.php:345
+msgid "Optional. Send order updates over Viber instead of SMS when you have an approved Viber template with the same wording. Everything else still goes out as an SMS."
+msgstr ""
+
+#: src/Admin/SetupWizard.php:364
 msgid "Send yourself a test message"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:344
+#: src/Admin/SetupWizard.php:365
 msgid "This sends one real SMS and uses message credits. Use your own number."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:352
+#: src/Admin/SetupWizard.php:373
 msgid "Send another"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:352
+#: src/Admin/SetupWizard.php:373
 msgid "Send test message"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:365
+#: src/Admin/SetupWizard.php:386
 msgid "Did it arrive? If nothing shows up within a minute, check the number, your credits and the Message log."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:376
+#: src/Admin/SetupWizard.php:397
 msgid "Skip"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:390
+#: src/Admin/SetupWizard.php:411
 msgid "See deliveries as they happen"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:391
+#: src/Admin/SetupWizard.php:412
 msgid "Optional. Povikvane can tell this shop the moment a message is delivered. Without it the plugin still finds out by checking regularly, only a little later."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:393
+#: src/Admin/SetupWizard.php:414
 msgid "Open Povikvane and go to Settings > API."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:393
+#: src/Admin/SetupWizard.php:414
 msgid "Paste this address into the Webhook URL box and save."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:405
+#: src/Admin/SetupWizard.php:426
 msgid "No report has arrived yet. After a test message is delivered, reload this page to see it here."
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Admin/SetupWizard.php:410
+#: src/Admin/SetupWizard.php:431
 #, php-format
 msgid "It works: the last delivery report arrived %s."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:425
+#: src/Admin/SetupWizard.php:446
 msgid "Skip for now"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:439
+#: src/Admin/SetupWizard.php:460
 msgid "Almost there"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:439
+#: src/Admin/SetupWizard.php:460
 msgid "You are all set"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:440
+#: src/Admin/SetupWizard.php:461
 msgid "A few things are still open. You can finish them from the Overview."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:440
+#: src/Admin/SetupWizard.php:461
 msgid "Your customers will now get the messages you switched on."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:445
+#: src/Admin/SetupWizard.php:466
 msgid "Account connected"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:446
+#: src/Admin/SetupWizard.php:467
 msgid "Order messages chosen"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:447
+#: src/Admin/SetupWizard.php:468
 msgid "Test message sent"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:448
+#: src/Admin/SetupWizard.php:469
 msgid "Delivery reports (optional)"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:456
+#: src/Admin/SetupWizard.php:477
 msgid "Not done"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:461
+#: src/Admin/SetupWizard.php:482
 msgid "Good to know"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:462
+#: src/Admin/SetupWizard.php:483
 msgid "Promotional messages are off. They need your customers' agreement, and you can switch them on under Promotions."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:463
+#: src/Admin/SetupWizard.php:484
 msgid "Safety rules are active: no messages for old orders or landline numbers, and a pause if many messages are created at once."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:474
+#: src/Admin/SetupWizard.php:495
 msgid "Go to Overview"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:507
+#: src/Admin/SetupWizard.php:528
 msgid "Connected. Your account details work."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:514
+#: src/Admin/SetupWizard.php:535
 msgid "The service could not be reached. Check your internet connection and try again."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:515
+#: src/Admin/SetupWizard.php:536
 msgid "Those details were not accepted. Check the API key and service ID in Povikvane under Settings > API."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:545
+#: src/Admin/SetupWizard.php:583
 msgid "Your messages are saved."
 msgstr ""
 
-#: src/Admin/SetupWizard.php:618
+#: src/Admin/SetupWizard.php:656
 msgid "Welcome"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:619
+#: src/Admin/SetupWizard.php:657
 msgid "Connect"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:621
+#: src/Admin/SetupWizard.php:659
 msgid "Test"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:622
+#: src/Admin/SetupWizard.php:660
 msgid "Reports"
 msgstr ""
 
-#: src/Admin/SetupWizard.php:628
+#: src/Admin/SetupWizard.php:666
 msgid "Setup steps"
 msgstr ""
 
@@ -1588,227 +1726,203 @@ msgstr ""
 msgid "Expired"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:65
+#: src/Admin/TemplatesSection.php:68
 msgid "Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:65
+#: src/Admin/TemplatesSection.php:68
 msgid "Order messages"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:83
+#: src/Admin/TemplatesSection.php:86
 msgid "A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:102
+#: src/Admin/TemplatesSection.php:105
 msgid "Send the selected messages to Povikvane for approval? The Povikvane team will review them as soon as possible. Until a message is approved it keeps going out as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:103
+#: src/Admin/TemplatesSection.php:106
 msgid "Send this message to Povikvane for approval? The Povikvane team will review it as soon as possible. Until it is approved it keeps going out as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:104
+#: src/Admin/TemplatesSection.php:107
 msgid "Sending..."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:105
+#: src/Admin/TemplatesSection.php:108
 msgid "Nothing to send: every selected message already has a template or was already sent."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:106
+#: src/Admin/TemplatesSection.php:109
 msgid "Could not reach the server. Try again."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:107 src/Admin/TemplatesSection.php:243
+#: src/Admin/TemplatesSection.php:110 src/Admin/TemplatesSection.php:246
 msgid "Sent for approval"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:110
+#: src/Admin/TemplatesSection.php:113
 msgid "Send order updates over Viber instead of SMS. A message goes out over Viber when an approved Viber template has the same wording as the message; otherwise it goes out as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:112
-msgid "Use Viber"
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:113
-msgid "A Viber message costs 0.8 credits. Messages without an approved template are still sent as SMS."
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:113
-msgid "Send order messages over Viber when possible"
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:119
+#: src/Admin/TemplatesSection.php:120
 msgid "Available"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:119
+#: src/Admin/TemplatesSection.php:120
 msgid "Not available"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:122
+#: src/Admin/TemplatesSection.php:123
 msgid "Your templates"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:125
+#: src/Admin/TemplatesSection.php:126
 msgid "None approved"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:125
+#: src/Admin/TemplatesSection.php:126
 msgid "You have no approved Viber templates yet, so every message goes out as an SMS. Send your messages for approval below."
 msgstr ""
 
 #. translators: %d: number of templates.
-#: src/Admin/TemplatesSection.php:127
+#: src/Admin/TemplatesSection.php:128
 #, php-format
 msgid "%d approved"
 msgid_plural "%d approved"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/TemplatesSection.php:127
+#: src/Admin/TemplatesSection.php:128
 msgid "Messages with the same wording as one of these go out over Viber. The badge under each message below shows which."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:131
+#: src/Admin/TemplatesSection.php:132
 msgid "Refresh templates"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:135
-msgid "SMS fallback"
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:136
-msgid "Not included in the Starter and Bronze plans: turn it on only if your plan has it, otherwise Povikvane refuses the message and it goes out as an SMS. With it on, the SMS text must fit in one SMS part."
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:136
-msgid "Send an SMS if Viber cannot deliver"
-msgstr ""
-
-#: src/Admin/TemplatesSection.php:164
+#: src/Admin/TemplatesSection.php:167
 msgid "Wait"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:167
+#: src/Admin/TemplatesSection.php:170
 msgid "minutes first"
 msgstr ""
 
 #. translators: %s: order status name.
-#: src/Admin/TemplatesSection.php:176
+#: src/Admin/TemplatesSection.php:179
 #, php-format
 msgid "Message when an order becomes \"%s\""
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:186
+#: src/Admin/TemplatesSection.php:189
 msgid "You changed a message that is approved for Viber. As edited it goes out as an SMS until Povikvane approves it."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:189
+#: src/Admin/TemplatesSection.php:192
 msgid "Send for approval"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:207
+#: src/Admin/TemplatesSection.php:210
 msgid "Approved for Viber"
 msgstr ""
 
 #. translators: %s: template name.
-#: src/Admin/TemplatesSection.php:210
+#: src/Admin/TemplatesSection.php:213
 #, php-format
 msgid "Matches the template \"%s\"."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:215
+#: src/Admin/TemplatesSection.php:218
 msgid "Not usable"
 msgstr ""
 
 #. translators: %s: template name.
-#: src/Admin/TemplatesSection.php:218
+#: src/Admin/TemplatesSection.php:221
 #, php-format
 msgid "Matches the template \"%s\", but it is not registered as a transactional template, so this message goes out as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:223
+#: src/Admin/TemplatesSection.php:226
 msgid "Awaiting approval"
 msgstr ""
 
 #. translators: %s: template name.
-#: src/Admin/TemplatesSection.php:226
+#: src/Admin/TemplatesSection.php:229
 #, php-format
 msgid "Matches the template \"%s\", which is still being reviewed. Until then it goes out as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:231
+#: src/Admin/TemplatesSection.php:234
 msgid "Rejected"
 msgstr ""
 
 #. translators: %s: template name.
-#: src/Admin/TemplatesSection.php:234
+#: src/Admin/TemplatesSection.php:237
 #, php-format
 msgid "The template \"%s\" was rejected, so this message goes out as an SMS. Change the wording to send a new one."
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Admin/TemplatesSection.php:246
+#: src/Admin/TemplatesSection.php:249
 #, php-format
 msgid "Sent on %s. Until it is approved it goes out as an SMS."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:254
+#: src/Admin/TemplatesSection.php:257
 msgid "Not approved"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:256
+#: src/Admin/TemplatesSection.php:259
 msgid "No approved template has this wording, so it goes out as an SMS. Send it for approval to use Viber."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:270 src/Admin/TemplatesSection.php:273
+#: src/Admin/TemplatesSection.php:273 src/Admin/TemplatesSection.php:276
 msgid "Send selected messages for approval"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:271
+#: src/Admin/TemplatesSection.php:274
 msgid "Sends every switched-on message that has no approved template. The Povikvane team reviews them as soon as possible."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:274
+#: src/Admin/TemplatesSection.php:277
 msgid "Sending messages for approval from here is coming soon. Until then, create the templates in Povikvane; they appear here once approved."
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:352
+#: src/Admin/TemplatesSection.php:355
 msgid "Standard SMS"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:353
+#: src/Admin/TemplatesSection.php:356
 msgid "Unicode SMS (e.g. Cyrillic)"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:354
+#: src/Admin/TemplatesSection.php:357
 msgid "characters"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:355
+#: src/Admin/TemplatesSection.php:358
 msgid "SMS part"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:356
+#: src/Admin/TemplatesSection.php:359
 msgid "SMS parts"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:357
+#: src/Admin/TemplatesSection.php:360
 msgid "credit"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:359
+#: src/Admin/TemplatesSection.php:362
 msgid "With a Cyrillic shop name:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:360
+#: src/Admin/TemplatesSection.php:363
 msgid "Unknown placeholder:"
 msgstr ""
 
-#: src/Admin/TemplatesSection.php:361
+#: src/Admin/TemplatesSection.php:364
 msgid "Empty message: nothing will be sent."
 msgstr ""
 
@@ -1828,6 +1942,34 @@ msgstr ""
 
 #: src/Admin/TestSender.php:76
 msgid "Test message queued. It should reach your phone within a minute."
+msgstr ""
+
+#: src/Admin/ViberControls.php:26
+msgid "Use Viber"
+msgstr ""
+
+#: src/Admin/ViberControls.php:27
+msgid "A Viber message costs 0.8 credits. Messages without an approved template are still sent as SMS."
+msgstr ""
+
+#: src/Admin/ViberControls.php:27
+msgid "Send order messages over Viber when possible"
+msgstr ""
+
+#: src/Admin/ViberControls.php:39
+msgid "SMS fallback"
+msgstr ""
+
+#: src/Admin/ViberControls.php:42
+msgid "Your Povikvane plan does not include the SMS fallback. It is not part of the Starter and Bronze plans."
+msgstr ""
+
+#: src/Admin/ViberControls.php:45 src/Admin/ViberControls.php:52
+msgid "Send an SMS if Viber cannot deliver"
+msgstr ""
+
+#: src/Admin/ViberControls.php:52
+msgid "Not included in the Starter and Bronze plans: turn it on only if your plan has it. With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message."
 msgstr ""
 
 #: src/Admin/ViberView.php:28
@@ -1886,6 +2028,36 @@ msgstr ""
 msgid "Unsubscribed"
 msgstr ""
 
+#. translators: %s: shop name.
+#: src/Marketing/OptOutForm.php:96
+#, php-format
+msgid "Done. This number will not get promotional SMS messages from %s any more. You will still receive messages about your orders."
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:99
+msgid "That does not look like a mobile phone number. Check it and try again."
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:100
+msgid "Too many attempts. Please try again later."
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:110
+msgid "Your mobile phone number"
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:111
+msgid "e.g. 0888 123 456"
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:113
+msgid "Leave this empty"
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:117
+msgid "Stop promotional SMS"
+msgstr ""
+
 #: src/Messages/ErrorExplainer.php:30
 msgid "Povikvane could not confirm delivery. The message may still have reached the phone, so check before sending it again."
 msgstr ""
@@ -1915,7 +2087,7 @@ msgid "The message could not be sent. See the message log detail, or resend it."
 msgstr ""
 
 #. translators: %s: minimum required WooCommerce version.
-#: src/Plugin.php:447
+#: src/Plugin.php:452
 #, php-format
 msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
 msgstr ""

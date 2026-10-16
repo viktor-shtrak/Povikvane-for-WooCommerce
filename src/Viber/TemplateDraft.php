@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Turns "Order {order_number} from {shop_name} is complete." into the template
- * "Order {customField1} from {customField2} is complete." and says when a text could
+ * "Order {customField1} from {customField3} is complete." and says when a text could
  * not be a template at all, using the limits Povikvane and the carrier apply.
  */
 final class TemplateDraft {
@@ -25,6 +25,15 @@ final class TemplateDraft {
 	public const PROBLEM_TOO_LONG = 'too_long';
 
 	public const MAX_LENGTH = 875;
+
+	/**
+	 * Which custom field each order value always uses.
+	 */
+	public const FIELD_FOR  = array(
+		'order_number' => 1,
+		'order_total'  => 2,
+		'shop_name'    => 3,
+	);
 	public const MAX_FIELDS = 3;
 
 	/**
@@ -57,7 +66,8 @@ final class TemplateDraft {
 
 		foreach ( $parts['slots'] as $index => $placeholder ) {
 			if ( ! isset( $variables[ $placeholder ] ) ) {
-				$variables[ $placeholder ] = 'customField' . ( count( $variables ) + 1 );
+				// The same value always goes in the same field, so labels in Povikvane stay true.
+				$variables[ $placeholder ] = 'customField' . ( self::FIELD_FOR[ $placeholder ] ?? 4 + count( $variables ) );
 			}
 
 			$content .= $parts['literals'][ $index ] . '{' . $variables[ $placeholder ] . '}';
@@ -82,8 +92,10 @@ final class TemplateDraft {
 			}
 		}
 
-		if ( count( $variables ) > self::MAX_FIELDS ) {
-			return self::PROBLEM_TOO_MANY;
+		foreach ( $variables as $variable ) {
+			if ( (int) substr( $variable, strlen( 'customField' ) ) > self::MAX_FIELDS ) {
+				return self::PROBLEM_TOO_MANY;
+			}
 		}
 
 		// The carrier does not accept a variable as the very first or last thing in a message.

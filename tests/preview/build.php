@@ -104,7 +104,8 @@ function pvk_settings_page(): SettingsPage {
 	$repo      = new Repository();
 	$state     = new OptionSendingState();
 	$triggers  = new TriggerRepository( get_locale() );
-	$templates = new TemplatesSection( $triggers, $settings );
+	$labels    = new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null );
+	$templates = new TemplatesSection( $triggers, $settings, new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests(), new Povikvane\WooCommerce\Viber\UnavailableSubmitter(), $labels );
 	$activity  = new OptionActivity();
 	$delivery  = new DeliveryPanel( new Token(), $activity, $repo );
 	$marketing = new MarketingSection( new MarketingSettings( get_locale() ), new ConsentRepository(), get_locale() );
@@ -127,7 +128,7 @@ function pvk_wizard(): SetupWizard {
 
 	return new SetupWizard(
 		$settings, new SettingsSanitizer( $settings, $state ), $triggers, $repo, $tester, new SetupState(),
-		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), static fn() => null
+		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null ), static fn() => null
 	);
 }
 
@@ -158,6 +159,7 @@ foreach ( array( 'overview', 'messages', 'promotions', 'reviews', 'settings', 'a
 $jobs['tab-overview-new'] = array( 'settings', 'overview', false );
 $jobs['tab-overview-attention'] = array( 'settings', 'overview', true );
 $jobs['tab-messages-viber'] = array( 'settings', 'messages', true );
+$jobs['wizard-messages-viber'] = array( 'wizard', 'messages', false );
 
 foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) as $step ) {
 	$jobs[ 'wizard-' . $step ] = array( 'wizard', $step, 'wizard-test' === 'x' );
@@ -178,8 +180,11 @@ foreach ( $jobs as $name => $job ) {
 		);
 	}
 
-	if ( 'tab-messages-viber' === $name ) {
+	if ( in_array( $name, array( 'tab-messages-viber', 'wizard-messages-viber' ), true ) ) {
 		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
+		if ( 'wizard-messages-viber' === $name ) {
+			$GLOBALS['pvk_options'][ Capabilities::OPTION ]['balance'] = array( 'channels' => array( 'sms', 'viber' ), 'plan' => array( 'sms_fallback' => false ), 'custom_fields' => array( 'customField2' => 'Сума' ) );
+		}
 		$GLOBALS['pvk_options'][ Settings::OPTION ]          = array( 'service_id' => 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'default_country' => 'BG', 'viber_enabled' => true );
 		$GLOBALS['pvk_options'][ TriggerRepository::OPTION ] = array(
 			'processing' => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is being processed.' ),

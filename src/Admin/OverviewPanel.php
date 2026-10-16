@@ -84,7 +84,7 @@ final class OverviewPanel {
 		echo '</ul>';
 
 		Ui::card_close(
-			'<a class="pvk-btn pvk-btn--primary" href="' . esc_url( $data->wizard_url ) . '">' . esc_html__( 'Run the setup wizard', 'povikvane-for-woocommerce' ) . '</a>'
+			'<a class="pvk-btn pvk-btn--primary" href="' . esc_url( $data->wizard_url ) . '">' . esc_html__( 'Continue setup', 'povikvane-for-woocommerce' ) . '</a>'
 		);
 	}
 
