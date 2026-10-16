@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,9 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.7.2 =
+* New switch in Advanced > Data and privacy: "Delete all Povikvane data when the plugin is deleted". When it is on, deleting the plugin removes the message log, the consent records, the settings and the saved API key. It is off by default, and deactivating the plugin never deletes anything.
 
 = 0.7.1 =
 * Every item in "Needs attention" can be dismissed with its X and comes back after a week if the problem is still there.

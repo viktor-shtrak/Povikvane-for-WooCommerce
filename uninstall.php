@@ -11,8 +11,10 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-// Data is kept unless the administrator explicitly opted in to deletion.
-if ( 'yes' !== get_option( 'povikvane_delete_data_on_uninstall', 'no' ) ) {
+// Data is kept unless the administrator turned on deletion in Advanced > Data and privacy.
+$povikvane_settings = get_option( 'povikvane_settings', array() );
+
+if ( empty( $povikvane_settings['delete_on_uninstall'] ) && 'yes' !== get_option( 'povikvane_delete_data_on_uninstall', 'no' ) ) {
 	return;
 }
 
@@ -28,6 +30,15 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
 // phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
 $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'povikvane_messages' );
 $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'povikvane_consent' );
+
+// Short-lived caches (live status, rate limits, flash notices) are options with these prefixes.
+$wpdb->query(
+	$wpdb->prepare(
+		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+		$wpdb->esc_like( '_transient_povikvane_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_povikvane_' ) . '%'
+	)
+);
 // phpcs:enable
 
 foreach ( array(
@@ -47,6 +58,7 @@ foreach ( array(
 	'povikvane_install_salt',
 	'povikvane_db_version',
 	'povikvane_delete_data_on_uninstall',
+	'povikvane_activation_redirect',
 ) as $povikvane_option ) {
 	delete_option( $povikvane_option );
 }

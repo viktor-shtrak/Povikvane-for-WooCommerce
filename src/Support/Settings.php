@@ -42,6 +42,7 @@ final class Settings {
 		'retention_body_days'   => 90,
 		'retention_row_days'    => 365,
 		'export_full_numbers'   => false,
+		'delete_on_uninstall'   => false,
 		'plugin_language'       => 'auto',
 	);
 
@@ -55,7 +56,7 @@ final class Settings {
 	/**
 	 * All settings with defaults applied.
 	 *
-	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int,retention_body_days:int,retention_row_days:int,export_full_numbers:bool,plugin_language:string}
+	 * @return array{service_id:string,default_country:string,max_age_hours:int,debug_log:bool,max_order_age_days:int,skip_admin_created:bool,mobile_only:bool,storm_threshold:int,low_balance_threshold:int,retention_body_days:int,retention_row_days:int,export_full_numbers:bool,delete_on_uninstall:bool,plugin_language:string}
 	 */
 	public function all(): array {
 		$stored = get_option( self::OPTION, array() );
@@ -75,6 +76,7 @@ final class Settings {
 			'retention_body_days'   => (int) $value( 'retention_body_days' ),
 			'retention_row_days'    => (int) $value( 'retention_row_days' ),
 			'export_full_numbers'   => (bool) $value( 'export_full_numbers' ),
+			'delete_on_uninstall'   => (bool) $value( 'delete_on_uninstall' ),
 			'plugin_language'       => Language::normalize( (string) $value( 'plugin_language' ) ),
 		);
 	}

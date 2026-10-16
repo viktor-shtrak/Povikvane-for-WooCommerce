@@ -117,6 +117,15 @@ final class AdvancedPanel {
 		Ui::toggle( $name . '[export_full_numbers]', (bool) $values['export_full_numbers'], __( 'Include full phone numbers in the message log export', 'povikvane-for-woocommerce' ), __( 'Otherwise numbers are shortened.', 'povikvane-for-woocommerce' ) );
 		Ui::field_close();
 
+		Ui::field_open( __( 'When the plugin is deleted', 'povikvane-for-woocommerce' ) );
+		Ui::toggle(
+			$name . '[delete_on_uninstall]',
+			(bool) $values['delete_on_uninstall'],
+			__( 'Delete all Povikvane data when the plugin is deleted', 'povikvane-for-woocommerce' ),
+			__( 'Removes the message log, the consent records, the settings and the saved API key. This cannot be undone. Leave it off to keep everything for a reinstall. Deactivating the plugin never deletes anything.', 'povikvane-for-woocommerce' )
+		);
+		Ui::field_close();
+
 		Ui::card_close();
 
 		Ui::card_open( __( 'Diagnostics', 'povikvane-for-woocommerce' ) );

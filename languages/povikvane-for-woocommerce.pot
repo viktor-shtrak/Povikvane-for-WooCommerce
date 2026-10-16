@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.7.1\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.7.2\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-15 15:36+0300\n"
+"POT-Creation-Date: 2026-10-16 10:29+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -160,40 +160,52 @@ msgstr ""
 msgid "Otherwise numbers are shortened."
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:122
-msgid "Diagnostics"
+#: src/Admin/AdvancedPanel.php:120
+msgid "When the plugin is deleted"
 msgstr ""
 
 #: src/Admin/AdvancedPanel.php:124
-msgid "Debug logging"
+msgid "Delete all Povikvane data when the plugin is deleted"
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:128
-msgid "Write detailed diagnostics to the WooCommerce log"
-msgstr ""
-
-#: src/Admin/AdvancedPanel.php:129
-msgid "Never includes the API key or message text; phone numbers are shortened. Warnings and errors are always logged."
+#: src/Admin/AdvancedPanel.php:125
+msgid "Removes the message log, the consent records, the settings and the saved API key. This cannot be undone. Leave it off to keep everything for a reinstall. Deactivating the plugin never deletes anything."
 msgstr ""
 
 #: src/Admin/AdvancedPanel.php:131
+msgid "Diagnostics"
+msgstr ""
+
+#: src/Admin/AdvancedPanel.php:133
+msgid "Debug logging"
+msgstr ""
+
+#: src/Admin/AdvancedPanel.php:137
+msgid "Write detailed diagnostics to the WooCommerce log"
+msgstr ""
+
+#: src/Admin/AdvancedPanel.php:138
+msgid "Never includes the API key or message text; phone numbers are shortened. Warnings and errors are always logged."
+msgstr ""
+
+#: src/Admin/AdvancedPanel.php:140
 msgid "View logs"
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:135
+#: src/Admin/AdvancedPanel.php:144
 msgid "Copy this and send it to support. It has versions, connection status and recent results, and never your API key, phone numbers or message text."
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:135
+#: src/Admin/AdvancedPanel.php:144
 msgid "Support information"
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:139 src/Admin/DeliveryPanel.php:61
+#: src/Admin/AdvancedPanel.php:148 src/Admin/DeliveryPanel.php:61
 #: src/Admin/SetupWizard.php:399
 msgid "Copied"
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:140
+#: src/Admin/AdvancedPanel.php:149
 msgid "Copy support information"
 msgstr ""
 
