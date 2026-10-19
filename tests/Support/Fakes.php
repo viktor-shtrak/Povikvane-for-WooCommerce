@@ -96,7 +96,21 @@ final class FakeGateway implements Gateway {
 		'lookup'    => array(),
 		'account'   => array(),
 		'templates' => array(),
+		'rules'     => array(),
+		'create'    => array(),
+		'labels'    => array(),
+		'group'     => array(),
+		'contacts'  => array(),
+		'erase'     => array(),
+		'suppress'  => array(),
 	);
+
+	/**
+	 * Payloads of write calls, in order.
+	 *
+	 * @var array<int,array{op:string,args:array<mixed>}>
+	 */
+	public array $writes = array();
 
 	/**
 	 * Calls made, in order, for example "status", "account".
@@ -191,6 +205,95 @@ final class FakeGateway implements Gateway {
 	 */
 	public function templates(): ApiResult {
 		return $this->next( 'templates' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function template_rules(): ApiResult {
+		return $this->next( 'rules' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $name    Name.
+	 * @param string $lang    Language.
+	 * @param string $content Text.
+	 */
+	public function create_template( string $name, string $lang, string $content ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'create',
+			'args' => compact( 'name', 'lang', 'content' ),
+		);
+
+		return $this->next( 'create' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param array<string,string> $labels Labels.
+	 */
+	public function set_custom_fields( array $labels ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'labels',
+			'args' => $labels,
+		);
+
+		return $this->next( 'labels' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $name Name.
+	 */
+	public function ensure_group( string $name ): ApiResult {
+		return $this->next( 'group' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string                         $group_id Group.
+	 * @param array<int,array<string,mixed>> $contacts Contacts.
+	 */
+	public function upsert_contacts( string $group_id, array $contacts ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'contacts',
+			'args' => $contacts,
+		);
+
+		return $this->next( 'contacts' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $phone Phone.
+	 */
+	public function delete_contact( string $phone ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'erase',
+			'args' => array( $phone ),
+		);
+
+		return $this->next( 'erase' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param array<int,array<string,string>> $numbers Numbers.
+	 */
+	public function add_suppressions( array $numbers ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'suppress',
+			'args' => $numbers,
+		);
+
+		return $this->next( 'suppress' );
 	}
 }
 

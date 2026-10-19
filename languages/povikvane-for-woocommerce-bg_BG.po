@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 0.5.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-16 12:15+0300\n"
+"POT-Creation-Date: 2026-10-19 09:55+0300\n"
 "PO-Revision-Date: 2026-10-14 16:00+0300\n"
 "Last-Translator: Povikvane <support@povikvane.com>\n"
 "Language-Team: Bulgarian\n"
@@ -423,7 +423,7 @@ msgid "Has not agreed"
 msgstr "Няма съгласие"
 
 #: src/Admin/ConsentColumns.php:87 src/Admin/ConsentColumns.php:152
-#: src/Privacy/Privacy.php:165
+#: src/Privacy/Privacy.php:167
 msgid "Agreed"
 msgstr "Съгласие"
 
@@ -556,15 +556,23 @@ msgstr "Създаден е нов webhook адрес. Обновете го в 
 msgid "updated a message"
 msgstr "обновено съобщение"
 
-#: src/Admin/DeliveryPanel.php:195 src/Admin/OverviewPanel.php:355
+#: src/Admin/DeliveryPanel.php:195
+msgid "a template changed"
+msgstr "шаблон е променен"
+
+#: src/Admin/DeliveryPanel.php:196
+msgid "a customer opted out"
+msgstr "клиент се е отписал"
+
+#: src/Admin/DeliveryPanel.php:197 src/Admin/OverviewPanel.php:355
 msgid "already known"
 msgstr "вече обработено"
 
-#: src/Admin/DeliveryPanel.php:196
+#: src/Admin/DeliveryPanel.php:198
 msgid "not one of this plugin's messages"
 msgstr "не е съобщение на тази добавка"
 
-#: src/Admin/DeliveryPanel.php:197 src/Admin/OverviewPanel.php:357
+#: src/Admin/DeliveryPanel.php:199 src/Admin/OverviewPanel.php:357
 msgid "not understood"
 msgstr "не е разпознато"
 
@@ -683,7 +691,7 @@ msgstr "Промоционални съобщения"
 
 #: src/Admin/MarketingSection.php:91 src/Admin/MarketingSection.php:210
 #: src/Admin/MessageListTable.php:62 src/Admin/OverviewPanel.php:327
-#: src/Admin/TemplatesSection.php:119 src/Privacy/Privacy.php:138
+#: src/Admin/TemplatesSection.php:119 src/Privacy/Privacy.php:140
 msgid "Status"
 msgstr "Статус"
 
@@ -901,7 +909,7 @@ msgstr "Избери всички съобщения, които могат да
 msgid "Time"
 msgstr "Час"
 
-#: src/Admin/MessageListTable.php:59 src/Privacy/Privacy.php:130
+#: src/Admin/MessageListTable.php:59 src/Privacy/Privacy.php:132
 msgid "Order"
 msgstr "Поръчка"
 
@@ -1363,7 +1371,7 @@ msgstr "Виж всички"
 msgid "No messages yet. They appear here as soon as an order changes status or you send a test."
 msgstr "Още няма съобщения. Ще се появят тук, щом статусът на поръчка се промени или изпратите тестово съобщение."
 
-#: src/Admin/OverviewPanel.php:327 src/Privacy/Privacy.php:134
+#: src/Admin/OverviewPanel.php:327 src/Privacy/Privacy.php:136
 msgid "Type"
 msgstr "Вид"
 
@@ -2065,88 +2073,92 @@ msgid "Povikvane could not confirm delivery. The message may still have reached 
 msgstr "Povikvane не успя да потвърди доставката. Съобщението може все пак да е стигнало до телефона, затова проверете, преди да го изпратите отново."
 
 #: src/Messages/ErrorExplainer.php:34
+msgid "This number has opted out of messages in Povikvane, so nothing was sent and no credits were used."
+msgstr "Този номер се е отписал от съобщения в Povikvane, затова нищо не е изпратено и не са използвани кредити."
+
+#: src/Messages/ErrorExplainer.php:35
 msgid "The message did not reach the phone: it may be switched off, out of coverage, or the number is not active. Resending later may work."
 msgstr "Съобщението не стигна до телефона: може да е изключен, извън обхват или номерът да не е активен. Повторно изпращане по-късно може да сработи."
 
-#: src/Messages/ErrorExplainer.php:35
+#: src/Messages/ErrorExplainer.php:36
 msgid "The mobile network refused the message and the credits were refunded. Check the phone number."
 msgstr "Мобилната мрежа отказа съобщението и кредитите бяха възстановени. Проверете телефонния номер."
 
-#: src/Messages/ErrorExplainer.php:36
+#: src/Messages/ErrorExplainer.php:37
 msgid "Povikvane did not accept the message. Check the phone number and the text."
 msgstr "Povikvane не прие съобщението. Проверете телефонния номер и текста."
 
-#: src/Messages/ErrorExplainer.php:37
+#: src/Messages/ErrorExplainer.php:38 src/Viber/ApiTemplateSubmitter.php:112
 msgid "Povikvane rejected the API key. Check your connection settings."
 msgstr "Povikvane отхвърли API ключа. Проверете настройките на връзката."
 
-#: src/Messages/ErrorExplainer.php:38
+#: src/Messages/ErrorExplainer.php:39
 msgid "A duplicate send was stopped, so nothing was lost. Contact support if this keeps happening."
 msgstr "Беше спряно дублирано изпращане, затова нищо не е загубено. Свържете се с поддръжката, ако това се повтаря."
 
-#: src/Messages/ErrorExplainer.php:39
+#: src/Messages/ErrorExplainer.php:40
 msgid "The message could not be sent. See the message log detail, or resend it."
 msgstr "Съобщението не можа да бъде изпратено. Вижте подробностите в дневника на съобщенията или го изпратете отново."
 
 #. translators: %s: minimum required WooCommerce version.
-#: src/Plugin.php:452
+#: src/Plugin.php:471
 #, php-format
 msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
 msgstr "Povikvane SMS за WooCommerce изисква WooCommerce %s или по-нова версия и не е зареден."
 
-#: src/Privacy/Privacy.php:66 src/Privacy/Privacy.php:122
+#: src/Privacy/Privacy.php:68 src/Privacy/Privacy.php:124
 msgid "SMS messages"
 msgstr "SMS съобщения"
 
-#: src/Privacy/Privacy.php:67
+#: src/Privacy/Privacy.php:69
 msgid "Suggested wording. Review and adapt it to how you use the plugin."
 msgstr "Предложен текст. Прегледайте го и го адаптирайте към начина, по който използвате добавката."
 
-#: src/Privacy/Privacy.php:68
+#: src/Privacy/Privacy.php:70
 msgid "When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them on our behalf, so your phone number and the message text are passed to that service."
 msgstr "Когато направите поръчка, можем да ви изпращаме текстови съобщения за нея (например когато е завършена) на телефонния номер, който сте посочили. За изпращането ползваме услугата за съобщения Povikvane, която ги изпраща от наше име, затова телефонният ви номер и текстът на съобщението се предават на тази услуга."
 
-#: src/Privacy/Privacy.php:69
+#: src/Privacy/Privacy.php:71
 msgid "If you agreed to it, we also send occasional promotional text messages. You can withdraw your agreement at any time using the link in each message or in your account. We keep a record of your agreement and of any withdrawal."
 msgstr "Ако сте се съгласили, от време на време изпращаме и промоционални текстови съобщения. Можете да оттеглите съгласието си по всяко време чрез връзката във всяко съобщение или в акаунта си. Пазим запис на съгласието ви и на евентуалното му оттегляне."
 
-#: src/Privacy/Privacy.php:70
+#: src/Privacy/Privacy.php:72
 msgid "We keep the text of messages for a limited time and the record of each message (order, status, phone number) for longer, as set in the plugin settings."
 msgstr "Пазим текста на съобщенията ограничено време, а записа за всяко съобщение (поръчка, статус, телефонен номер) – по-дълго, както е зададено в настройките на добавката."
 
-#: src/Privacy/Privacy.php:126 src/Privacy/Privacy.php:160
+#: src/Privacy/Privacy.php:128 src/Privacy/Privacy.php:162
 msgid "Date"
 msgstr "Дата"
 
-#: src/Privacy/Privacy.php:142 src/Privacy/Privacy.php:172
+#: src/Privacy/Privacy.php:144 src/Privacy/Privacy.php:174
 msgid "Phone number"
 msgstr "Телефонен номер"
 
-#: src/Privacy/Privacy.php:146
+#: src/Privacy/Privacy.php:148
 msgid "Text"
 msgstr "Текст"
 
-#: src/Privacy/Privacy.php:156
+#: src/Privacy/Privacy.php:158
 msgid "SMS promotional consent"
 msgstr "Съгласие за промоционални SMS"
 
-#: src/Privacy/Privacy.php:164
+#: src/Privacy/Privacy.php:166
 msgid "Decision"
 msgstr "Решение"
 
-#: src/Privacy/Privacy.php:165
+#: src/Privacy/Privacy.php:167
 msgid "Withdrew"
 msgstr "Оттеглено съгласие"
 
-#: src/Privacy/Privacy.php:168
+#: src/Privacy/Privacy.php:170
 msgid "Where"
 msgstr "Къде"
 
-#: src/Privacy/Privacy.php:176
+#: src/Privacy/Privacy.php:178
 msgid "Email"
 msgstr "Имейл"
 
-#: src/Privacy/Privacy.php:204
+#: src/Privacy/Privacy.php:213
 msgid "SMS opt-in and opt-out decisions were kept without the phone number and email, so that a withdrawal stays in force."
 msgstr "Решенията за съгласие и отписване от SMS бяха запазени без телефонния номер и имейла, за да остане в сила оттеглянето."
 
@@ -2270,6 +2282,47 @@ msgstr "Povikvane: не беше изпратено SMS, защото %s."
 msgid "Povikvane: SMS to %s was not sent because it waited too long."
 msgstr "Povikvane: SMS до %s не беше изпратено, защото е чакало твърде дълго."
 
+#: src/Viber/ApiTemplateSubmitter.php:55 src/Viber/ApiTemplateSubmitter.php:110
+msgid "Sending templates for review from the plugin is not available on this account."
+msgstr "Изпращането на шаблони за преглед от добавката не е налично за този акаунт."
+
+#: src/Viber/ApiTemplateSubmitter.php:72
+msgid "There are already many templates with this name. Rename or delete old ones in Povikvane."
+msgstr "Вече има много шаблони с това име. Преименувайте или изтрийте стари в Povikvane."
+
+#: src/Viber/ApiTemplateSubmitter.php:100
+msgid "Povikvane already has the most templates waiting for review that one account can have. Wait for them to be reviewed and try again."
+msgstr "В Povikvane вече има максималния брой шаблони, чакащи преглед за един акаунт. Изчакайте да бъдат прегледани и опитайте отново."
+
+#: src/Viber/ApiTemplateSubmitter.php:101
+msgid "The daily limit for new templates is used up. You can send more tomorrow."
+msgstr "Дневният лимит за нови шаблони е изчерпан. Утре можете да изпратите още."
+
+#: src/Viber/ApiTemplateSubmitter.php:102
+msgid "A Viber message cannot start or end with a field. Put some words before and after it."
+msgstr "Съобщение за Viber не може да започва или завършва с поле. Добавете думи преди и след него."
+
+#: src/Viber/ApiTemplateSubmitter.php:103
+#: src/Viber/TemplateRequestService.php:117
+msgid "The message is too long for Viber."
+msgstr "Съобщението е твърде дълго за Viber."
+
+#: src/Viber/ApiTemplateSubmitter.php:104
+msgid "The message has too many fields for Viber."
+msgstr "Съобщението има твърде много полета за Viber."
+
+#: src/Viber/ApiTemplateSubmitter.php:105
+msgid "A Viber message cannot contain a field inside a link."
+msgstr "Съобщение за Viber не може да съдържа поле във връзка."
+
+#: src/Viber/ApiTemplateSubmitter.php:109
+msgid "Povikvane did not accept this message as a Viber template."
+msgstr "Povikvane не прие това съобщение като шаблон за Viber."
+
+#: src/Viber/ApiTemplateSubmitter.php:113
+msgid "Povikvane could not take the template right now. Try again in a moment."
+msgstr "Povikvane не може да приеме шаблона в момента. Опитайте отново след малко."
+
 #: src/Viber/TemplateRequestService.php:113
 msgid "The message is empty."
 msgstr "Съобщението е празно."
@@ -2285,10 +2338,6 @@ msgstr "Съобщение за Viber не може да съдържа поле
 #: src/Viber/TemplateRequestService.php:116
 msgid "A Viber message can have at most three different fields."
 msgstr "Съобщение за Viber може да има най-много три различни полета."
-
-#: src/Viber/TemplateRequestService.php:117
-msgid "The message is too long for Viber."
-msgstr "Съобщението е твърде дълго за Viber."
 
 #: src/Viber/UnavailableSubmitter.php:33
 msgid "Sending templates for review from the plugin is not available yet."

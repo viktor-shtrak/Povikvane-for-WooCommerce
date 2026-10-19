@@ -37,13 +37,15 @@ final class Privacy {
 	 * @param Consent           $consent         Consent rules (for hashing numbers).
 	 * @param Normalizer        $normalizer      Phone normaliser.
 	 * @param string            $default_country ISO country used when an order has none.
+	 * @param callable|null     $erase_contact   Removes a customer's contact in Povikvane; receives the number.
 	 */
 	public function __construct(
 		private readonly Repository $messages,
 		private readonly ConsentRepository $ledger,
 		private readonly Consent $consent,
 		private readonly Normalizer $normalizer,
-		private readonly string $default_country
+		private readonly string $default_country,
+		private readonly mixed $erase_contact = null
 	) {}
 
 	/**
@@ -193,7 +195,14 @@ final class Privacy {
 	 * @return array{items_removed:bool,items_retained:bool,messages:string[],done:bool}
 	 */
 	public function erase( string $email_address ): array {
-		$orders   = $this->orders_for( $email_address );
+		$orders = $this->orders_for( $email_address );
+		// Before the numbers are wiped from the log, so the contact in Povikvane can go too.
+		if ( is_callable( $this->erase_contact ) ) {
+			foreach ( $this->phones_for( $orders ) as $phone ) {
+				( $this->erase_contact )( $phone );
+			}
+		}
+
 		$messages = $this->messages->anonymize_for_orders( array_keys( $orders ) );
 		$records  = $this->ledger->erase_personal_data( $this->hashes_for( $orders ), $email_address );
 
@@ -234,6 +243,27 @@ final class Privacy {
 		}
 
 		return $keyed;
+	}
+
+	/**
+	 * Valid phone numbers on some orders, in E.164.
+	 *
+	 * @param array<int,WC_Order> $orders Orders.
+	 * @return string[]
+	 */
+	private function phones_for( array $orders ): array {
+		$phones = array();
+
+		foreach ( $orders as $order ) {
+			$country = $order->get_billing_country();
+			$number  = $this->normalizer->normalize( $order->get_billing_phone(), Countries::calling_code( '' !== $country ? $country : $this->default_country ) );
+
+			if ( $number->is_valid() ) {
+				$phones[ (string) $number->e164 ] = true;
+			}
+		}
+
+		return array_map( 'strval', array_keys( $phones ) );
 	}
 
 	/**

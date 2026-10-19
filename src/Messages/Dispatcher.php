@@ -259,6 +259,12 @@ final class Dispatcher {
 			case Outcome::NotFound:
 			case Outcome::PermanentFailure:
 			default:
+				// The customer opted out in Povikvane: a final answer, and an SMS would be refused too.
+				if ( 'recipient_suppressed' === $result->error_code ) {
+					$this->fail( $message, 'recipient_suppressed', $result->detail, $now );
+					return;
+				}
+
 				if ( null !== $message->viber && 'viber' === $message->channel ) {
 					$this->send_as_sms( $message, $result, $now );
 					return;

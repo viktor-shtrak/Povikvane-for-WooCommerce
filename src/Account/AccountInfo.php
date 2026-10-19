@@ -49,6 +49,32 @@ final class AccountInfo {
 	}
 
 	/**
+	 * Whether the account reports a feature as available (templates, template_management, sms_fallback).
+	 *
+	 * @param mixed  $caps    Stored capabilities option.
+	 * @param string $feature Feature key.
+	 * @return bool|null Null when the account does not report features.
+	 */
+	public static function feature( mixed $caps, string $feature ): ?bool {
+		$account = is_array( $caps ) && is_array( $caps['balance'] ?? null ) ? $caps['balance'] : array();
+		$value   = is_array( $account['features'] ?? null ) ? ( $account['features'][ $feature ] ?? null ) : null;
+
+		return is_bool( $value ) ? $value : null;
+	}
+
+	/**
+	 * Display name of the plan, when the account has one.
+	 *
+	 * @param mixed $caps Stored capabilities option.
+	 */
+	public static function plan_name( mixed $caps ): ?string {
+		$account = is_array( $caps ) && is_array( $caps['balance'] ?? null ) ? $caps['balance'] : array();
+		$name    = is_array( $account['plan'] ?? null ) ? ( $account['plan']['name'] ?? null ) : null;
+
+		return is_string( $name ) && '' !== trim( $name ) ? trim( $name ) : null;
+	}
+
+	/**
 	 * The labels the account has for its three custom fields.
 	 *
 	 * @param mixed $caps Stored capabilities option.

@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.8.1
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,8 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 * What is sent: the recipient phone number, the message text and an order reference, for every message you configure the plugin to send. Delivery status requests send only the message identifier. Balance requests send only your credentials.
 * When it is sent: only when an enabled order event occurs, when an administrator sends a message or a test message manually, when the plugin checks the delivery status of messages it has sent, and when it refreshes your credit balance. Promotional messages are only sent to customers who gave consent.
 * Your customers' phone numbers belong to your shop, which decides why and how they are used. Povikvane sends the messages on your behalf and keeps a record of them for up to 12 months; see its Privacy Policy.
+* Optional, only when an administrator presses "Sync customers to Povikvane": the phone number, name and consent date of customers who agreed to promotional messages are sent to Povikvane and added to a contact group. When such a customer later withdraws consent, or a privacy erasure request covers their order phone number, the contact is deleted there. Customers who opted out in Povikvane are never sent again.
+* Optional, only when an administrator sends a message for review: the text of a message is sent to Povikvane to be approved as a Viber template.
 * Your API key and service ID are stored in your site database (the key is encrypted) and are sent to the service to authenticate each request.
 * The service sends delivery reports back to your site at a secret address shown in the plugin settings. No customer data is sent to the service by this.
 * Terms of Service: https://app.povikvane.com/terms
@@ -75,6 +77,13 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.9.0 =
+* Sending messages to Povikvane for approval as Viber templates now works from the Messages tab. If a template name is taken, the plugin adds v2, v3 and so on. A limit reached (10 waiting, 20 new per day) is explained in plain words.
+* Templates that Povikvane approves or rejects show up in the plugin at once, without waiting for the next refresh.
+* Custom field labels can now be filled in or replaced from the plugin.
+* "Sync customers to Povikvane" now works: customers who agreed are added to the group "Webshop SMS opt-in" together with the date they agreed. A customer who later withdraws consent is removed from that group, and a WordPress privacy erasure request removes the contact as well.
+* When Povikvane reports that a customer opted out, promotional messages to them stop here too. A message to a number that opted out in Povikvane is marked as failed with a clear reason and costs nothing.
 
 = 0.8.1 =
 * Setup wizard, messages step: an optional Viber switch with the SMS fallback beside it. If your plan has no SMS fallback the switch is greyed out with a tooltip that says so. The SMS length estimate under each message is only shown when it matters: it is hidden when Viber is on and the fallback is off.

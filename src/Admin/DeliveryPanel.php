@@ -192,6 +192,8 @@ final class DeliveryPanel {
 	private function result_label( string $result ): string {
 		return match ( $result ) {
 			WebhookHandler::RESULT_UPDATED => __( 'updated a message', 'povikvane-for-woocommerce' ),
+			WebhookHandler::RESULT_TEMPLATE => __( 'a template changed', 'povikvane-for-woocommerce' ),
+			WebhookHandler::RESULT_OPTED_OUT => __( 'a customer opted out', 'povikvane-for-woocommerce' ),
 			WebhookHandler::RESULT_IGNORED => __( 'already known', 'povikvane-for-woocommerce' ),
 			WebhookHandler::RESULT_UNKNOWN => __( 'not one of this plugin\'s messages', 'povikvane-for-woocommerce' ),
 			default                        => __( 'not understood', 'povikvane-for-woocommerce' ),

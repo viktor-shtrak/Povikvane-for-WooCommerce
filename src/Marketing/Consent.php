@@ -26,11 +26,13 @@ final class Consent {
 	 * @param ConsentLedger $ledger Stores events.
 	 * @param Clock         $clock  Time source.
 	 * @param string        $secret Key for hashing numbers.
+	 * @param \Closure|null $on_withdrawn Called with the number and source after a withdrawal.
 	 */
 	public function __construct(
 		private readonly ConsentLedger $ledger,
 		private readonly Clock $clock,
-		private readonly string $secret
+		private readonly string $secret,
+		private readonly ?\Closure $on_withdrawn = null
 	) {}
 
 	/**
@@ -91,6 +93,7 @@ final class Consent {
 		}
 
 		$this->ledger->append( new ConsentEvent( $hash, false, $source, $e164, $latest?->email, 0, $user_id, '', $this->clock->now() ) );
+		$this->withdrawn( $e164, $source );
 
 		return true;
 	}
@@ -110,7 +113,20 @@ final class Consent {
 		}
 
 		$this->ledger->append( new ConsentEvent( $phone_hash, false, $source, $latest?->phone, $latest?->email, 0, $latest->user_id ?? 0, '', $this->clock->now() ) );
+		$this->withdrawn( $latest?->phone, $source );
 
 		return true;
+	}
+
+	/**
+	 * Tell whoever listens that a customer withdrew.
+	 *
+	 * @param string|null $e164   Number, when known.
+	 * @param string      $source Where the withdrawal came from.
+	 */
+	private function withdrawn( ?string $e164, string $source ): void {
+		if ( null !== $this->on_withdrawn && null !== $e164 && '' !== $e164 ) {
+			( $this->on_withdrawn )( $e164, $source );
+		}
 	}
 }

@@ -126,6 +126,111 @@ final class Client implements Gateway {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function template_rules(): ApiResult {
+		return $this->get( '/public-api/v1/templates/rules' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $name    Template name.
+	 * @param string $lang    "bg" or "en".
+	 * @param string $content Text.
+	 */
+	public function create_template( string $name, string $lang, string $content ): ApiResult {
+		return $this->write(
+			'POST',
+			'/public-api/v1/templates',
+			array(
+				'name'    => $name,
+				'channel' => 'viber',
+				'lang'    => $lang,
+				'content' => $content,
+			)
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param array<string,string> $labels Labels.
+	 */
+	public function set_custom_fields( array $labels ): ApiResult {
+		return $this->write( 'PUT', '/public-api/v1/account/custom-fields', $labels );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $name Group name.
+	 */
+	public function ensure_group( string $name ): ApiResult {
+		return $this->write( 'POST', '/public-api/v1/groups', array( 'name' => $name ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string                         $group_id Group ID.
+	 * @param array<int,array<string,mixed>> $contacts Contacts.
+	 */
+	public function upsert_contacts( string $group_id, array $contacts ): ApiResult {
+		return $this->write(
+			'POST',
+			'/public-api/v1/contacts/batch',
+			array(
+				'group_id' => $group_id,
+				'contacts' => $contacts,
+			)
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $phone Phone number.
+	 */
+	public function delete_contact( string $phone ): ApiResult {
+		return $this->write( 'DELETE', '/public-api/v1/contacts/' . rawurlencode( $phone ), null );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param array<int,array<string,string>> $numbers Numbers.
+	 */
+	public function add_suppressions( array $numbers ): ApiResult {
+		return $this->write( 'POST', '/public-api/v1/suppressions', array( 'numbers' => $numbers ) );
+	}
+
+	/**
+	 * Authenticated request with a JSON body (none for DELETE). The service ID goes in a header.
+	 *
+	 * @param string                   $method HTTP method.
+	 * @param string                   $path   Path.
+	 * @param array<string,mixed>|null $body   Body.
+	 */
+	private function write( string $method, string $path, ?array $body ): ApiResult {
+		$headers = array(
+			'Authorization' => $this->credentials->bearer(),
+			'x-service-id'  => $this->credentials->service_id,
+			'Accept'        => 'application/json',
+		);
+
+		$json = null;
+
+		if ( null !== $body ) {
+			$headers['Content-Type'] = 'application/json';
+			$json                    = wp_json_encode( $body );
+			$json                    = false === $json ? null : $json;
+		}
+
+		return $this->execute( $method, $path, $headers, $json );
+	}
+
+	/**
 	 * Authenticated GET.
 	 *
 	 * @param string $path Path and query.

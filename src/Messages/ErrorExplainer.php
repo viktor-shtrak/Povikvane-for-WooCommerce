@@ -31,6 +31,7 @@ final class ErrorExplainer {
 		}
 
 		return match ( true ) {
+			'recipient_suppressed' === $code                     => __( 'This number has opted out of messages in Povikvane, so nothing was sent and no credits were used.', 'povikvane-for-woocommerce' ),
 			'delivery_failed' === $code                          => __( 'The message did not reach the phone: it may be switched off, out of coverage, or the number is not active. Resending later may work.', 'povikvane-for-woocommerce' ),
 			'http_502' === $code                                 => __( 'The mobile network refused the message and the credits were refunded. Check the phone number.', 'povikvane-for-woocommerce' ),
 			in_array( $code, array( 'http_400', 'http_422' ), true ) => __( 'Povikvane did not accept the message. Check the phone number and the text.', 'povikvane-for-woocommerce' ),

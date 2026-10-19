@@ -45,7 +45,9 @@ use Povikvane\WooCommerce\Log\Retention;
 use Povikvane\WooCommerce\Log\Schema;
 use Povikvane\WooCommerce\Marketing\AccountConsent;
 use Povikvane\WooCommerce\Marketing\CheckoutConsent;
+use Povikvane\WooCommerce\Marketing\ApiContactSync;
 use Povikvane\WooCommerce\Marketing\Consent;
+use Povikvane\WooCommerce\Marketing\ContactJobs;
 use Povikvane\WooCommerce\Marketing\ConsentRecorder;
 use Povikvane\WooCommerce\Marketing\ConsentRepository;
 use Povikvane\WooCommerce\Marketing\FollowupHandler;
@@ -69,7 +71,10 @@ use Povikvane\WooCommerce\Orders\StatusHooks;
 use Povikvane\WooCommerce\Orders\Trigger;
 use Povikvane\WooCommerce\Orders\TriggerRepository;
 use Povikvane\WooCommerce\Phone\Normalizer;
+use Povikvane\WooCommerce\Account\AccountInfo;
+use Povikvane\WooCommerce\Account\ApiLabelWriter;
 use Povikvane\WooCommerce\Privacy\Privacy;
+use Povikvane\WooCommerce\Viber\ApiTemplateSubmitter;
 use Povikvane\WooCommerce\Safety\SiteGuard;
 use Povikvane\WooCommerce\Safety\StormGuard;
 use Povikvane\WooCommerce\Support\ActionSchedulerScheduler;
@@ -93,7 +98,6 @@ use Povikvane\WooCommerce\Webhook\Token;
 use Povikvane\WooCommerce\Viber\TemplateCatalog;
 use Povikvane\WooCommerce\Viber\TemplateRequests;
 use Povikvane\WooCommerce\Viber\TemplateRequestService;
-use Povikvane\WooCommerce\Viber\UnavailableSubmitter;
 use Povikvane\WooCommerce\Viber\TemplateSync;
 use Povikvane\WooCommerce\Viber\ViberPlan;
 use Povikvane\WooCommerce\Viber\ViberPlanner;
@@ -170,7 +174,14 @@ final class Plugin {
 		add_action( ActionSchedulerScheduler::PURGE_HOOK, array( $this, 'run_purge' ) );
 
 		( new RestController(
-			new WebhookHandler( $this->repository(), $this->delivery_updater(), new OptionActivity(), new SystemClock() ),
+			new WebhookHandler(
+				$this->repository(),
+				$this->delivery_updater(),
+				new OptionActivity(),
+				new SystemClock(),
+				$this->consent(),
+				fn() => $this->template_sync()->refresh( time() )
+			),
 			new Token()
 		) )->register();
 		add_action( 'action_scheduler_init', array( $this, 'schedule_recurring_jobs' ) );
@@ -189,21 +200,29 @@ final class Plugin {
 			new ConsentRepository(),
 			$this->consent(),
 			new Normalizer(),
-			$this->settings()->default_country()
+			$this->settings()->default_country(),
+			static function ( string $phone ): void {
+				if ( false !== get_option( ContactJobs::SYNCED, false ) ) {
+					ContactJobs::queue( $phone );
+				}
+			}
 		) )->register();
+
+		( new ContactJobs( $this->client() ) )->register();
 
 		if ( is_admin() ) {
 			$catalog   = new TemplateCatalog();
 			$requests  = new TemplateRequests();
-			$submitter = new UnavailableSubmitter();
-			$labels    = new FieldLabelsPanel( array( $this, 'run_probe' ) );
+			$caps      = get_option( Capabilities::OPTION, array() );
+			$submitter = new ApiTemplateSubmitter( $this->client(), true === AccountInfo::feature( $caps, 'template_management' ), Language::is_bulgarian( Language::content_locale() ) ? 'bg' : 'en' );
+			$labels    = new FieldLabelsPanel( array( $this, 'run_probe' ), new ApiLabelWriter( $this->client(), is_array( $caps ) && true === ( $caps['account'] ?? null ) ) );
 			$labels->register();
 			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter, $labels );
 			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
 			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
 			$delivery->register();
 
-			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), Language::content_locale() );
+			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), Language::content_locale(), new ApiContactSync( $this->client(), Capabilities::CONNECTION_OK === ( is_array( $caps ) ? ( $caps['connection'] ?? null ) : null ) ) );
 			$marketing_section->register();
 			( new ConsentColumns( new ConsentRepository() ) )->register();
 
@@ -546,7 +565,7 @@ final class Plugin {
 	 * Consent rules.
 	 */
 	private function consent(): Consent {
-		return new Consent( new ConsentRepository(), new SystemClock(), $this->consent_secret() );
+		return new Consent( new ConsentRepository(), new SystemClock(), $this->consent_secret(), \Closure::fromCallable( array( ContactJobs::class, 'on_withdrawn' ) ) );
 	}
 
 	/**

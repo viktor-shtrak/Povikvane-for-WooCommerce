@@ -20,6 +20,7 @@ final class ConsentEvent {
 	public const SOURCE_CHECKOUT = 'checkout';
 	public const SOURCE_ACCOUNT  = 'account';
 	public const SOURCE_OPTOUT   = 'optout-link';
+	public const SOURCE_PLATFORM = 'povikvane';
 
 	/**
 	 * Constructor.
