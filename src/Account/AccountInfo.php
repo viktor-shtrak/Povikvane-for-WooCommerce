@@ -63,6 +63,30 @@ final class AccountInfo {
 	}
 
 	/**
+	 * What Povikvane says about the webhook address of this key.
+	 *
+	 * @param mixed $caps Stored capabilities option.
+	 * @return array{url:?string,last_delivery_at:?string,last_status:?string,last_error:?string}|null Null when the account does not report it.
+	 */
+	public static function webhook( mixed $caps ): ?array {
+		$account = is_array( $caps ) && is_array( $caps['balance'] ?? null ) ? $caps['balance'] : array();
+		$raw     = $account['webhook'] ?? null;
+
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+
+		$text = static fn( string $key ): ?string => isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) && '' !== $raw[ $key ] ? $raw[ $key ] : null;
+
+		return array(
+			'url'              => $text( 'url' ),
+			'last_delivery_at' => $text( 'last_delivery_at' ),
+			'last_status'      => $text( 'last_status' ),
+			'last_error'       => $text( 'last_error' ),
+		);
+	}
+
+	/**
 	 * Display name of the plan, when the account has one.
 	 *
 	 * @param mixed $caps Stored capabilities option.

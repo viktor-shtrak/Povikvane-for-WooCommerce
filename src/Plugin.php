@@ -102,6 +102,7 @@ use Povikvane\WooCommerce\Viber\TemplateSync;
 use Povikvane\WooCommerce\Viber\ViberPlan;
 use Povikvane\WooCommerce\Viber\ViberPlanner;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
+use Povikvane\WooCommerce\Webhook\WebhookRegistration;
 
 /**
  * Wires the plugin together once WooCommerce is available and compatible.
@@ -219,7 +220,7 @@ final class Plugin {
 			$labels->register();
 			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter, $labels );
 			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
-			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository() );
+			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository(), new WebhookRegistration( $this->client() ), array( $this, 'run_probe' ) );
 			$delivery->register();
 
 			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), Language::content_locale(), new ApiContactSync( $this->client(), Capabilities::CONNECTION_OK === ( is_array( $caps ) ? ( $caps['connection'] ?? null ) : null ) ) );
@@ -354,6 +355,11 @@ final class Plugin {
 
 		$caps = Capabilities::evaluate( $this->client(), $previous, time() );
 		update_option( Capabilities::OPTION, $caps, false );
+
+		// A key with no address yet gets this site's; an address somebody set is left alone.
+		if ( Capabilities::CONNECTION_OK === $caps['connection'] ) {
+			( new WebhookRegistration( $this->client() ) )->register_if_empty( $caps, ( new Token() )->url() );
+		}
 
 		$this->logger()->log(
 			Logger::INFO,

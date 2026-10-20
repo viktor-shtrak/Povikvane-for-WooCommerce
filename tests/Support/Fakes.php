@@ -103,6 +103,9 @@ final class FakeGateway implements Gateway {
 		'contacts'  => array(),
 		'erase'     => array(),
 		'suppress'  => array(),
+		'webhook'   => array(),
+		'wtest'     => array(),
+		'estimate'  => array(),
 	);
 
 	/**
@@ -280,6 +283,36 @@ final class FakeGateway implements Gateway {
 		);
 
 		return $this->next( 'erase' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string|null $url Address.
+	 */
+	public function set_webhook( ?string $url ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'webhook',
+			'args' => array( $url ),
+		);
+
+		return $this->next( 'webhook' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function test_webhook(): ApiResult {
+		return $this->next( 'wtest' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param array<string,mixed> $message Message.
+	 */
+	public function estimate( array $message ): ApiResult {
+		return $this->next( 'estimate' );
 	}
 
 	/**

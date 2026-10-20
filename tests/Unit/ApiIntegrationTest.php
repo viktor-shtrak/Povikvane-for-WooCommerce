@@ -36,7 +36,9 @@ use Povikvane\WooCommerce\Tests\Support\InMemoryStore;
 use Povikvane\WooCommerce\Tests\Support\RecordingNotifier;
 use Povikvane\WooCommerce\Tests\Support\RecordingScheduler;
 use Povikvane\WooCommerce\Viber\ApiTemplateSubmitter;
+use Povikvane\WooCommerce\Messages\PriceEstimate;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
+use Povikvane\WooCommerce\Webhook\WebhookRegistration;
 
 /**
  * Template creation, labels, contacts, opt-outs and the new webhook events.
@@ -388,5 +390,137 @@ final class ApiIntegrationTest extends TestCase {
 		$this->assertSame( 'https://api.example.test/public-api/v1/contacts/%2B359888123456', $erase['url'] );
 		$this->assertNull( $erase['body'] );
 		$this->assertSame( 'GET', $rules['method'] );
+	}
+
+	/**
+	 * Account answer with a webhook block.
+	 *
+	 * @param string|null $url      Registered address.
+	 * @param bool        $supports Whether webhook management is on.
+	 * @return array<string,mixed>
+	 */
+	private function caps_with_webhook( ?string $url, bool $supports = true ): array {
+		return array(
+			'balance' => array(
+				'features' => array( 'webhook_management' => $supports ),
+				'webhook'  => array(
+					'url'              => $url,
+					'last_delivery_at' => null,
+					'last_status'      => null,
+					'last_error'       => null,
+				),
+			),
+		);
+	}
+
+	/**
+	 * An empty address is filled in; one somebody set is left alone.
+	 */
+	public function test_registration_only_fills_an_empty_address(): void {
+		$url     = 'https://shop.example/wp-json/povikvane/v1/dlr/abc';
+		$gateway = ( new FakeGateway() )->will_return_for( 'webhook', $this->ok() );
+
+		$this->assertTrue( ( new WebhookRegistration( $gateway ) )->register_if_empty( $this->caps_with_webhook( null ), $url ) );
+		$this->assertSame( array( $url ), $gateway->writes[0]['args'] );
+
+		$other = new FakeGateway();
+		$this->assertFalse( ( new WebhookRegistration( $other ) )->register_if_empty( $this->caps_with_webhook( 'https://other.example/hook' ), $url ) );
+		$this->assertFalse( ( new WebhookRegistration( $other ) )->register_if_empty( $this->caps_with_webhook( null, false ), $url ) );
+		$this->assertFalse( ( new WebhookRegistration( $other ) )->register_if_empty( $this->caps_with_webhook( null ), 'http://shop.example/hook' ) );
+		$this->assertFalse( ( new WebhookRegistration( $other ) )->register_if_empty( array(), $url ) );
+		$this->assertSame( array(), $other->writes );
+	}
+
+	/**
+	 * Addresses Povikvane could never reach are not sent.
+	 */
+	public function test_non_public_addresses_are_refused_locally(): void {
+		foreach ( array( 'https://localhost/x', 'https://shop.local/x', 'https://shop.test/x', 'https://192.168.1.5/x', 'https://127.0.0.1/x', 'http://shop.example/x', 'nonsense' ) as $url ) {
+			$this->assertFalse( WebhookRegistration::looks_public( $url ), $url );
+		}
+
+		$this->assertTrue( WebhookRegistration::looks_public( 'https://shop.example/wp-json/x' ) );
+		$this->assertTrue( WebhookRegistration::looks_public( 'https://8.8.8.8/x' ) );
+
+		$outcome = ( new WebhookRegistration( new FakeGateway() ) )->register( 'https://localhost/x' );
+		$this->assertSame( WebhookRegistration::REFUSED, $outcome['result'] );
+	}
+
+	/**
+	 * Povikvane's own refusal is explained.
+	 */
+	public function test_registration_refusal_is_explained(): void {
+		$gateway = ( new FakeGateway() )->will_return_for( 'webhook', $this->refused( 422, 'webhook_url_invalid' ) );
+		$outcome = ( new WebhookRegistration( $gateway ) )->register( 'https://shop.example/x' );
+
+		$this->assertSame( WebhookRegistration::REFUSED, $outcome['result'] );
+		$this->assertNotSame( '', $outcome['reason'] );
+	}
+
+	/**
+	 * Each test answer gets its own message.
+	 */
+	public function test_webhook_test_results_are_interpreted(): void {
+		$delivered = new ApiResult(
+			Outcome::Success,
+			200,
+			array(
+				'attributes' => array(
+					'delivered'   => true,
+					'http_status' => 204,
+					'error'       => null,
+				),
+			)
+		);
+		$failed    = new ApiResult(
+			Outcome::Success,
+			200,
+			array(
+				'attributes' => array(
+					'delivered'   => false,
+					'http_status' => 403,
+					'error'       => 'http_403',
+				),
+			)
+		);
+
+		$this->assertTrue( WebhookRegistration::interpret_test( $delivered )['ok'] );
+		$this->assertFalse( WebhookRegistration::interpret_test( $failed )['ok'] );
+		$this->assertStringContainsString( '403', WebhookRegistration::interpret_test( $failed )['message'] );
+		$this->assertFalse( WebhookRegistration::interpret_test( $this->refused( 409, 'webhook_not_configured' ) )['ok'] );
+		$this->assertFalse( WebhookRegistration::interpret_test( $this->refused( 429, 'rate_limited' ) )['ok'] );
+	}
+
+	/**
+	 * The webhook block of the account answer is read, and the estimate's final price is used.
+	 */
+	public function test_account_webhook_and_estimate_are_read(): void {
+		$info = AccountInfo::webhook( $this->caps_with_webhook( 'https://a.example/x' ) );
+		$this->assertSame( 'https://a.example/x', $info['url'] ?? null );
+		$this->assertNull( AccountInfo::webhook( array( 'balance' => array() ) ) );
+
+		$estimate = PriceEstimate::from_result(
+			new ApiResult(
+				Outcome::Success,
+				200,
+				array(
+					'attributes' => array(
+						'message_type'  => 'transactional',
+						'credits'       => 0.8,
+						'initial_debit' => 1,
+						'recipient'     => array(
+							'phone'      => '+359888123456',
+							'valid'      => true,
+							'suppressed' => true,
+						),
+					),
+				)
+			)
+		);
+
+		$this->assertSame( 0.8, $estimate?->credits );
+		$this->assertSame( 1.0, $estimate?->initial_debit );
+		$this->assertTrue( $estimate?->suppressed );
+		$this->assertNull( PriceEstimate::from_result( $this->refused( 400, 'invalid_fallback' ) ) );
 	}
 }

@@ -9,7 +9,10 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Account\AccountInfo;
+use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Support\Dates;
+use Povikvane\WooCommerce\Webhook\WebhookRegistration;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Webhook\SelfTest;
 use Povikvane\WooCommerce\Webhook\Token;
@@ -30,14 +33,18 @@ final class DeliveryPanel {
 	/**
 	 * Constructor.
 	 *
-	 * @param Token           $token      The webhook secret.
-	 * @param WebhookActivity $activity   Last webhook arrival.
-	 * @param Repository      $repository Message log.
+	 * @param Token                    $token      The webhook secret.
+	 * @param WebhookActivity          $activity   Last webhook arrival.
+	 * @param Repository               $repository Message log.
+	 * @param WebhookRegistration|null $registration Sets the address in Povikvane.
+	 * @param callable|null            $probe      Runs a connection check, so the account answer is fresh afterwards.
 	 */
 	public function __construct(
 		private readonly Token $token,
 		private readonly WebhookActivity $activity,
-		private readonly Repository $repository
+		private readonly Repository $repository,
+		private readonly ?WebhookRegistration $registration = null,
+		private readonly mixed $probe = null
 	) {}
 
 	/**
@@ -46,6 +53,8 @@ final class DeliveryPanel {
 	public function register(): void {
 		add_action( 'admin_post_povikvane_regenerate_token', array( $this, 'handle_regenerate' ) );
 		add_action( 'admin_post_povikvane_test_webhook', array( $this, 'handle_test' ) );
+		add_action( 'admin_post_povikvane_register_webhook', array( $this, 'handle_register' ) );
+		add_action( 'admin_post_povikvane_remote_test_webhook', array( $this, 'handle_remote_test' ) );
 	}
 
 	/**
@@ -62,6 +71,8 @@ final class DeliveryPanel {
 			esc_html__( 'Copy', 'povikvane-for-woocommerce' )
 		);
 		Ui::field_close();
+
+		$this->render_registration();
 
 		$last = $this->activity->last();
 
@@ -101,7 +112,152 @@ final class DeliveryPanel {
 
 		Ui::field_close();
 
-		Ui::card_close( $this->test_button() . ' ' . esc_html__( 'Need a different address?', 'povikvane-for-woocommerce' ) . ' ' . $this->regenerate_button() );
+		Ui::card_close( $this->registration_buttons() . $this->test_button() . ' ' . esc_html__( 'Need a different address?', 'povikvane-for-woocommerce' ) . ' ' . $this->regenerate_button() );
+	}
+
+	/**
+	 * Stored capabilities.
+	 *
+	 * @return array<mixed>
+	 */
+	private function caps(): array {
+		$caps = get_option( Capabilities::OPTION, array() );
+
+		return is_array( $caps ) ? $caps : array();
+	}
+
+	/**
+	 * Whether the address can be managed from here.
+	 */
+	private function manageable(): bool {
+		return null !== $this->registration && WebhookRegistration::supported( $this->caps() );
+	}
+
+	/**
+	 * Where this site's address stands in Povikvane: not set, set to this site, or set to something else.
+	 *
+	 * @return string "none", "ours" or "other".
+	 */
+	private function registration_state(): string {
+		$webhook = AccountInfo::webhook( $this->caps() );
+
+		if ( null === $webhook || null === $webhook['url'] ) {
+			return 'none';
+		}
+
+		return $webhook['url'] === $this->token->url() ? 'ours' : 'other';
+	}
+
+	/**
+	 * The "Registered in Povikvane" row.
+	 */
+	private function render_registration(): void {
+		if ( ! $this->manageable() ) {
+			return;
+		}
+
+		$state   = $this->registration_state();
+		$webhook = AccountInfo::webhook( $this->caps() );
+
+		Ui::field_open( __( 'In Povikvane', 'povikvane-for-woocommerce' ) );
+
+		if ( 'ours' === $state ) {
+			echo Ui::pill( __( 'Registered', 'povikvane-for-woocommerce' ), 'ok' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+
+			if ( null !== $webhook && null !== $webhook['last_delivery_at'] ) {
+				$time = strtotime( $webhook['last_delivery_at'] );
+
+				echo ' ' . esc_html(
+					'delivered' === $webhook['last_status']
+						? sprintf(
+							/* translators: %s: date and time. */
+							__( 'Last delivery worked (%s).', 'povikvane-for-woocommerce' ),
+							false === $time ? $webhook['last_delivery_at'] : Dates::format( $time, 'Y-m-d H:i' )
+						)
+						: sprintf(
+							/* translators: %s: reason. */
+							__( 'Last delivery failed: %s', 'povikvane-for-woocommerce' ),
+							WebhookRegistration::error_text( (string) $webhook['last_error'] )
+						)
+				);
+			}
+		} elseif ( 'other' === $state ) {
+			echo Ui::pill( __( 'Another address is set', 'povikvane-for-woocommerce' ), 'warn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+			echo ' ' . esc_html__( 'This key sends its reports somewhere else. Use the button below to send them to this site instead.', 'povikvane-for-woocommerce' );
+		} else {
+			echo Ui::pill( __( 'Not registered', 'povikvane-for-woocommerce' ), 'warn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+		}
+
+		Ui::field_close();
+	}
+
+	/**
+	 * Buttons that register the address and ask Povikvane to test it, as HTML.
+	 */
+	private function registration_buttons(): string {
+		if ( ! $this->manageable() ) {
+			return '';
+		}
+
+		ob_start();
+
+		if ( 'ours' !== $this->registration_state() ) {
+			Layout::action_button( __( 'Register this address in Povikvane', 'povikvane-for-woocommerce' ), 'povikvane_register_webhook', array(), 'pvk-btn pvk-btn--primary', 'other' === $this->registration_state() ? __( 'Another address is already set for this key. Replace it with this site?', 'povikvane-for-woocommerce' ) : '' );
+		} else {
+			Layout::action_button( __( 'Ask Povikvane to test it', 'povikvane-for-woocommerce' ), 'povikvane_remote_test_webhook', array(), 'pvk-btn' );
+		}
+
+		return (string) ob_get_clean() . ' ';
+	}
+
+	/**
+	 * Register this site's address in Povikvane.
+	 */
+	public function handle_register(): void {
+		check_admin_referer( 'povikvane_register_webhook' );
+
+		if ( ! current_user_can( self::CAPABILITY ) || null === $this->registration ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+		}
+
+		$outcome = $this->registration->register( $this->token->url() );
+
+		if ( WebhookRegistration::REGISTERED === $outcome['result'] ) {
+			$this->refresh();
+			Flash::add( 'success', __( 'The address was registered in Povikvane.', 'povikvane-for-woocommerce' ) );
+		} else {
+			Flash::add( 'error', $outcome['reason'] );
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
+		exit;
+	}
+
+	/**
+	 * Ask Povikvane to call the registered address.
+	 */
+	public function handle_remote_test(): void {
+		check_admin_referer( 'povikvane_remote_test_webhook' );
+
+		if ( ! current_user_can( self::CAPABILITY ) || null === $this->registration ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+		}
+
+		$outcome = $this->registration->test();
+		$this->refresh();
+		Flash::add( $outcome['ok'] ? 'success' : 'error', $outcome['message'] );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
+		exit;
+	}
+
+	/**
+	 * Read the account again so the status shown is current.
+	 */
+	private function refresh(): void {
+		if ( is_callable( $this->probe ) ) {
+			( $this->probe )();
+		}
 	}
 
 	/**

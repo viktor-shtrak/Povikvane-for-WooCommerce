@@ -206,6 +206,31 @@ final class Client implements Gateway {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string|null $url Address.
+	 */
+	public function set_webhook( ?string $url ): ApiResult {
+		return $this->write( 'PUT', '/public-api/v1/account/webhook', array( 'url' => $url ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function test_webhook(): ApiResult {
+		return $this->write( 'POST', '/public-api/v1/account/webhook/test', null );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param array<string,mixed> $message Message.
+	 */
+	public function estimate( array $message ): ApiResult {
+		return $this->write( 'POST', '/public-api/v1/messages/estimate', array( 'message' => $message ) );
+	}
+
+	/**
 	 * Authenticated request with a JSON body (none for DELETE). The service ID goes in a header.
 	 *
 	 * @param string                   $method HTTP method.

@@ -96,4 +96,23 @@ interface Gateway {
 	 * @param array<int,array<string,string>> $numbers Items with phone, optional reason and withdrawn_at.
 	 */
 	public function add_suppressions( array $numbers ): ApiResult;
+
+	/**
+	 * Set, or with null clear, the webhook address of the calling key.
+	 *
+	 * @param string|null $url Public https address.
+	 */
+	public function set_webhook( ?string $url ): ApiResult;
+
+	/**
+	 * Ask Povikvane to send a test event to the stored webhook address.
+	 */
+	public function test_webhook(): ApiResult;
+
+	/**
+	 * Price a message without sending it.
+	 *
+	 * @param array<string,mixed> $message The message object a send would carry.
+	 */
+	public function estimate( array $message ): ApiResult;
 }
