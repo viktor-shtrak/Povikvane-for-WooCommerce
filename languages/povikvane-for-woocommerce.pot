@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.10.0\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 0.11.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-20 16:10+0300\n"
+"POT-Creation-Date: 2026-10-23 12:04+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -200,7 +200,7 @@ msgstr ""
 msgid "Support information"
 msgstr ""
 
-#: src/Admin/AdvancedPanel.php:148 src/Admin/DeliveryPanel.php:70
+#: src/Admin/AdvancedPanel.php:148 src/Admin/DeliveryPanel.php:74
 #: src/Admin/MarketingSection.php:187 src/Admin/SetupWizard.php:420
 msgid "Copied"
 msgstr ""
@@ -461,171 +461,219 @@ msgstr ""
 msgid "in My Account"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:64 src/Admin/OverviewPanel.php:165
+#: src/Admin/DeliveryPanel.php:68 src/Admin/OverviewPanel.php:165
 #: src/Admin/OverviewPanel.php:168
 msgid "Delivery reports"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:64
+#: src/Admin/DeliveryPanel.php:68
 msgid "To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later. After adding it, send a test message from the Overview tab: \"Last report received\" shows when Povikvane has reached your site."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:66 src/Admin/SetupWizard.php:419
+#: src/Admin/DeliveryPanel.php:70 src/Admin/SetupWizard.php:419
 msgid "Webhook address"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:71 src/Admin/MarketingSection.php:188
+#: src/Admin/DeliveryPanel.php:75 src/Admin/MarketingSection.php:188
 #: src/Admin/SetupWizard.php:421
 msgid "Copy"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:79
+#: src/Admin/DeliveryPanel.php:83
 msgid "Last report received"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:82
+#: src/Admin/DeliveryPanel.php:86
 msgid "Never"
 msgstr ""
 
 #. translators: 1: date and time, 2: result of handling it.
-#: src/Admin/DeliveryPanel.php:87
+#: src/Admin/DeliveryPanel.php:91
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:99
+#: src/Admin/DeliveryPanel.php:103
 msgid "Message queue"
 msgstr ""
 
 #. translators: %d: minutes.
-#: src/Admin/DeliveryPanel.php:105
+#: src/Admin/DeliveryPanel.php:109
 #, php-format
 msgid "Running late: the oldest waiting message is %d minutes overdue. WordPress may not be running its scheduled tasks; ask your host to run WP-Cron regularly."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:110
+#: src/Admin/DeliveryPanel.php:114
 msgid "On time"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:115
+#: src/Admin/DeliveryPanel.php:119
 msgid "Need a different address?"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:162
+#: src/Admin/DeliveryPanel.php:166
 msgid "In Povikvane"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:165
+#: src/Admin/DeliveryPanel.php:169
 msgid "Registered"
 msgstr ""
 
 #. translators: %s: date and time.
-#: src/Admin/DeliveryPanel.php:174
+#: src/Admin/DeliveryPanel.php:178
 #, php-format
 msgid "Last delivery worked (%s)."
 msgstr ""
 
 #. translators: %s: reason.
-#: src/Admin/DeliveryPanel.php:179
+#: src/Admin/DeliveryPanel.php:183
 #, php-format
 msgid "Last delivery failed: %s"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:185
+#. translators: %d: number of failed deliveries in a row.
+#: src/Admin/DeliveryPanel.php:194
+#, php-format
+msgid "Povikvane could not reach your site on its last %d attempt."
+msgid_plural "Povikvane could not reach your site on its last %d attempts."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/DeliveryPanel.php:200
 msgid "Another address is set"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:186
+#: src/Admin/DeliveryPanel.php:201
 msgid "This key sends its reports somewhere else. Use the button below to send them to this site instead."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:188
+#: src/Admin/DeliveryPanel.php:203
 msgid "Not registered"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:205
+#: src/Admin/DeliveryPanel.php:214
+msgid "Deliveries are checked with a secret only Povikvane and this site know."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:214
+msgid "Signed"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:217
+msgid "Create a secret so that nobody else can send reports to this address."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:217
+msgid "Not signed"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:231
 msgid "Another address is already set for this key. Replace it with this site?"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:205
+#: src/Admin/DeliveryPanel.php:231
 msgid "Register this address in Povikvane"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:207
+#: src/Admin/DeliveryPanel.php:233
 msgid "Ask Povikvane to test it"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:220 src/Admin/DeliveryPanel.php:243
-#: src/Admin/DeliveryPanel.php:280 src/Admin/DeliveryPanel.php:333
-#: src/Admin/FieldLabelsPanel.php:125 src/Admin/MarketingSection.php:239
-#: src/Admin/MarketingSection.php:301 src/Admin/MessageLogPage.php:406
-#: src/Admin/OrderMetabox.php:157 src/Admin/PauseControls.php:173
-#: src/Admin/SettingsPage.php:450 src/Admin/SetupNotice.php:88
-#: src/Admin/SetupWizard.php:717
+#: src/Admin/DeliveryPanel.php:236
+msgid "Create a new secret"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:236
+msgid "Create a new secret? The old one keeps working for 24 hours, then only the new one is accepted."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:236
+msgid "Create a secret"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:249 src/Admin/DeliveryPanel.php:272
+#: src/Admin/DeliveryPanel.php:293 src/Admin/DeliveryPanel.php:330
+#: src/Admin/DeliveryPanel.php:383 src/Admin/FieldLabelsPanel.php:125
+#: src/Admin/MarketingSection.php:239 src/Admin/MarketingSection.php:301
+#: src/Admin/MessageLogPage.php:406 src/Admin/OrderMetabox.php:157
+#: src/Admin/PauseControls.php:173 src/Admin/SettingsPage.php:450
+#: src/Admin/SetupNotice.php:88 src/Admin/SetupWizard.php:717
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:227
+#: src/Admin/DeliveryPanel.php:256
 msgid "The address was registered in Povikvane."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:268
+#: src/Admin/DeliveryPanel.php:277
+msgid "A new secret was created. Deliveries from Povikvane are now checked with it."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:279
+msgid "Povikvane did not create a secret. Try again in a moment."
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:318
 msgid "Test the webhook address"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:308
+#: src/Admin/DeliveryPanel.php:358
 msgid "The webhook address works. To see that Povikvane can reach it, send a test message and watch \"Last report received\"."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:309
+#: src/Admin/DeliveryPanel.php:359
 msgid "The webhook address was not found. Check that pretty permalinks are on and the REST API is not disabled, or create a new address."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:310
+#: src/Admin/DeliveryPanel.php:360
 msgid "The webhook address was blocked, probably by a security plugin or a firewall. Allow requests to /wp-json/povikvane/ and try again."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:311
+#: src/Admin/DeliveryPanel.php:361
 msgid "This server could not reach its own webhook address. That does not always mean Povikvane cannot; send a test message and watch \"Last report received\"."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:312
+#: src/Admin/DeliveryPanel.php:362
 msgid "The webhook address gave an unexpected answer. Try again, or create a new address."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:321
+#: src/Admin/DeliveryPanel.php:371
 msgid "Create a new webhook address"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:321
+#: src/Admin/DeliveryPanel.php:371
 msgid "Create a new webhook address? The current one stops working and must be updated in Povikvane."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:337
+#: src/Admin/DeliveryPanel.php:387
 msgid "A new webhook address was created. Update it in Povikvane."
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:350 src/Admin/OverviewPanel.php:354
+#: src/Admin/DeliveryPanel.php:400 src/Admin/OverviewPanel.php:354
 msgid "updated a message"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:351
+#: src/Admin/DeliveryPanel.php:401
+msgid "a repeat of a report already handled"
+msgstr ""
+
+#: src/Admin/DeliveryPanel.php:402
 msgid "a template changed"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:352
+#: src/Admin/DeliveryPanel.php:403
 msgid "a customer opted out"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:353 src/Admin/OverviewPanel.php:355
+#: src/Admin/DeliveryPanel.php:404 src/Admin/OverviewPanel.php:355
 msgid "already known"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:354
+#: src/Admin/DeliveryPanel.php:405
 msgid "not one of this plugin's messages"
 msgstr ""
 
-#: src/Admin/DeliveryPanel.php:355 src/Admin/OverviewPanel.php:357
+#: src/Admin/DeliveryPanel.php:406 src/Admin/OverviewPanel.php:357
 msgid "not understood"
 msgstr ""
 
@@ -2148,7 +2196,7 @@ msgid "The message could not be sent. See the message log detail, or resend it."
 msgstr ""
 
 #. translators: %s: minimum required WooCommerce version.
-#: src/Plugin.php:477
+#: src/Plugin.php:494
 #, php-format
 msgid "Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded."
 msgstr ""
@@ -2390,64 +2438,72 @@ msgstr ""
 msgid "Sending templates for review from the plugin is not available yet."
 msgstr ""
 
-#: src/Webhook/RestController.php:70
+#: src/Webhook/RestController.php:72
 msgid "No route was found matching the URL and request method."
 msgstr ""
 
-#: src/Webhook/RestController.php:84
+#: src/Webhook/RestController.php:86
 msgid "Too many requests."
 msgstr ""
 
-#: src/Webhook/RestController.php:88
+#: src/Webhook/RestController.php:90
 msgid "Request too large."
 msgstr ""
 
-#: src/Webhook/RestController.php:94
+#: src/Webhook/RestController.php:97
+msgid "The signature is missing or wrong."
+msgstr ""
+
+#: src/Webhook/RestController.php:103
 msgid "Expected a JSON body."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:98
+#: src/Webhook/WebhookRegistration.php:148
 msgid "Povikvane can only call a public https address. This site is not on one, so delivery reports will be found by checking regularly instead."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:113
+#: src/Webhook/WebhookRegistration.php:165
 msgid "Povikvane could not save the address right now. Try again in a moment."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:113
+#: src/Webhook/WebhookRegistration.php:165
 msgid "Povikvane did not accept this address. It must be a public https address."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:138
+#: src/Webhook/WebhookRegistration.php:190
 msgid "Povikvane has no webhook address for this key yet. Register the address first."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:145
+#: src/Webhook/WebhookRegistration.php:197
 msgid "You have run the test too many times this hour. Try again later."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:152
+#: src/Webhook/WebhookRegistration.php:204
 msgid "Povikvane could not run the test right now. Try again in a moment."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:161
+#: src/Webhook/WebhookRegistration.php:213
 msgid "Povikvane reached your site. Delivery reports will arrive as soon as messages are delivered."
 msgstr ""
 
+#: src/Webhook/WebhookRegistration.php:232
+msgid "Povikvane called your site but the signature did not match. Create a new secret and try again."
+msgstr ""
+
 #. translators: %s: HTTP status number.
-#: src/Webhook/WebhookRegistration.php:182
+#: src/Webhook/WebhookRegistration.php:238
 #, php-format
 msgid "Povikvane called your site but it answered with an error (%s). Check that the REST API is not blocked by a security plugin or firewall."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:188
+#: src/Webhook/WebhookRegistration.php:244
 msgid "Povikvane called your site but it did not answer in time."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:189
+#: src/Webhook/WebhookRegistration.php:245
 msgid "Povikvane could not connect to your site. Check that the site is online and its address is public."
 msgstr ""
 
-#: src/Webhook/WebhookRegistration.php:190
+#: src/Webhook/WebhookRegistration.php:246
 msgid "Povikvane called your site but did not get a valid answer."
 msgstr ""

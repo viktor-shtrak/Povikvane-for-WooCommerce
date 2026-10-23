@@ -29,12 +29,14 @@ final class RestController {
 	/**
 	 * Constructor.
 	 *
-	 * @param WebhookHandler $handler Applies events.
-	 * @param Token          $token   The webhook secret.
+	 * @param WebhookHandler     $handler Applies events.
+	 * @param Token              $token   The secret in the webhook address.
+	 * @param WebhookSecret|null $secret Verifies signatures when Povikvane signs deliveries.
 	 */
 	public function __construct(
 		private readonly WebhookHandler $handler,
-		private readonly Token $token
+		private readonly Token $token,
+		private readonly ?WebhookSecret $secret = null
 	) {}
 
 	/**
@@ -86,6 +88,13 @@ final class RestController {
 
 		if ( strlen( $request->get_body() ) > self::MAX_BODY_BYTES ) {
 			return new WP_Error( 'povikvane_too_large', __( 'Request too large.', 'povikvane-for-woocommerce' ), array( 'status' => 413 ) );
+		}
+
+		// Once a signing secret is stored, only deliveries that carry a valid signature count.
+		$secret = $this->secret?->get();
+
+		if ( null !== $secret && ! SignatureVerifier::verify( $request->get_body(), (string) $request->get_header( 'povikvane_signature' ), $secret, time() ) ) {
+			return new WP_Error( 'povikvane_bad_signature', __( 'The signature is missing or wrong.', 'povikvane-for-woocommerce' ), array( 'status' => 401 ) );
 		}
 
 		$body = $request->get_json_params();

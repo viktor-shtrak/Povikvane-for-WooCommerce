@@ -38,7 +38,11 @@ use Povikvane\WooCommerce\Tests\Support\RecordingScheduler;
 use Povikvane\WooCommerce\Viber\ApiTemplateSubmitter;
 use Povikvane\WooCommerce\Messages\PriceEstimate;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
+use Povikvane\WooCommerce\Support\Crypto;
+use Povikvane\WooCommerce\Webhook\SeenEvents;
+use Povikvane\WooCommerce\Webhook\SignatureVerifier;
 use Povikvane\WooCommerce\Webhook\WebhookRegistration;
+use Povikvane\WooCommerce\Webhook\WebhookSecret;
 
 /**
  * Template creation, labels, contacts, opt-outs and the new webhook events.
@@ -522,5 +526,122 @@ final class ApiIntegrationTest extends TestCase {
 		$this->assertSame( 1.0, $estimate?->initial_debit );
 		$this->assertTrue( $estimate?->suppressed );
 		$this->assertNull( PriceEstimate::from_result( $this->refused( 400, 'invalid_fallback' ) ) );
+	}
+
+	private const FIXTURE_SECRET = 'whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8';
+	private const FIXTURE_TIME   = 1767225600;
+	private const FIXTURE_BODY   = '{"id":"11111111-1111-4111-8111-111111111111","event":"povikvane.self_test","occurred_at":"2026-01-01T00:00:00.000Z","attempt":1,"data":{"key_prefix":"fixture1","requested_at":"2026-01-01T00:00:00.000Z"}}';
+	private const FIXTURE_HEADER = 't=1767225600,v1=968aedd3d42f04956f74cd64ae935e6dcad99c9f10310c8b1fe3dac9faf58bad';
+
+	/**
+	 * The dev's fixture passes, and tampering, age and a wrong secret do not.
+	 */
+	public function test_signature_fixture_verifies(): void {
+		$ok = static fn( string $body, string $header, string $secret, int $now ): bool => SignatureVerifier::verify( $body, $header, $secret, $now );
+
+		$this->assertTrue( $ok( self::FIXTURE_BODY, self::FIXTURE_HEADER, self::FIXTURE_SECRET, self::FIXTURE_TIME ) );
+		$this->assertTrue( $ok( self::FIXTURE_BODY, self::FIXTURE_HEADER, self::FIXTURE_SECRET, self::FIXTURE_TIME + 299 ) );
+		$this->assertFalse( $ok( self::FIXTURE_BODY, self::FIXTURE_HEADER, self::FIXTURE_SECRET, self::FIXTURE_TIME + 301 ) );
+		$this->assertFalse( $ok( self::FIXTURE_BODY . ' ', self::FIXTURE_HEADER, self::FIXTURE_SECRET, self::FIXTURE_TIME ) );
+		$this->assertFalse( $ok( self::FIXTURE_BODY, self::FIXTURE_HEADER, self::FIXTURE_SECRET . 'x', self::FIXTURE_TIME ) );
+		$this->assertFalse( $ok( self::FIXTURE_BODY, '', self::FIXTURE_SECRET, self::FIXTURE_TIME ) );
+		$this->assertFalse( $ok( self::FIXTURE_BODY, 't=1767225600', self::FIXTURE_SECRET, self::FIXTURE_TIME ) );
+		$this->assertFalse( $ok( self::FIXTURE_BODY, self::FIXTURE_HEADER, '', self::FIXTURE_TIME ) );
+	}
+
+	/**
+	 * During a rotation the header holds two signatures; the matching one is enough.
+	 */
+	public function test_rotation_header_with_two_signatures(): void {
+		$header = 't=1767225600,v1=' . str_repeat( 'a', 64 ) . ',v1=968aedd3d42f04956f74cd64ae935e6dcad99c9f10310c8b1fe3dac9faf58bad';
+
+		$this->assertTrue( SignatureVerifier::verify( self::FIXTURE_BODY, $header, self::FIXTURE_SECRET, self::FIXTURE_TIME ) );
+	}
+
+	/**
+	 * The secret is stored encrypted and read back.
+	 */
+	public function test_secret_is_stored_encrypted(): void {
+		$GLOBALS['povikvane_test_options'] = array();
+		$store                             = new WebhookSecret( new Crypto( 'salt' ) );
+
+		$this->assertFalse( $store->exists() );
+		$store->set( self::FIXTURE_SECRET );
+
+		$this->assertSame( self::FIXTURE_SECRET, $store->get() );
+		$this->assertStringNotContainsString( 'whsec_', (string) get_option( WebhookSecret::OPTION ) );
+		$this->assertNull( ( new WebhookSecret( new Crypto( 'other salt' ) ) )->get() );
+	}
+
+	/**
+	 * A secret is created once for this site's address, and only when the address is this site's.
+	 */
+	public function test_maintain_creates_a_secret_once(): void {
+		$GLOBALS['povikvane_test_options'] = array();
+		$url                               = 'https://shop.example/wp-json/povikvane/v1/dlr/abc';
+		$store                             = new WebhookSecret( new Crypto( 'salt' ) );
+		$gateway                           = ( new FakeGateway() )
+			->will_return_for( 'webhook', $this->ok() )
+			->will_return_for( 'secret', $this->ok( array( 'attributes' => array( 'secret' => self::FIXTURE_SECRET ) ) ) );
+
+		( new WebhookRegistration( $gateway, $store ) )->maintain( $this->caps_with_webhook( null ), $url );
+		$this->assertSame( self::FIXTURE_SECRET, $store->get() );
+
+		// Already ours and already holding a secret: no further requests (the fake would throw).
+		( new WebhookRegistration( $gateway, $store ) )->maintain( $this->caps_with_webhook( $url ), $url );
+
+		// Somebody else's address: no secret is made for it.
+		$other = new WebhookSecret( new Crypto( 'salt2' ) );
+		( new WebhookRegistration( new FakeGateway(), $other ) )->maintain( $this->caps_with_webhook( 'https://other.example/x' ), $url );
+		$this->assertFalse( $other->exists() );
+	}
+
+	/**
+	 * A retried event is handled once, but a message not known yet is still welcome on the retry.
+	 */
+	public function test_retried_events_are_handled_once(): void {
+		$GLOBALS['povikvane_test_options'] = array();
+		$store                             = new InMemoryStore();
+		$clock                             = new FixedClock();
+		$handler                           = new WebhookHandler( $store, new DeliveryUpdater( $store, new RecordingNotifier(), $clock ), new InMemoryActivity(), $clock, null, null, new SeenEvents() );
+		$id                                = '7ee15281-5fb5-499e-b416-12c9a4f84591';
+
+		$template = array(
+			'id'    => $id,
+			'event' => 'template.status_updated',
+			'data'  => array( 'id' => 't' ),
+		);
+		$this->assertSame( WebhookHandler::RESULT_TEMPLATE, $handler->handle( $template ) );
+		$this->assertSame( WebhookHandler::RESULT_DUPLICATE, $handler->handle( $template ) );
+
+		$unknown = array(
+			'id'    => '8ee15281-5fb5-499e-b416-12c9a4f84592',
+			'event' => 'message.status_updated',
+			'data'  => array(
+				'id'     => 'api-x',
+				'status' => 'delivered',
+			),
+		);
+		$this->assertSame( WebhookHandler::RESULT_UNKNOWN, $handler->handle( $unknown ) );
+		$this->assertSame( WebhookHandler::RESULT_UNKNOWN, $handler->handle( $unknown ) );
+	}
+
+	/**
+	 * Old ids are forgotten, and the list stays small.
+	 */
+	public function test_seen_events_expire_and_are_capped(): void {
+		$GLOBALS['povikvane_test_options'] = array();
+		$seen                              = new SeenEvents();
+		$id                                = '11111111-1111-4111-8111-111111111111';
+
+		$seen->remember( $id, 1000 );
+		$this->assertTrue( $seen->has( $id, 1000 + 100 ) );
+		$this->assertFalse( $seen->has( $id, 1000 + SeenEvents::KEEP + 1 ) );
+
+		for ( $i = 0; $i < SeenEvents::MAX_KEPT + 20; $i++ ) {
+			$seen->remember( sprintf( '00000000-0000-4000-8000-%012d', $i ), 2000 + $i );
+		}
+
+		$this->assertLessThanOrEqual( SeenEvents::MAX_KEPT, count( (array) get_option( SeenEvents::OPTION ) ) );
 	}
 }

@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.10.0
+Stable tag: 0.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,7 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 * Optional, only when an administrator presses "Sync customers to Povikvane": the phone number, name and consent date of customers who agreed to promotional messages are sent to Povikvane and added to a contact group. When such a customer later withdraws consent, or a privacy erasure request covers their order phone number, the contact is deleted there. Customers who opted out in Povikvane are never sent again.
 * Optional, only when an administrator sends a message for review: the text of a message is sent to Povikvane to be approved as a Viber template.
 * Your API key and service ID are stored in your site database (the key is encrypted) and are sent to the service to authenticate each request.
-* The secret address your site receives delivery reports on is sent to Povikvane (only when it is a public https address) so that it knows where to send them. The service then sends delivery, template and opt-out reports to that address.
+* The secret address your site receives delivery reports on is sent to Povikvane (only when it is a public https address) so that it knows where to send them. The service then sends delivery, template and opt-out reports to that address, signed with a secret that is created for you and kept encrypted on your site.
 * Terms of Service: https://app.povikvane.com/terms
 * Privacy Policy: https://app.povikvane.com/privacy
 
@@ -77,6 +77,12 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.11.0 =
+* Delivery reports from Povikvane are now signed. The plugin asks Povikvane for a secret when it registers its address, keeps it encrypted, and refuses any report to its address that does not carry a valid signature. Settings shows whether reports are signed and has a button to create a new secret.
+* A report that Povikvane sends again (it retries for up to 33 hours) is handled only once.
+* Template changes are picked up in the background, so Povikvane gets its answer at once.
+* Settings shows when Povikvane could not reach your site on its last attempts.
 
 = 0.10.0 =
 * The plugin now registers its delivery-report address in Povikvane by itself when your key has none, so you no longer paste it by hand. An address somebody already set is never replaced unless you press the button.

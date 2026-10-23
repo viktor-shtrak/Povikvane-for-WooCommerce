@@ -110,6 +110,11 @@ interface Gateway {
 	public function test_webhook(): ApiResult;
 
 	/**
+	 * Create, or rotate, the secret webhooks are signed with. The value is shown once.
+	 */
+	public function create_webhook_secret(): ApiResult;
+
+	/**
 	 * Price a message without sending it.
 	 *
 	 * @param array<string,mixed> $message The message object a send would carry.

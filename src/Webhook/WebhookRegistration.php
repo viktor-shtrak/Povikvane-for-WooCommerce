@@ -30,9 +30,59 @@ final class WebhookRegistration {
 	/**
 	 * Constructor.
 	 *
-	 * @param Gateway $gateway Talks to the API.
+	 * @param Gateway            $gateway Talks to the API.
+	 * @param WebhookSecret|null $secret  Where the signing secret is kept.
 	 */
-	public function __construct( private readonly Gateway $gateway ) {}
+	public function __construct(
+		private readonly Gateway $gateway,
+		private readonly ?WebhookSecret $secret = null
+	) {}
+
+	/**
+	 * Keep the address and the signing secret in order: fill in an empty address, and
+	 * make sure that an address that is this site's has a secret stored here.
+	 *
+	 * @param mixed  $caps Stored capabilities option.
+	 * @param string $url  The site's webhook address.
+	 */
+	public function maintain( mixed $caps, string $url ): void {
+		$ours = $this->register_if_empty( $caps, $url ) || ( AccountInfo::webhook( $caps )['url'] ?? null ) === $url;
+
+		if ( $ours && self::supported( $caps ) ) {
+			$this->ensure_secret();
+		}
+	}
+
+	/**
+	 * Create a secret unless this site already has one.
+	 *
+	 * @return bool Whether a secret is stored afterwards.
+	 */
+	public function ensure_secret(): bool {
+		return null !== $this->secret && ( $this->secret->exists() || $this->rotate_secret() );
+	}
+
+	/**
+	 * Ask Povikvane for a new secret and keep it. The old one stays valid for 24 hours there.
+	 *
+	 * @return bool Whether a new secret was stored.
+	 */
+	public function rotate_secret(): bool {
+		if ( null === $this->secret ) {
+			return false;
+		}
+
+		$result = $this->gateway->create_webhook_secret();
+		$value  = $result->attributes()['secret'] ?? null;
+
+		if ( Outcome::Success !== $result->outcome || ! is_string( $value ) || ! str_starts_with( $value, 'whsec_' ) ) {
+			return false;
+		}
+
+		$this->secret->set( $value );
+
+		return true;
+	}
 
 	/**
 	 * Whether the account can have its webhook address set from the plugin.
@@ -102,6 +152,8 @@ final class WebhookRegistration {
 		$result = $this->gateway->set_webhook( $url );
 
 		if ( Outcome::Success === $result->outcome ) {
+			$this->ensure_secret();
+
 			return array(
 				'result' => self::REGISTERED,
 				'reason' => '',
@@ -176,6 +228,10 @@ final class WebhookRegistration {
 	 * @param string $error Error code from Povikvane.
 	 */
 	public static function error_text( string $error ): string {
+		if ( 'http_401' === $error ) {
+			return __( 'Povikvane called your site but the signature did not match. Create a new secret and try again.', 'povikvane-for-woocommerce' );
+		}
+
 		if ( str_starts_with( $error, 'http_' ) ) {
 			return sprintf(
 				/* translators: %s: HTTP status number. */

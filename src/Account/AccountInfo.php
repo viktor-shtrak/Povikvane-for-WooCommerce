@@ -66,7 +66,7 @@ final class AccountInfo {
 	 * What Povikvane says about the webhook address of this key.
 	 *
 	 * @param mixed $caps Stored capabilities option.
-	 * @return array{url:?string,last_delivery_at:?string,last_status:?string,last_error:?string}|null Null when the account does not report it.
+	 * @return array{url:?string,last_delivery_at:?string,last_status:?string,last_error:?string,secret_configured:bool,consecutive_failures:int,pending_deliveries:int}|null Null when the account does not report it.
 	 */
 	public static function webhook( mixed $caps ): ?array {
 		$account = is_array( $caps ) && is_array( $caps['balance'] ?? null ) ? $caps['balance'] : array();
@@ -79,10 +79,13 @@ final class AccountInfo {
 		$text = static fn( string $key ): ?string => isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) && '' !== $raw[ $key ] ? $raw[ $key ] : null;
 
 		return array(
-			'url'              => $text( 'url' ),
-			'last_delivery_at' => $text( 'last_delivery_at' ),
-			'last_status'      => $text( 'last_status' ),
-			'last_error'       => $text( 'last_error' ),
+			'url'                  => $text( 'url' ),
+			'last_delivery_at'     => $text( 'last_delivery_at' ),
+			'last_status'          => $text( 'last_status' ),
+			'last_error'           => $text( 'last_error' ),
+			'secret_configured'    => true === ( $raw['secret_configured'] ?? null ),
+			'consecutive_failures' => isset( $raw['consecutive_failures'] ) && is_int( $raw['consecutive_failures'] ) ? $raw['consecutive_failures'] : 0,
+			'pending_deliveries'   => isset( $raw['pending_deliveries'] ) && is_int( $raw['pending_deliveries'] ) ? $raw['pending_deliveries'] : 0,
 		);
 	}
 

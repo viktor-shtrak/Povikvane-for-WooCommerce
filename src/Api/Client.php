@@ -223,6 +223,13 @@ final class Client implements Gateway {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	public function create_webhook_secret(): ApiResult {
+		return $this->write( 'POST', '/public-api/v1/account/webhook/secret', null );
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @param array<string,mixed> $message Message.
 	 */

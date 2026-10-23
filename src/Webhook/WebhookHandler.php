@@ -30,6 +30,7 @@ final class WebhookHandler {
 	public const RESULT_IGNORED   = 'ignored';
 	public const RESULT_UNKNOWN   = 'unknown_message';
 	public const RESULT_INVALID   = 'invalid';
+	public const RESULT_DUPLICATE = 'duplicate';
 	public const RESULT_TEMPLATE  = 'template_updated';
 	public const RESULT_OPTED_OUT = 'opted_out';
 
@@ -42,6 +43,7 @@ final class WebhookHandler {
 	 * @param Clock           $clock    Time source.
 	 * @param Consent|null    $consent  Consent rules, to record opt-outs Povikvane reports.
 	 * @param callable|null   $on_template Called when a template changed state, to refresh the list.
+	 * @param SeenEvents|null $seen     Remembers event ids, so a retry is not handled twice.
 	 */
 	public function __construct(
 		private readonly MessageStore $store,
@@ -49,7 +51,8 @@ final class WebhookHandler {
 		private readonly WebhookActivity $activity,
 		private readonly Clock $clock,
 		private readonly ?Consent $consent = null,
-		private readonly mixed $on_template = null
+		private readonly mixed $on_template = null,
+		private readonly ?SeenEvents $seen = null
 	) {}
 
 	/**
@@ -59,8 +62,21 @@ final class WebhookHandler {
 	 * @return string One of the RESULT_* constants.
 	 */
 	public function handle( array $body ): string {
+		$now = $this->clock->now();
+		$id  = $body['id'] ?? null;
+
+		// A retried event keeps its id; handling it twice would repeat its side effects.
+		if ( null !== $this->seen && is_string( $id ) && $this->seen->has( $id, $now ) ) {
+			return self::RESULT_DUPLICATE;
+		}
+
 		$result = $this->process( $body );
-		$this->activity->record( $this->clock->now(), $result );
+		$this->activity->record( $now, $result );
+
+		// A message this plugin does not know yet may be known on the retry, so it is not remembered.
+		if ( null !== $this->seen && is_string( $id ) && self::RESULT_UNKNOWN !== $result ) {
+			$this->seen->remember( $id, $now );
+		}
 
 		return $result;
 	}

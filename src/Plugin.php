@@ -102,12 +102,16 @@ use Povikvane\WooCommerce\Viber\TemplateSync;
 use Povikvane\WooCommerce\Viber\ViberPlan;
 use Povikvane\WooCommerce\Viber\ViberPlanner;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
+use Povikvane\WooCommerce\Webhook\SeenEvents;
 use Povikvane\WooCommerce\Webhook\WebhookRegistration;
+use Povikvane\WooCommerce\Webhook\WebhookSecret;
 
 /**
  * Wires the plugin together once WooCommerce is available and compatible.
  */
 final class Plugin {
+
+	public const REFRESH_TEMPLATES_HOOK = 'povikvane_refresh_templates';
 
 	/**
 	 * Single instance.
@@ -169,6 +173,12 @@ final class Plugin {
 		( new SiteGuard( $this->state() ) )->check();
 
 		add_action( ActionSchedulerScheduler::SEND_HOOK, array( $this, 'run_send_job' ) );
+		add_action(
+			self::REFRESH_TEMPLATES_HOOK,
+			function (): void {
+				$this->template_sync()->refresh( time() );
+			}
+		);
 		add_action( ActionSchedulerScheduler::PROBE_HOOK, array( $this, 'run_probe' ) );
 		add_action( ActionSchedulerScheduler::BALANCE_HOOK, array( $this, 'run_balance_refresh' ) );
 		add_action( ActionSchedulerScheduler::RECONCILE_HOOK, array( $this, 'run_reconcile' ) );
@@ -181,9 +191,16 @@ final class Plugin {
 				new OptionActivity(),
 				new SystemClock(),
 				$this->consent(),
-				fn() => $this->template_sync()->refresh( time() )
+				static function (): void {
+					// Answered in the background: Povikvane waits only five seconds for the reply.
+					if ( function_exists( 'as_enqueue_async_action' ) ) {
+						as_enqueue_async_action( self::REFRESH_TEMPLATES_HOOK, array(), ActionSchedulerScheduler::GROUP );
+					}
+				},
+				new SeenEvents()
 			),
-			new Token()
+			new Token(),
+			$this->webhook_secret()
 		) )->register();
 		add_action( 'action_scheduler_init', array( $this, 'schedule_recurring_jobs' ) );
 
@@ -220,7 +237,7 @@ final class Plugin {
 			$labels->register();
 			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter, $labels );
 			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
-			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository(), new WebhookRegistration( $this->client() ), array( $this, 'run_probe' ) );
+			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository(), new WebhookRegistration( $this->client(), $this->webhook_secret() ), array( $this, 'run_probe' ), $this->webhook_secret() );
 			$delivery->register();
 
 			$marketing_section = new MarketingSection( $this->marketing(), new ConsentRepository(), Language::content_locale(), new ApiContactSync( $this->client(), Capabilities::CONNECTION_OK === ( is_array( $caps ) ? ( $caps['connection'] ?? null ) : null ) ) );
@@ -358,7 +375,7 @@ final class Plugin {
 
 		// A key with no address yet gets this site's; an address somebody set is left alone.
 		if ( Capabilities::CONNECTION_OK === $caps['connection'] ) {
-			( new WebhookRegistration( $this->client() ) )->register_if_empty( $caps, ( new Token() )->url() );
+			( new WebhookRegistration( $this->client(), $this->webhook_secret() ) )->maintain( $caps, ( new Token() )->url() );
 		}
 
 		$this->logger()->log(
@@ -557,6 +574,13 @@ final class Plugin {
 	 */
 	public function marketing(): MarketingSettings {
 		return new MarketingSettings( Language::content_locale() );
+	}
+
+	/**
+	 * The secret Povikvane signs webhooks with, kept encrypted.
+	 */
+	private function webhook_secret(): WebhookSecret {
+		return new WebhookSecret( new Crypto( wp_salt( 'auth' ) ) );
 	}
 
 	/**

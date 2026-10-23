@@ -13,6 +13,7 @@ use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Webhook\WebhookRegistration;
+use Povikvane\WooCommerce\Webhook\WebhookSecret;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Webhook\SelfTest;
 use Povikvane\WooCommerce\Webhook\Token;
@@ -38,13 +39,15 @@ final class DeliveryPanel {
 	 * @param Repository               $repository Message log.
 	 * @param WebhookRegistration|null $registration Sets the address in Povikvane.
 	 * @param callable|null            $probe      Runs a connection check, so the account answer is fresh afterwards.
+	 * @param WebhookSecret|null       $secret     The stored signing secret.
 	 */
 	public function __construct(
 		private readonly Token $token,
 		private readonly WebhookActivity $activity,
 		private readonly Repository $repository,
 		private readonly ?WebhookRegistration $registration = null,
-		private readonly mixed $probe = null
+		private readonly mixed $probe = null,
+		private readonly ?WebhookSecret $secret = null
 	) {}
 
 	/**
@@ -54,6 +57,7 @@ final class DeliveryPanel {
 		add_action( 'admin_post_povikvane_regenerate_token', array( $this, 'handle_regenerate' ) );
 		add_action( 'admin_post_povikvane_test_webhook', array( $this, 'handle_test' ) );
 		add_action( 'admin_post_povikvane_register_webhook', array( $this, 'handle_register' ) );
+		add_action( 'admin_post_povikvane_rotate_secret', array( $this, 'handle_rotate_secret' ) );
 		add_action( 'admin_post_povikvane_remote_test_webhook', array( $this, 'handle_remote_test' ) );
 	}
 
@@ -181,6 +185,17 @@ final class DeliveryPanel {
 						)
 				);
 			}
+			echo '<br>' . $this->signing_line(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts.
+
+			if ( null !== $webhook && $webhook['consecutive_failures'] > 0 ) {
+				echo '<br>' . esc_html(
+					sprintf(
+						/* translators: %d: number of failed deliveries in a row. */
+						_n( 'Povikvane could not reach your site on its last %d attempt.', 'Povikvane could not reach your site on its last %d attempts.', $webhook['consecutive_failures'], 'povikvane-for-woocommerce' ),
+						$webhook['consecutive_failures']
+					)
+				);
+			}
 		} elseif ( 'other' === $state ) {
 			echo Ui::pill( __( 'Another address is set', 'povikvane-for-woocommerce' ), 'warn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
 			echo ' ' . esc_html__( 'This key sends its reports somewhere else. Use the button below to send them to this site instead.', 'povikvane-for-woocommerce' );
@@ -189,6 +204,17 @@ final class DeliveryPanel {
 		}
 
 		Ui::field_close();
+	}
+
+	/**
+	 * Whether deliveries are checked for a signature, as HTML.
+	 */
+	private function signing_line(): string {
+		if ( null !== $this->secret && $this->secret->exists() ) {
+			return Ui::pill( __( 'Signed', 'povikvane-for-woocommerce' ), 'ok' ) . ' ' . esc_html__( 'Deliveries are checked with a secret only Povikvane and this site know.', 'povikvane-for-woocommerce' );
+		}
+
+		return Ui::pill( __( 'Not signed', 'povikvane-for-woocommerce' ), 'warn' ) . ' ' . esc_html__( 'Create a secret so that nobody else can send reports to this address.', 'povikvane-for-woocommerce' );
 	}
 
 	/**
@@ -205,6 +231,9 @@ final class DeliveryPanel {
 			Layout::action_button( __( 'Register this address in Povikvane', 'povikvane-for-woocommerce' ), 'povikvane_register_webhook', array(), 'pvk-btn pvk-btn--primary', 'other' === $this->registration_state() ? __( 'Another address is already set for this key. Replace it with this site?', 'povikvane-for-woocommerce' ) : '' );
 		} else {
 			Layout::action_button( __( 'Ask Povikvane to test it', 'povikvane-for-woocommerce' ), 'povikvane_remote_test_webhook', array(), 'pvk-btn' );
+			echo ' ';
+			$has = null !== $this->secret && $this->secret->exists();
+			Layout::action_button( $has ? __( 'Create a new secret', 'povikvane-for-woocommerce' ) : __( 'Create a secret', 'povikvane-for-woocommerce' ), 'povikvane_rotate_secret', array(), 'pvk-btn pvk-btn--link', $has ? __( 'Create a new secret? The old one keeps working for 24 hours, then only the new one is accepted.', 'povikvane-for-woocommerce' ) : '' );
 		}
 
 		return (string) ob_get_clean() . ' ';
@@ -227,6 +256,27 @@ final class DeliveryPanel {
 			Flash::add( 'success', __( 'The address was registered in Povikvane.', 'povikvane-for-woocommerce' ) );
 		} else {
 			Flash::add( 'error', $outcome['reason'] );
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
+		exit;
+	}
+
+	/**
+	 * Create or replace the signing secret.
+	 */
+	public function handle_rotate_secret(): void {
+		check_admin_referer( 'povikvane_rotate_secret' );
+
+		if ( ! current_user_can( self::CAPABILITY ) || null === $this->registration ) {
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+		}
+
+		if ( $this->registration->rotate_secret() ) {
+			$this->refresh();
+			Flash::add( 'success', __( 'A new secret was created. Deliveries from Povikvane are now checked with it.', 'povikvane-for-woocommerce' ) );
+		} else {
+			Flash::add( 'error', __( 'Povikvane did not create a secret. Try again in a moment.', 'povikvane-for-woocommerce' ) );
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
@@ -348,6 +398,7 @@ final class DeliveryPanel {
 	private function result_label( string $result ): string {
 		return match ( $result ) {
 			WebhookHandler::RESULT_UPDATED => __( 'updated a message', 'povikvane-for-woocommerce' ),
+			WebhookHandler::RESULT_DUPLICATE => __( 'a repeat of a report already handled', 'povikvane-for-woocommerce' ),
 			WebhookHandler::RESULT_TEMPLATE => __( 'a template changed', 'povikvane-for-woocommerce' ),
 			WebhookHandler::RESULT_OPTED_OUT => __( 'a customer opted out', 'povikvane-for-woocommerce' ),
 			WebhookHandler::RESULT_IGNORED => __( 'already known', 'povikvane-for-woocommerce' ),

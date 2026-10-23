@@ -106,6 +106,7 @@ final class FakeGateway implements Gateway {
 		'webhook'   => array(),
 		'wtest'     => array(),
 		'estimate'  => array(),
+		'secret'    => array(),
 	);
 
 	/**
@@ -304,6 +305,13 @@ final class FakeGateway implements Gateway {
 	 */
 	public function test_webhook(): ApiResult {
 		return $this->next( 'wtest' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function create_webhook_secret(): ApiResult {
+		return $this->next( 'secret' );
 	}
 
 	/**
