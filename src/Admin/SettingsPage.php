@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Api\Capabilities;
+use Povikvane\WooCommerce\Connect\ConnectionStore;
 use Povikvane\WooCommerce\Balance\BalanceStore;
 use Povikvane\WooCommerce\Reports\DeliveryReport;
 use Povikvane\WooCommerce\Log\Repository;
@@ -46,6 +47,13 @@ final class SettingsPage {
 	private const TABS = array( 'overview', 'messages', 'promotions', 'reviews', 'settings', 'advanced' );
 
 	/**
+	 * The tab shown first, so its panel is open in the page itself.
+	 *
+	 * @var string
+	 */
+	private string $initial_tab = 'overview';
+
+	/**
 	 * Old tab IDs that still work in bookmarks and links.
 	 */
 	private const TAB_ALIASES = array(
@@ -70,21 +78,22 @@ final class SettingsPage {
 	/**
 	 * Constructor.
 	 *
-	 * @param Settings          $settings   Settings.
-	 * @param Repository        $repository Message log.
-	 * @param SendingState      $state      Pause switch.
-	 * @param TriggerRepository $triggers   Trigger configuration.
-	 * @param TemplatesSection  $templates  Template editor.
-	 * @param BalanceStore      $balances   Stored credit balance.
-	 * @param MarketingSection  $marketing  Promotional settings.
-	 * @param OverviewPanel     $overview   Overview tab.
-	 * @param ConnectionPanel   $connection Connection tab.
-	 * @param AdvancedPanel     $advanced   Advanced tab.
-	 * @param WebhookActivity   $activity   Last delivery report.
-	 * @param TestSender        $tester     Sends test messages.
-	 * @param SettingsSanitizer $sanitizer  Validates submitted settings.
-	 * @param SetupProgress     $progress   Setup checklist.
-	 * @param callable          $probe      Runs a capability probe.
+	 * @param Settings             $settings   Settings.
+	 * @param Repository           $repository Message log.
+	 * @param SendingState         $state      Pause switch.
+	 * @param TriggerRepository    $triggers   Trigger configuration.
+	 * @param TemplatesSection     $templates  Template editor.
+	 * @param BalanceStore         $balances   Stored credit balance.
+	 * @param MarketingSection     $marketing  Promotional settings.
+	 * @param OverviewPanel        $overview   Overview tab.
+	 * @param ConnectionPanel      $connection Connection tab.
+	 * @param AdvancedPanel        $advanced   Advanced tab.
+	 * @param WebhookActivity      $activity   Last delivery report.
+	 * @param TestSender           $tester     Sends test messages.
+	 * @param SettingsSanitizer    $sanitizer  Validates submitted settings.
+	 * @param SetupProgress        $progress   Setup checklist.
+	 * @param callable             $probe      Runs a capability probe.
+	 * @param ConnectionStore|null $connection_store What is known about the connection.
 	 */
 	public function __construct(
 		private readonly Settings $settings,
@@ -101,7 +110,8 @@ final class SettingsPage {
 		private readonly TestSender $tester,
 		private readonly SettingsSanitizer $sanitizer,
 		private readonly SetupProgress $progress,
-		callable $probe
+		callable $probe,
+		private readonly ?ConnectionStore $connection_store = null
 	) {
 		$this->probe = $probe;
 	}
@@ -218,13 +228,18 @@ final class SettingsPage {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'povikvane-for-woocommerce' ) );
 		}
 
-		$values = $this->settings->all();
-		$caps   = get_option( Capabilities::OPTION, array() );
-		$caps   = is_array( $caps ) ? $caps : array();
-		$tab    = $this->requested_tab();
-		$data   = $this->overview_data( $caps );
+		$values            = $this->settings->all();
+		$caps              = get_option( Capabilities::OPTION, array() );
+		$caps              = is_array( $caps ) ? $caps : array();
+		$tab               = $this->requested_tab();
+		$this->initial_tab = $tab;
+		$data              = $this->overview_data( $caps );
 
 		Layout::open( '', 'data-pvk-tabs data-pvk-initial="' . esc_attr( $tab ) . '"' );
+
+		// Show the right panel from the first paint, so no other tab flashes before the script runs.
+		echo '<noscript><style>.pvk[data-pvk-tabs] .pvk-panel{display:block!important}</style></noscript>';
+		wp_print_inline_script_tag( '( function () { var h = window.location.hash.slice( 1 ); if ( ' . wp_json_encode( self::TABS ) . '.indexOf( h ) === -1 ) { return; } var s = document.createElement( "style" ); s.textContent = ".pvk[data-pvk-tabs] .pvk-panel{display:none!important}.pvk[data-pvk-tabs] #pvk-panel-" + h + "{display:block!important}"; document.querySelector( ".pvk[data-pvk-tabs]" ).appendChild( s ); }() );' );
 
 		Layout::tabs(
 			array(
@@ -310,9 +325,10 @@ final class SettingsPage {
 	 */
 	private function panel_open( string $id, bool $no_save = false ): void {
 		printf(
-			'<div class="pvk-panel" id="pvk-panel-%1$s" role="tabpanel" aria-labelledby="pvk-tab-%1$s"%2$s>',
+			'<div class="pvk-panel%3$s" id="pvk-panel-%1$s" role="tabpanel" aria-labelledby="pvk-tab-%1$s"%2$s>',
 			esc_attr( $id ),
-			$no_save ? ' data-pvk-nosave="1"' : ''
+			$no_save ? ' data-pvk-nosave="1"' : '',
+			$id === $this->initial_tab ? ' is-active' : ''
 		);
 	}
 
@@ -383,7 +399,8 @@ final class SettingsPage {
 						'messages' => $this->tab_url( 'messages' ),
 						'failed'   => add_query_arg( 'view', 'attention', admin_url( 'admin.php?page=' . MessageLogPage::SLUG ) ),
 						'app'      => 'https://app.povikvane.com/',
-					)
+					),
+					true === $this->connection_store?->revoked()
 				),
 				get_user_meta( get_current_user_id(), AttentionDismissals::USERMETA, true ),
 				time()

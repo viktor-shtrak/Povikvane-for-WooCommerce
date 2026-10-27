@@ -3,8 +3,8 @@ Contributors: shtrakbg
 Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
-Requires PHP: 8.3
-Stable tag: 0.11.0
+Requires PHP: 8.1
+Stable tag: 0.12.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,7 @@ This plugin connects to the Povikvane messaging API, operated by the provider of
 * When it is sent: only when an enabled order event occurs, when an administrator sends a message or a test message manually, when the plugin checks the delivery status of messages it has sent, and when it refreshes your credit balance. Promotional messages are only sent to customers who gave consent.
 * Your customers' phone numbers belong to your shop, which decides why and how they are used. Povikvane sends the messages on your behalf and keeps a record of them for up to 12 months; see its Privacy Policy.
 * Optional, only when an administrator presses "Sync customers to Povikvane": the phone number, name and consent date of customers who agreed to promotional messages are sent to Povikvane and added to a contact group. When such a customer later withdraws consent, or a privacy erasure request covers their order phone number, the contact is deleted there. Customers who opted out in Povikvane are never sent again.
+* Optional, only when an administrator presses "Connect with Povikvane": the browser opens Povikvane's approval page with the shop name, shop address and this site's delivery-report address. After approval, Povikvane returns a one-time code, which the plugin exchanges for the API key, service ID and signing secret. The key and secret are stored encrypted on the site.
 * Optional, only when an administrator sends a message for review: the text of a message is sent to Povikvane to be approved as a Viber template.
 * Your API key and service ID are stored in your site database (the key is encrypted) and are sent to the service to authenticate each request.
 * The secret address your site receives delivery reports on is sent to Povikvane (only when it is a public https address) so that it knows where to send them. The service then sends delivery, template and opt-out reports to that address, signed with a secret that is created for you and kept encrypted on your site.
@@ -77,6 +78,17 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.12.0 =
+* New: "Connect with Povikvane". One button in the setup wizard and on the Settings tab takes you to Povikvane, you log in and approve this shop, and the plugin sets up the API key, service ID and signed delivery reports for you. There is nothing to copy. Entering a key by hand still works.
+* The Settings tab shows which shop and company the site is connected as, and has a Disconnect button that removes the key from the site (your message history is kept).
+* If the shop is disconnected in Povikvane, the plugin says so on the Overview and in the settings, stops sending, and offers to connect again.
+* The one-click connection needs the site to use https and the same address for the site and its admin; otherwise the button explains why and the API key can be used instead.
+* The plugin now runs on PHP 8.1 and newer (it previously asked for 8.3).
+* Each person can pick the language of the plugin screens from the header; it does not change customer messages.
+* Bulgarian is now the default language. A language chosen in the plugin now applies on WordPress 6.5 and later; before, the plugin could stay in English.
+* Skipping landline numbers is on by default (sites that had it off by accident are corrected once).
+* The setup wizard now includes the custom field labels check for every shop, not only when Viber is on.
 
 = 0.11.0 =
 * Delivery reports from Povikvane are now signed. The plugin asks Povikvane for a secret when it registers its address, keeps it encrypted, and refuses any report to its address that does not carry a valid signature. Settings shows whether reports are signed and has a button to create a new secret.

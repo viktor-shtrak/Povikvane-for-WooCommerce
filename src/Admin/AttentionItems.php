@@ -39,16 +39,19 @@ final class AttentionItems {
 	 * @param int                  $viber_fallbacks  Switched-on messages that go out as SMS although Viber is on.
 	 * @param string               $viber_status     A Capabilities::VIBER_* value.
 	 * @param array<string,string> $urls             Addresses: settings, messages, failed, app.
+	 * @param bool                 $revoked          Whether Povikvane said the shop was disconnected there.
 	 * @return array<int,array{key:string,tone:string,title:string,text:string,label:string,url:string,external:bool}>
 	 */
-	public static function build( string $connection, ?string $paused, ?float $credits, int $low_threshold, int $queue_late, DeliveryReport $report, bool $webhook_seen, int $viber_fallbacks, string $viber_status, array $urls ): array {
+	public static function build( string $connection, ?string $paused, ?float $credits, int $low_threshold, int $queue_late, DeliveryReport $report, bool $webhook_seen, int $viber_fallbacks, string $viber_status, array $urls, bool $revoked = false ): array {
 		$items = array();
 
 		if ( SendingState::REASON_CREDITS === $paused ) {
 			$items[] = self::item( 'credits_out', 'bad', __( 'Sending is on hold: no credits', 'povikvane-for-woocommerce' ), __( 'Messages wait and go out by themselves as soon as credits are added.', 'povikvane-for-woocommerce' ), __( 'Top up credits', 'povikvane-for-woocommerce' ), $urls['app'], true );
 		}
 
-		if ( SendingState::REASON_AUTH === $paused || Capabilities::CONNECTION_AUTH === $connection ) {
+		if ( $revoked ) {
+			$items[] = self::item( 'revoked', 'bad', __( 'This shop was disconnected in Povikvane', 'povikvane-for-woocommerce' ), __( 'No messages are sent until you connect again. Your message history is kept.', 'povikvane-for-woocommerce' ), __( 'Connect again', 'povikvane-for-woocommerce' ), $urls['settings'] );
+		} elseif ( SendingState::REASON_AUTH === $paused || Capabilities::CONNECTION_AUTH === $connection ) {
 			$items[] = self::item( 'auth', 'bad', __( 'Povikvane rejected the API key', 'povikvane-for-woocommerce' ), __( 'No messages are sent until the API key and service ID are correct.', 'povikvane-for-woocommerce' ), __( 'Check the connection', 'povikvane-for-woocommerce' ), $urls['settings'] );
 		} elseif ( Capabilities::CONNECTION_CONFIG === $connection ) {
 			$items[] = self::item( 'config', 'bad', __( 'Povikvane rejected the request', 'povikvane-for-woocommerce' ), __( 'The service ID is probably wrong.', 'povikvane-for-woocommerce' ), __( 'Check the connection', 'povikvane-for-woocommerce' ), $urls['settings'] );
@@ -90,7 +93,7 @@ final class AttentionItems {
 		}
 
 		if ( ! $webhook_seen && $report->delivered >= self::MIN_DELIVERED ) {
-			$items[] = self::item( 'webhook', 'warn', __( 'Delivery reports are not arriving instantly', 'povikvane-for-woocommerce' ), __( 'Statuses still update, only a few minutes late. Add the webhook address in Povikvane to get them straight away.', 'povikvane-for-woocommerce' ), __( 'Set up delivery reports', 'povikvane-for-woocommerce' ), $urls['settings'] );
+			$items[] = self::item( 'webhook', 'warn', __( 'Delivery reports are not arriving instantly', 'povikvane-for-woocommerce' ), __( 'Delivery status still updates, only a few minutes late. Turn on delivery reports to see it straight away.', 'povikvane-for-woocommerce' ), __( 'Set up delivery reports', 'povikvane-for-woocommerce' ), $urls['settings'] );
 		}
 
 		if ( $viber_fallbacks > 0 ) {

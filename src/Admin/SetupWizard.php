@@ -11,6 +11,7 @@ namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
+use Povikvane\WooCommerce\Webhook\WebhookRegistration;
 use Povikvane\WooCommerce\Log\Repository;
 use Povikvane\WooCommerce\Messages\Placeholders;
 use Povikvane\WooCommerce\Messages\Status;
@@ -23,6 +24,9 @@ use Povikvane\WooCommerce\Support\Countries;
 use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Support\Settings;
 use Povikvane\WooCommerce\Support\SettingsSanitizer;
+use Povikvane\WooCommerce\Viber\TemplateCatalog;
+use Povikvane\WooCommerce\Viber\TemplateMatcher;
+use Povikvane\WooCommerce\Webhook\SelfTest;
 use Povikvane\WooCommerce\Webhook\Token;
 use Povikvane\WooCommerce\Webhook\WebhookActivity;
 
@@ -46,6 +50,11 @@ final class SetupWizard {
 	/**
 	 * The statuses offered in the wizard; the full list is on the Messages tab.
 	 */
+	/**
+	 * Set once the messages step has been saved, so Viber's starting position is no longer assumed.
+	 */
+	private const VIBER_CHOSEN = 'povikvane_wizard_viber_chosen';
+
 	private const CORE_STATUSES = array( 'processing', 'completed', 'on-hold', 'cancelled', 'refunded', 'failed' );
 
 	/**
@@ -77,6 +86,7 @@ final class SetupWizard {
 	 * @param TemplatesSection  $templates  Provides the message length estimate script.
 	 * @param FieldLabelsPanel  $labels     Custom field label check.
 	 * @param callable          $probe      Runs a capability probe.
+	 * @param ConnectPanel|null $connect    The "Connect with Povikvane" block.
 	 */
 	public function __construct(
 		private readonly Settings $settings,
@@ -90,9 +100,18 @@ final class SetupWizard {
 		private readonly WebhookActivity $activity,
 		private readonly TemplatesSection $templates,
 		private readonly FieldLabelsPanel $labels,
-		callable $probe
+		callable $probe,
+		private readonly ?ConnectPanel $connect = null
 	) {
 		$this->probe = $probe;
+	}
+
+	/**
+	 * Whether the setup wizard is the page being shown, so other notices can stay out of its way.
+	 */
+	public static function is_current_page(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check of which page is shown.
+		return isset( $_GET['page'] ) && self::SLUG === sanitize_key( wp_unslash( $_GET['page'] ) );
 	}
 
 	/**
@@ -200,11 +219,11 @@ final class SetupWizard {
 		Ui::card_open();
 
 		echo '<h2 class="pvk-step__title">' . esc_html__( 'Let\'s get your order messages going', 'povikvane-for-woocommerce' ) . '</h2>';
-		echo '<p class="pvk-step__lead">' . esc_html__( 'In a few minutes your customers can get a text message when their order is completed. This takes about five minutes.', 'povikvane-for-woocommerce' ) . '</p>';
+		echo '<p class="pvk-step__lead">' . esc_html__( 'Your customers get a text or Viber message when their order is completed. Setup takes about five minutes, and delivery reports are switched on for you.', 'povikvane-for-woocommerce' ) . '</p>';
 
 		echo '<h3 style="margin-top:20px;font-weight:600">' . esc_html__( 'What you will need', 'povikvane-for-woocommerce' ) . '</h3><ul class="pvk-need">';
 		echo '<li><span>' . esc_html__( 'A Povikvane account with message credits.', 'povikvane-for-woocommerce' ) . ' <a href="' . esc_url( 'https://app.povikvane.com/' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Open Povikvane', 'povikvane-for-woocommerce' ) . '</a></span></li>';
-		echo '<li><span>' . esc_html__( 'Your API key and service ID, found in Povikvane under Settings > API.', 'povikvane-for-woocommerce' ) . '</span></li>';
+		echo '<li><span>' . esc_html__( 'A minute to approve this shop in Povikvane. You log in there once, and the connection is set up for you: no key to copy.', 'povikvane-for-woocommerce' ) . '</span></li>';
 		echo '<li><span>' . esc_html__( 'Your own phone, to receive a test message.', 'povikvane-for-woocommerce' ) . '</span></li>';
 		echo '</ul>';
 
@@ -231,9 +250,16 @@ final class SetupWizard {
 		Ui::card_open();
 
 		echo '<h2 class="pvk-step__title">' . esc_html__( 'Connect your Povikvane account', 'povikvane-for-woocommerce' ) . '</h2>';
+
+		if ( null !== $this->connect ) {
+			echo '<p class="pvk-step__lead">' . esc_html__( 'The quickest way is to connect with your Povikvane account. You approve this shop there, and the key is set up for you.', 'povikvane-for-woocommerce' ) . '</p>';
+			$this->connect->render( 'wizard' );
+			echo '<details class="pvk-connect__manual"><summary>' . esc_html__( 'Or paste an API key and service ID', 'povikvane-for-woocommerce' ) . '</summary><div class="pvk-connect__manual-body">';
+		}
+
 		echo '<p class="pvk-step__lead">' . esc_html__( 'Paste your API key and service ID. The key is stored encrypted on this site.', 'povikvane-for-woocommerce' ) . '</p>';
 
-		if ( $connected ) {
+		if ( $connected && null === $this->connect ) {
 			echo '<div class="pvk-result">';
 			Ui::note( __( 'Already connected. You can continue, or enter new details below to change them.', 'povikvane-for-woocommerce' ), 'ok' );
 			echo '</div>';
@@ -252,13 +278,13 @@ final class SetupWizard {
 			printf(
 				'<input type="password" id="pvk-api-key" name="api_key" autocomplete="new-password" placeholder="%1$s"%2$s>',
 				esc_attr( Settings::KEY_SOURCE_STORED === $source ? __( 'Saved. Type a new key to replace it.', 'povikvane-for-woocommerce' ) : '' ),
-				Settings::KEY_SOURCE_STORED === $source ? '' : ' required'
+				Settings::KEY_SOURCE_STORED === $source || null !== $this->connect ? '' : ' required'
 			);
 			Ui::field_close();
 		}
 
 		Ui::field_open( __( 'Service ID', 'povikvane-for-woocommerce' ), 'pvk-service-id' );
-		printf( '<input type="text" id="pvk-service-id" name="service_id" class="pvk-mono" autocomplete="off" value="%s" required>', esc_attr( $this->settings->service_id() ) );
+		printf( '<input type="text" id="pvk-service-id" name="service_id" class="pvk-mono" autocomplete="off" value="%s"%s>', esc_attr( $this->settings->service_id() ), null === $this->connect ? ' required' : '' );
 		Ui::field_close();
 
 		Ui::field_open( __( 'Your country', 'povikvane-for-woocommerce' ), 'pvk-country', __( 'Used to read phone numbers written without a country code.', 'povikvane-for-woocommerce' ) );
@@ -269,17 +295,27 @@ final class SetupWizard {
 		echo '</select>';
 		Ui::field_close();
 
+		if ( null !== $this->connect ) {
+			echo '<p class="pvk-connect__submit"><button type="submit" class="pvk-btn pvk-btn--primary">' . esc_html__( 'Save and test connection', 'povikvane-for-woocommerce' ) . '</button></p>';
+		}
+
 		echo '</form>';
+
+		if ( null !== $this->connect ) {
+			echo '</div></details>';
+		}
 
 		Ui::card_close();
 
+		$continue = '<a class="pvk-btn' . ( null !== $this->connect ? ' pvk-btn--primary' : '' ) . '" href="' . esc_url( $this->step_url( WizardSteps::MESSAGES ) ) . '">' . esc_html__( 'Continue', 'povikvane-for-woocommerce' ) . '</a>';
+		$save     = null === $this->connect ? '<button type="submit" form="' . esc_attr( $form ) . '" class="pvk-btn pvk-btn--primary">' . esc_html__( 'Save and test connection', 'povikvane-for-woocommerce' ) . '</button>' : '';
+
 		printf(
-			'<div class="pvk-step__nav"><a href="%1$s">%2$s</a><span class="pvk-actions">%3$s<button type="submit" form="%4$s" class="pvk-btn pvk-btn--primary">%5$s</button></span></div>',
+			'<div class="pvk-step__nav"><a href="%1$s">%2$s</a><span class="pvk-actions">%3$s%4$s</span></div>',
 			esc_url( $this->step_url( WizardSteps::WELCOME ) ),
 			esc_html__( 'Back', 'povikvane-for-woocommerce' ),
-			$connected ? '<a class="pvk-btn" href="' . esc_url( $this->step_url( WizardSteps::MESSAGES ) ) . '">' . esc_html__( 'Continue', 'povikvane-for-woocommerce' ) . '</a>' : '', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on this line.
-			esc_attr( $form ),
-			esc_html__( 'Save and test connection', 'povikvane-for-woocommerce' )
+			$connected ? $continue : '', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+			$save // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 		);
 	}
 
@@ -287,20 +323,26 @@ final class SetupWizard {
 	 * Step 3: choose messages.
 	 */
 	private function step_messages(): void {
-		$form = 'pvk-wizard-messages';
+		$form     = 'pvk-wizard-messages';
+		$caps     = get_option( Capabilities::OPTION, array() );
+		$viber_on = $this->viber_on( $caps );
 
 		echo '<form method="post" id="' . esc_attr( $form ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="povikvane_wizard_messages">';
 		wp_nonce_field( 'povikvane_wizard_messages' );
 
-		$this->viber_card();
+		$this->templates->render_viber_card( $caps, $viber_on, true );
 
-		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-step__title">' . esc_html__( 'Choose your messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-step__lead">' . esc_html__( 'Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later.', 'povikvane-for-woocommerce' ) . '</p><p class="pvk-card__intro" style="margin-top:8px">' . esc_html__( 'You can use:', 'povikvane-for-woocommerce' ) . ' ';
+		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-step__title">' . esc_html__( 'Choose your messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-step__lead">' . esc_html__( 'Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later.', 'povikvane-for-woocommerce' ) . '</p><p class="pvk-card__intro" style="margin-top:8px">' . esc_html__( 'Details you can add:', 'povikvane-for-woocommerce' ) . ' ';
 		foreach ( Placeholders::NAMES as $name ) {
 			if ( ! in_array( $name, array( 'optout_link', 'tracking_url' ), true ) ) {
 				echo '<code>{' . esc_html( $name ) . '}</code> ';
 			}
 		}
-		echo '</p></div><div style="margin-top:12px">';
+		echo '</p></div>';
+
+		$this->templates->render_request_bar( $viber_on );
+
+		echo '<div style="margin-top:12px">';
 
 		$all = $this->triggers->statuses();
 
@@ -311,8 +353,15 @@ final class SetupWizard {
 
 			$trigger = $this->triggers->for_status( $slug );
 			$name    = TriggerRepository::OPTION . '[' . $slug . ']';
+			$match   = TemplateMatcher::find( $trigger->template, new TemplateCatalog() );
 
-			echo '<div class="pvk-trigger' . ( $trigger->enabled ? ' is-on' : '' ) . '"><div>';
+			printf(
+				'<div class="pvk-trigger%1$s" data-pvk-status="%2$s" data-pvk-initial="%3$s" data-pvk-match="%4$s"><div>',
+				$trigger->enabled ? ' is-on' : '',
+				esc_attr( $slug ),
+				esc_attr( $trigger->template ),
+				esc_attr( $match->state )
+			);
 			Ui::toggle( $name . '[enabled]', $trigger->enabled, $all[ $slug ] );
 			echo '</div><div>';
 			printf(
@@ -322,10 +371,17 @@ final class SetupWizard {
 				esc_attr( $name ),
 				esc_textarea( $trigger->template )
 			);
+			$this->templates->viber_notes( $slug, $trigger->template, $viber_on, $match );
 			echo '</div></div>';
 		}
 
-		echo '</div></section></form>';
+		echo '</div></section>';
+
+		Ui::card_open();
+		$this->labels->render( $this->step_url( WizardSteps::MESSAGES ) );
+		Ui::card_close();
+
+		echo '</form>';
 
 		printf(
 			'<div class="pvk-step__nav"><a href="%1$s">%2$s</a><button type="submit" form="%3$s" class="pvk-btn pvk-btn--primary">%4$s</button></div>',
@@ -337,19 +393,16 @@ final class SetupWizard {
 	}
 
 	/**
-	 * The optional Viber choices at the top of the messages step.
+	 * Whether Viber starts switched on: it is, when the account can use it, until a choice is saved here.
+	 *
+	 * @param mixed $caps Stored capabilities.
 	 */
-	private function viber_card(): void {
-		$caps = get_option( Capabilities::OPTION, array() );
+	private function viber_on( mixed $caps ): bool {
+		if ( $this->settings->viber_enabled() ) {
+			return true;
+		}
 
-		echo '<section class="pvk-card" data-pvk-viber-card><div class="pvk-card__head"><h2 class="pvk-card__title">' . esc_html__( 'Viber', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-card__intro">' . esc_html__( 'Optional. Send order updates over Viber instead of SMS when you have an approved Viber template with the same wording. Everything else still goes out as an SMS.', 'povikvane-for-woocommerce' ) . '</p></div><div class="pvk-card__body">';
-
-		ViberControls::render_switch( $this->settings->viber_enabled(), 'viber_enabled' );
-
-		echo '<div data-pvk-viber-only' . ( $this->settings->viber_enabled() ? '' : ' hidden' ) . '>';
-		ViberControls::render_fallback( $this->settings->viber_sms_fallback(), AccountInfo::sms_fallback_allowed( $caps ), 'viber_sms_fallback' );
-		$this->labels->render( $this->step_url( WizardSteps::MESSAGES ) );
-		echo '</div></div></section>';
+		return false === get_option( self::VIBER_CHOSEN ) && Capabilities::VIBER_READY === Capabilities::viber_status( $caps, $this->settings->viber_sms_fallback() );
 	}
 
 	/**
@@ -404,46 +457,89 @@ final class SetupWizard {
 	 * Step 5: delivery reports.
 	 */
 	private function step_reports(): void {
-		$last = $this->activity->last();
+		$last    = $this->activity->last();
+		$caps    = get_option( Capabilities::OPTION, array() );
+		$url     = $this->token->url();
+		$webhook = AccountInfo::webhook( $caps );
+		$managed = WebhookRegistration::supported( $caps );
+		$state   = null === $webhook || null === $webhook['url'] ? 'none' : ( $webhook['url'] === $url ? 'ours' : 'other' );
+		$public  = WebhookRegistration::looks_public( $url );
 
 		Ui::card_open();
 
 		echo '<h2 class="pvk-step__title">' . esc_html__( 'See deliveries as they happen', 'povikvane-for-woocommerce' ) . '</h2>';
-		echo '<p class="pvk-step__lead">' . esc_html__( 'Optional. Povikvane can tell this shop the moment a message is delivered. Without it the plugin still finds out by checking regularly, only a little later.', 'povikvane-for-woocommerce' ) . '</p>';
 
-		echo '<ol style="margin:16px 0 0 18px;padding:0"><li>' . esc_html__( 'Open Povikvane and go to Settings > API.', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Paste this address into the Webhook URL box and save.', 'povikvane-for-woocommerce' ) . '</li></ol>';
+		$verified = (int) get_option( WebhookRegistration::VERIFIED_OPTION, 0 );
 
-		printf(
-			'<div class="pvk-inline" style="margin-top:12px"><input type="text" id="povikvane-webhook-url" class="pvk-mono" readonly value="%1$s" aria-label="%2$s"> <button type="button" class="pvk-btn" data-povikvane-copy="#povikvane-webhook-url" data-copied="%3$s">%4$s</button></div>',
-			esc_attr( $this->token->url() ),
-			esc_attr__( 'Webhook address', 'povikvane-for-woocommerce' ),
-			esc_attr__( 'Copied', 'povikvane-for-woocommerce' ),
-			esc_html__( 'Copy', 'povikvane-for-woocommerce' )
-		);
+		if ( $managed && 'ours' === $state ) {
+			echo '<p class="pvk-step__lead">' . esc_html__( 'Povikvane tells this shop the moment a message is delivered. This was set up for you.', 'povikvane-for-woocommerce' ) . '</p>';
+			echo '<div class="pvk-result">';
 
-		echo '<div class="pvk-result">';
-		if ( null === $last ) {
-			Ui::note( __( 'No report has arrived yet. After a test message is delivered, reload this page to see it here.', 'povikvane-for-woocommerce' ) );
+			// One status, in order of how sure it is: a real report, Povikvane's own test, this server's call to itself, nothing yet.
+			if ( null !== $last ) {
+				/* translators: %s: date and time. */
+				Ui::note( sprintf( __( 'It works: the last delivery report arrived %s.', 'povikvane-for-woocommerce' ), Dates::format( $last['time'] ) ), 'ok' );
+			} elseif ( $verified > 0 ) {
+				/* translators: %s: date and time. */
+				Ui::note( sprintf( __( 'Povikvane reached this shop on %s. Real delivery reports will show here once messages are delivered.', 'povikvane-for-woocommerce' ), Dates::format( $verified ) ), 'ok' );
+			} else {
+				$reachable = SelfTest::run( $url );
+
+				if ( in_array( $reachable, array( SelfTest::BLOCKED, SelfTest::NOT_FOUND ), true ) ) {
+					Ui::note( SelfTest::message( $reachable ), 'warn' );
+				} else {
+					Ui::note( __( 'Delivery reports are on. Press the button to check that Povikvane can reach this shop.', 'povikvane-for-woocommerce' ) );
+				}
+			}
+
+			echo '</div><p>';
+			Layout::action_button( __( 'Ask Povikvane to test it', 'povikvane-for-woocommerce' ), 'povikvane_remote_test_webhook', array( 'return' => 'wizard' ), 'pvk-btn pvk-btn--primary', '', __( 'Testing...', 'povikvane-for-woocommerce' ) );
+			echo '</p>';
+		} elseif ( $managed && $public ) {
+			echo '<p class="pvk-step__lead">' . esc_html__( 'Povikvane can tell this shop the moment a message is delivered. Without it the plugin still finds out by checking regularly, only a little later.', 'povikvane-for-woocommerce' ) . '</p>';
+			echo '<p style="margin-top:16px">';
+			Layout::action_button(
+				__( 'Turn on delivery reports', 'povikvane-for-woocommerce' ),
+				'povikvane_register_webhook',
+				array( 'return' => 'wizard' ),
+				'pvk-btn pvk-btn--primary',
+				'other' === $state ? __( 'Another address is already set for this key. Replace it with this site?', 'povikvane-for-woocommerce' ) : '',
+				__( 'Turning on...', 'povikvane-for-woocommerce' )
+			);
+			echo '</p>';
 		} else {
-			Ui::note(
-				sprintf(
-					/* translators: %s: date and time. */
-					__( 'It works: the last delivery report arrived %s.', 'povikvane-for-woocommerce' ),
-					Dates::format( $last['time'] )
-				),
-				'ok'
+			echo '<p class="pvk-step__lead">' . esc_html__( 'Optional. Povikvane can tell this shop the moment a message is delivered. Without it the plugin still finds out by checking regularly, only a little later.', 'povikvane-for-woocommerce' ) . '</p>';
+			echo '<p class="pvk-field__hint" style="margin-top:8px">' . esc_html__( 'This could not be set up automatically, so it needs two steps in Povikvane.', 'povikvane-for-woocommerce' ) . '</p>';
+
+			echo '<ol style="margin:16px 0 0 18px;padding:0"><li>' . esc_html__( 'Open Povikvane and go to Settings > API.', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Paste this address into the Webhook URL box and save.', 'povikvane-for-woocommerce' ) . '</li></ol>';
+
+			printf(
+				'<div class="pvk-inline" style="margin-top:12px"><input type="text" id="povikvane-webhook-url" class="pvk-mono" readonly value="%1$s" aria-label="%2$s"> <button type="button" class="pvk-btn" data-povikvane-copy="#povikvane-webhook-url" data-copied="%3$s">%4$s</button></div>',
+				esc_attr( $url ),
+				esc_attr__( 'Delivery report address', 'povikvane-for-woocommerce' ),
+				esc_attr__( 'Copied', 'povikvane-for-woocommerce' ),
+				esc_html__( 'Copy', 'povikvane-for-woocommerce' )
 			);
 		}
-		echo '</div>';
+
+		if ( ! ( $managed && 'ours' === $state ) && null !== $last ) {
+			echo '<div class="pvk-result">';
+			/* translators: %s: date and time. */
+			Ui::note( sprintf( __( 'It works: the last delivery report arrived %s.', 'povikvane-for-woocommerce' ), Dates::format( $last['time'] ) ), 'ok' );
+			echo '</div>';
+		}
 
 		Ui::card_close();
 
+		$done = esc_url( $this->step_url( WizardSteps::DONE ) );
+
 		printf(
-			'<div class="pvk-step__nav"><a href="%1$s">%2$s</a><span class="pvk-actions"><a href="%3$s">%4$s</a><a class="pvk-btn pvk-btn--primary" href="%3$s">%5$s</a></span></div>',
+			'<div class="pvk-step__nav"><a href="%1$s">%2$s</a><span class="pvk-actions">%3$s<a class="pvk-btn%4$s" href="%5$s">%6$s</a></span></div>',
 			esc_url( $this->step_url( WizardSteps::TEST ) ),
 			esc_html__( 'Back', 'povikvane-for-woocommerce' ),
-			esc_url( $this->step_url( WizardSteps::DONE ) ),
-			esc_html__( 'Skip for now', 'povikvane-for-woocommerce' ),
+			$managed && 'ours' === $state ? '' : '<a href="' . $done . '">' . esc_html__( 'Skip for now', 'povikvane-for-woocommerce' ) . '</a>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on this line.
+			' pvk-btn--primary',
+			$done, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 			esc_html__( 'Continue', 'povikvane-for-woocommerce' )
 		);
 	}
@@ -579,6 +675,8 @@ final class SetupWizard {
 				)
 			)
 		);
+
+		update_option( self::VIBER_CHOSEN, '1', true );
 
 		Flash::add( 'success', __( 'Your messages are saved.', 'povikvane-for-woocommerce' ) );
 		$this->go( WizardSteps::TEST );

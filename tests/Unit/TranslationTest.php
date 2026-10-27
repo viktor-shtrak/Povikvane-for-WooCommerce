@@ -44,7 +44,7 @@ final class TranslationTest extends TestCase {
 	 * Parse a PO or POT file.
 	 *
 	 * @param string $file Path.
-	 * @return array<int,array{id:string,plural:?string,str:array<int,string>,fuzzy:bool}>
+	 * @return array<int,array{id:string,ctx:string,plural:?string,str:array<int,string>,fuzzy:bool}>
 	 */
 	private function parse_po( string $file ): array {
 		$content = (string) file_get_contents( $file );
@@ -66,6 +66,7 @@ final class TranslationTest extends TestCase {
 
 			$entries[] = array(
 				'id'     => $this->unquote( $id[1] ),
+				'ctx'    => preg_match( '/^msgctxt ((?:".*"\n?)+)/m', $block, $ctx ) ? $this->unquote( $ctx[1] ) : '',
 				'plural' => $plural,
 				'str'    => $str,
 				'fuzzy'  => (bool) preg_match( '/^#,.*\bfuzzy\b/m', $block ),
@@ -155,6 +156,7 @@ final class TranslationTest extends TestCase {
 
 		foreach ( $this->parse_po( $this->path( 'languages/povikvane-for-woocommerce-bg_BG.po' ) ) as $entry ) {
 			$key = null === $entry['plural'] ? $entry['id'] : $entry['id'] . "\0" . $entry['plural'];
+			$key = '' === $entry['ctx'] ? $key : $entry['ctx'] . "\4" . $key;
 
 			$this->assertArrayHasKey( $key, $compiled, 'Missing from the .mo: ' . $entry['id'] );
 			$this->assertSame( implode( "\0", $entry['str'] ), $compiled[ $key ], 'The .mo is out of date for: ' . $entry['id'] );

@@ -340,3 +340,35 @@
 		}
 	} );
 }() );
+
+( function () {
+	'use strict';
+
+	// A choice that saves as soon as it is made, such as the language in the header.
+	document.addEventListener( 'change', function ( event ) {
+		var target = event.target;
+
+		if ( target instanceof Element && target.hasAttribute( 'data-povikvane-autosubmit' ) && target.form ) {
+			target.form.submit();
+		}
+	} );
+}() );
+
+( function () {
+	'use strict';
+
+	// A button that starts something slow shows what it is doing and cannot be pressed twice.
+	document.addEventListener( 'submit', function ( event ) {
+		var button = event.submitter;
+
+		if ( ! ( button instanceof Element ) || ! button.hasAttribute( 'data-pvk-busy' ) ) {
+			return;
+		}
+
+		window.setTimeout( function () {
+			button.textContent = button.getAttribute( 'data-pvk-busy' );
+			button.classList.add( 'is-busy' );
+			button.setAttribute( 'aria-busy', 'true' );
+		}, 0 );
+	} );
+}() );

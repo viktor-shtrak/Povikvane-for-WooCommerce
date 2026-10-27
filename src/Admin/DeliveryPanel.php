@@ -11,6 +11,7 @@ namespace Povikvane\WooCommerce\Admin;
 
 use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
+use Povikvane\WooCommerce\Setup\WizardSteps;
 use Povikvane\WooCommerce\Support\Dates;
 use Povikvane\WooCommerce\Webhook\WebhookRegistration;
 use Povikvane\WooCommerce\Webhook\WebhookSecret;
@@ -65,9 +66,9 @@ final class DeliveryPanel {
 	 * Print the panel as a card. Must be called inside the settings form.
 	 */
 	public function render(): void {
-		Ui::card_open( __( 'Delivery reports', 'povikvane-for-woocommerce' ), __( 'To see whether messages were delivered the moment it happens, paste this address as the Webhook URL of your API key in Povikvane (Settings > API). Without it the plugin still finds out by checking regularly, only a little later. After adding it, send a test message from the Overview tab: "Last report received" shows when Povikvane has reached your site.', 'povikvane-for-woocommerce' ) );
+		Ui::card_open( __( 'Delivery reports', 'povikvane-for-woocommerce' ), __( 'Povikvane tells this shop the moment a message is delivered. This is set up for you when you connect. Without it the plugin still finds out by checking regularly, only a little later. After a test message is delivered, "Last report received" shows that it works.', 'povikvane-for-woocommerce' ) );
 
-		Ui::field_open( __( 'Webhook address', 'povikvane-for-woocommerce' ), 'povikvane-webhook-url' );
+		Ui::field_open( __( 'Delivery report address', 'povikvane-for-woocommerce' ), 'povikvane-webhook-url' );
 		printf(
 			'<div class="pvk-inline"><input type="text" id="povikvane-webhook-url" class="pvk-mono" readonly value="%1$s"> <button type="button" class="pvk-btn" data-povikvane-copy="#povikvane-webhook-url" data-copied="%2$s">%3$s</button></div>',
 			esc_attr( $this->token->url() ),
@@ -230,7 +231,7 @@ final class DeliveryPanel {
 		if ( 'ours' !== $this->registration_state() ) {
 			Layout::action_button( __( 'Register this address in Povikvane', 'povikvane-for-woocommerce' ), 'povikvane_register_webhook', array(), 'pvk-btn pvk-btn--primary', 'other' === $this->registration_state() ? __( 'Another address is already set for this key. Replace it with this site?', 'povikvane-for-woocommerce' ) : '' );
 		} else {
-			Layout::action_button( __( 'Ask Povikvane to test it', 'povikvane-for-woocommerce' ), 'povikvane_remote_test_webhook', array(), 'pvk-btn' );
+			Layout::action_button( __( 'Ask Povikvane to test it', 'povikvane-for-woocommerce' ), 'povikvane_remote_test_webhook', array(), 'pvk-btn', '', __( 'Testing...', 'povikvane-for-woocommerce' ) );
 			echo ' ';
 			$has = null !== $this->secret && $this->secret->exists();
 			Layout::action_button( $has ? __( 'Create a new secret', 'povikvane-for-woocommerce' ) : __( 'Create a secret', 'povikvane-for-woocommerce' ), 'povikvane_rotate_secret', array(), 'pvk-btn pvk-btn--link', $has ? __( 'Create a new secret? The old one keeps working for 24 hours, then only the new one is accepted.', 'povikvane-for-woocommerce' ) : '' );
@@ -258,8 +259,7 @@ final class DeliveryPanel {
 			Flash::add( 'error', $outcome['reason'] );
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
-		exit;
+		$this->back();
 	}
 
 	/**
@@ -279,8 +279,7 @@ final class DeliveryPanel {
 			Flash::add( 'error', __( 'Povikvane did not create a secret. Try again in a moment.', 'povikvane-for-woocommerce' ) );
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
-		exit;
+		$this->back();
 	}
 
 	/**
@@ -294,10 +293,25 @@ final class DeliveryPanel {
 		}
 
 		$outcome = $this->registration->test();
+
+		if ( $outcome['ok'] ) {
+			update_option( WebhookRegistration::VERIFIED_OPTION, time(), false );
+		}
+
 		$this->refresh();
 		Flash::add( $outcome['ok'] ? 'success' : 'error', $outcome['message'] );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
+		$this->back();
+	}
+
+	/**
+	 * Return to the settings tab, or to the setup wizard when the button was pressed there.
+	 */
+	private function back(): never {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The calling handler has checked the nonce.
+		$wizard = isset( $_POST['return'] ) && 'wizard' === sanitize_key( wp_unslash( $_POST['return'] ) );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . ( $wizard ? SetupWizard::SLUG . '&step=' . WizardSteps::REPORTS : SettingsPage::SLUG . '&tab=settings' ) ) );
 		exit;
 	}
 
@@ -315,7 +329,7 @@ final class DeliveryPanel {
 	 */
 	private function test_button(): string {
 		ob_start();
-		Layout::action_button( __( 'Test the webhook address', 'povikvane-for-woocommerce' ), 'povikvane_test_webhook', array(), 'pvk-btn' );
+		Layout::action_button( __( 'Test the address', 'povikvane-for-woocommerce' ), 'povikvane_test_webhook', array(), 'pvk-btn' );
 
 		return (string) ob_get_clean();
 	}
@@ -330,37 +344,12 @@ final class DeliveryPanel {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 
-		$response = wp_remote_post(
-			$this->token->url(),
-			array(
-				'timeout' => 10,
-				'headers' => array( 'Content-Type' => 'application/json' ),
-				'body'    => SelfTest::body(),
-			)
-		);
+		$result = SelfTest::run( $this->token->url() );
 
-		$decoded = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ), true );
-		$result  = SelfTest::interpret( is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response ), is_array( $decoded ) ? $decoded : array() );
-
-		Flash::add( SelfTest::OK === $result ? 'success' : 'error', $this->test_message( $result ) );
+		Flash::add( SelfTest::OK === $result ? 'success' : 'error', SelfTest::message( $result ) );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG . '&tab=settings' ) );
 		exit;
-	}
-
-	/**
-	 * What a test result means.
-	 *
-	 * @param string $result A SelfTest result constant.
-	 */
-	private function test_message( string $result ): string {
-		return match ( $result ) {
-			SelfTest::OK          => __( 'The webhook address works. To see that Povikvane can reach it, send a test message and watch "Last report received".', 'povikvane-for-woocommerce' ),
-			SelfTest::NOT_FOUND   => __( 'The webhook address was not found. Check that pretty permalinks are on and the REST API is not disabled, or create a new address.', 'povikvane-for-woocommerce' ),
-			SelfTest::BLOCKED     => __( 'The webhook address was blocked, probably by a security plugin or a firewall. Allow requests to /wp-json/povikvane/ and try again.', 'povikvane-for-woocommerce' ),
-			SelfTest::UNREACHABLE => __( 'This server could not reach its own webhook address. That does not always mean Povikvane cannot; send a test message and watch "Last report received".', 'povikvane-for-woocommerce' ),
-			default               => __( 'The webhook address gave an unexpected answer. Try again, or create a new address.', 'povikvane-for-woocommerce' ),
-		};
 	}
 
 	/**
@@ -368,7 +357,7 @@ final class DeliveryPanel {
 	 */
 	private function regenerate_button(): string {
 		ob_start();
-		Layout::action_button( __( 'Create a new webhook address', 'povikvane-for-woocommerce' ), 'povikvane_regenerate_token', array(), 'pvk-btn pvk-btn--link', __( 'Create a new webhook address? The current one stops working and must be updated in Povikvane.', 'povikvane-for-woocommerce' ) );
+		Layout::action_button( __( 'Create a new address', 'povikvane-for-woocommerce' ), 'povikvane_regenerate_token', array(), 'pvk-btn pvk-btn--link', __( 'Create a new address? The current one stops working and must be updated in Povikvane.', 'povikvane-for-woocommerce' ) );
 
 		return (string) ob_get_clean();
 	}
@@ -384,7 +373,7 @@ final class DeliveryPanel {
 		}
 
 		$this->token->regenerate();
-		Flash::add( 'success', __( 'A new webhook address was created. Update it in Povikvane.', 'povikvane-for-woocommerce' ) );
+		Flash::add( 'success', __( 'A new address was created. Update it in Povikvane.', 'povikvane-for-woocommerce' ) );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . SettingsPage::SLUG ) );
 		exit;

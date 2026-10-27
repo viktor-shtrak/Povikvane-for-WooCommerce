@@ -55,7 +55,7 @@ final class SettingsTest extends TestCase {
 				'delete_on_uninstall'   => false,
 				'viber_enabled'         => false,
 				'viber_sms_fallback'    => false,
-				'plugin_language'       => 'auto',
+				'plugin_language'       => 'bg_BG',
 			),
 			$all
 		);
@@ -120,5 +120,25 @@ final class SettingsTest extends TestCase {
 		$this->assertSame( 0, $settings->low_balance_threshold() );
 		$this->assertSame( 0, $settings->storm_threshold() );
 		$this->assertSame( 0, $settings->retention_body_days() );
+	}
+
+	/**
+	 * A site saved with landlines allowed gets the safe default once; a later choice is kept.
+	 */
+	public function test_landline_default_is_applied_once(): void {
+		$GLOBALS['povikvane_test_options'][ Settings::OPTION ] = array(
+			'mobile_only'     => false,
+			'service_id'      => 'abc',
+			'plugin_language' => 'auto',
+		);
+
+		$this->settings()->apply_defaults_once();
+		$this->assertTrue( $this->settings()->all()['mobile_only'] );
+		$this->assertSame( 'bg_BG', $this->settings()->all()['plugin_language'] );
+		$this->assertSame( 'abc', $this->settings()->all()['service_id'] );
+
+		$GLOBALS['povikvane_test_options'][ Settings::OPTION ]['mobile_only'] = false;
+		$this->settings()->apply_defaults_once();
+		$this->assertFalse( $this->settings()->all()['mobile_only'] );
 	}
 }

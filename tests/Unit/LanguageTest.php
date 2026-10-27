@@ -78,12 +78,13 @@ final class LanguageTest extends TestCase {
 	}
 
 	/**
-	 * Without a stored choice the site language is used.
+	 * Without a stored choice the plugin is Bulgarian; "automatic" follows the site.
 	 */
-	public function test_content_locale_follows_the_site_by_default(): void {
-		$GLOBALS['povikvane_test_locale'] = 'bg_BG';
+	public function test_content_locale_defaults_to_bulgarian_and_automatic_follows_the_site(): void {
+		$GLOBALS['povikvane_test_locale'] = 'en_US';
 		$this->assertSame( 'bg_BG', Language::content_locale() );
 
+		update_option( Settings::OPTION, array( 'plugin_language' => 'auto' ) );
 		$GLOBALS['povikvane_test_locale'] = 'de_DE';
 		$this->assertSame( 'de_DE', Language::content_locale() );
 	}

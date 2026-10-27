@@ -24,6 +24,8 @@ final class Settings {
 	public const OPTION     = 'povikvane_settings';
 	public const KEY_OPTION = 'povikvane_api_key_enc';
 
+	private const LANDLINE_MIGRATION = 'povikvane_landline_default';
+
 	public const KEY_SOURCE_CONSTANT   = 'constant';
 	public const KEY_SOURCE_STORED     = 'stored';
 	public const KEY_SOURCE_UNREADABLE = 'unreadable';
@@ -45,7 +47,7 @@ final class Settings {
 		'delete_on_uninstall'   => false,
 		'viber_enabled'         => false,
 		'viber_sms_fallback'    => false,
-		'plugin_language'       => 'auto',
+		'plugin_language'       => 'bg_BG',
 	);
 
 	/**
@@ -218,6 +220,45 @@ final class Settings {
 	 */
 	public function set_api_key( string $api_key ): void {
 		update_option( self::KEY_OPTION, $this->crypto->encrypt( $api_key ), false );
+	}
+
+	/**
+	 * Store the service ID, keeping the other settings.
+	 *
+	 * @param string $service_id Service ID.
+	 */
+	public function set_service_id( string $service_id ): void {
+		$stored = get_option( self::OPTION, array() );
+		$stored = is_array( $stored ) ? $stored : array();
+
+		update_option( self::OPTION, array_merge( $stored, array( 'service_id' => sanitize_text_field( $service_id ) ) ) );
+	}
+
+	/**
+	 * Defaults that were settled after some sites had already been saved: skipping
+	 * landline numbers is on, and the language is Bulgarian. They are applied once;
+	 * after that the choice is theirs.
+	 */
+	public function apply_defaults_once(): void {
+		if ( false !== get_option( self::LANDLINE_MIGRATION ) ) {
+			return;
+		}
+
+		$stored = get_option( self::OPTION, array() );
+
+		if ( is_array( $stored ) && array() !== $stored ) {
+			if ( array_key_exists( 'mobile_only', $stored ) && ! $stored['mobile_only'] ) {
+				$stored['mobile_only'] = true;
+			}
+
+			if ( 'auto' === ( $stored['plugin_language'] ?? '' ) ) {
+				$stored['plugin_language'] = 'bg_BG';
+			}
+
+			update_option( self::OPTION, $stored );
+		}
+
+		update_option( self::LANDLINE_MIGRATION, '1', true );
 	}
 
 	/**

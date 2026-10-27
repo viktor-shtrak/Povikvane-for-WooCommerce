@@ -51,6 +51,13 @@ final class WebhookSecret {
 	}
 
 	/**
+	 * Forget the secret.
+	 */
+	public function clear(): void {
+		delete_option( self::OPTION );
+	}
+
+	/**
 	 * Store a secret.
 	 *
 	 * @param string $secret A "whsec_" value from Povikvane.

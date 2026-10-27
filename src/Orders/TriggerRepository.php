@@ -63,11 +63,33 @@ final class TriggerRepository implements TriggerProvider {
 			$slug = (string) preg_replace( '/^wc-/', '', (string) $key );
 
 			if ( 'checkout-draft' !== $slug ) {
-				$out[ $slug ] = (string) $label;
+				$out[ $slug ] = $this->label( $slug, (string) $label );
 			}
 		}
 
 		return $out;
+	}
+
+	/**
+	 * The name of a status. WooCommerce names follow the site language, which can differ
+	 * from the plugin's; a status that still has WooCommerce's English name is shown in the
+	 * plugin's language, and one the shop renamed keeps its own name.
+	 *
+	 * @param string $slug  Status slug.
+	 * @param string $label Name WooCommerce gives it.
+	 */
+	private function label( string $slug, string $label ): string {
+		$known = array(
+			'pending'    => array( 'Pending payment', _x( 'Pending payment', 'order status', 'povikvane-for-woocommerce' ) ),
+			'processing' => array( 'Processing', _x( 'Processing', 'order status', 'povikvane-for-woocommerce' ) ),
+			'on-hold'    => array( 'On hold', _x( 'On hold', 'order status', 'povikvane-for-woocommerce' ) ),
+			'completed'  => array( 'Completed', _x( 'Completed', 'order status', 'povikvane-for-woocommerce' ) ),
+			'cancelled'  => array( 'Cancelled', _x( 'Cancelled', 'order status', 'povikvane-for-woocommerce' ) ),
+			'refunded'   => array( 'Refunded', _x( 'Refunded', 'order status', 'povikvane-for-woocommerce' ) ),
+			'failed'     => array( 'Failed', _x( 'Failed', 'order status', 'povikvane-for-woocommerce' ) ),
+		);
+
+		return isset( $known[ $slug ] ) && $known[ $slug ][0] === $label ? $known[ $slug ][1] : $label;
 	}
 
 	/**

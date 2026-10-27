@@ -28,6 +28,7 @@ function pvk_t( $t ) { return $GLOBALS['pvk_mo'][ $t ] ?? $t; }
 function __( $t, $d = '' ) { return pvk_t( $t ); }
 function esc_html__( $t, $d = '' ) { return esc_html( pvk_t( $t ) ); }
 function esc_attr__( $t, $d = '' ) { return esc_attr( pvk_t( $t ) ); }
+function _x( $t, $c, $d = '' ) { return $GLOBALS['pvk_mo'][ $c . "\4" . $t ] ?? $t; }
 function _n( $s, $p, $n, $d = '' ) {
 	$key = $s . "\0" . $p;
 	if ( isset( $GLOBALS['pvk_mo'][ $key ] ) ) {
@@ -40,7 +41,8 @@ function number_format_i18n( $n, $d = 0 ) { return number_format( (float) $n, $d
 function wp_json_encode( $d, $f = 0 ) { return json_encode( $d, $f ); }
 function wp_date( $f, $t = null ) { return gmdate( $f, (int) $t ); }
 function plugins_url( $path = '', $plugin = '' ) { return '/assets-root/' . ltrim( $path, '/' ); }
-function admin_url( $path = '' ) { return '/wp-admin/' . ltrim( $path, '/' ); }
+function admin_url( $path = '' ) { return 'https://shop.example.com/wp-admin/' . ltrim( $path, '/' ); }
+function site_url( $p = '' ) { return 'https://shop.example.com' . $p; }
 function wp_nonce_field( $action = -1, $name = '_wpnonce', $referer = true, $echo = true ) { $h = '<input type="hidden" name="' . esc_attr( $name ) . '" value="nonce">'; if ( $echo ) { echo $h; } return $h; }
 function wp_create_nonce( $a = -1 ) { return 'nonce'; }
 function checked( $a, $b = true, $echo = true ) { $r = (string) $a === (string) $b ? ' checked' : ''; if ( $echo ) { echo $r; } return $r; }
@@ -106,3 +108,9 @@ $GLOBALS['wpdb'] = new PvkWpdb();
 
 require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 function get_user_meta( $id, $key = '', $single = false ) { return ''; }
+function wp_parse_url( $u, $c = -1 ) { return parse_url( $u, $c ); }
+function wp_print_inline_script_tag( $js ) { echo '<script>' . $js . "</script>\n"; }
+function wp_remote_post( $url, $args = array() ) { return array(); }
+function is_wp_error( $v ) { return false; }
+function wp_remote_retrieve_body( $r ) { return ''; }
+function wp_remote_retrieve_response_code( $r ) { return 0; }

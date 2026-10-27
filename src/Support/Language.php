@@ -28,6 +28,11 @@ final class Language {
 	public const ENGLISH   = 'en_US';
 
 	/**
+	 * User meta key holding one person's own choice of language for these screens.
+	 */
+	public const USER_META = 'povikvane_language';
+
+	/**
 	 * The values the setting accepts.
 	 *
 	 * @return string[]
@@ -74,7 +79,29 @@ final class Language {
 	public static function setting(): string {
 		$stored = get_option( Settings::OPTION, array() );
 
-		return is_array( $stored ) ? self::normalize( (string) ( $stored['plugin_language'] ?? self::AUTO ) ) : self::AUTO;
+		return is_array( $stored ) ? self::normalize( (string) ( $stored['plugin_language'] ?? self::BULGARIAN ) ) : self::BULGARIAN;
+	}
+
+	/**
+	 * One person's own choice, or an empty string when they follow the plugin's setting.
+	 *
+	 * @param int $user_id User ID; the current user when zero.
+	 */
+	public static function user_setting( int $user_id = 0 ): string {
+		$user_id = $user_id > 0 ? $user_id : get_current_user_id();
+		$value   = $user_id > 0 ? get_user_meta( $user_id, self::USER_META, true ) : '';
+
+		return is_string( $value ) && in_array( $value, array( self::BULGARIAN, self::ENGLISH ), true ) ? $value : '';
+	}
+
+	/**
+	 * The setting that picks the language of the screens: the person's own choice in
+	 * the admin, otherwise the plugin's setting.
+	 */
+	public static function screen_setting(): string {
+		$own = is_admin() ? self::user_setting() : '';
+
+		return '' !== $own ? $own : self::setting();
 	}
 
 	/**
@@ -90,7 +117,7 @@ final class Language {
 	public static function register(): void {
 		add_filter(
 			'plugin_locale',
-			static fn( $locale, $domain ) => self::DOMAIN === $domain ? self::resolve( self::setting(), (string) $locale ) : $locale,
+			static fn( $locale, $domain ) => self::DOMAIN === $domain ? self::resolve( self::screen_setting(), (string) $locale ) : $locale,
 			10,
 			2
 		);
@@ -98,12 +125,18 @@ final class Language {
 		add_action(
 			'init',
 			static function (): void {
-				// The bundled translations are loaded directly so the Language setting can override the site language.
-				$locale = self::resolve( self::setting(), determine_locale() );
+				$locale = self::resolve( self::screen_setting(), determine_locale() );
 				$file   = PLUGIN_DIR . 'languages/' . self::DOMAIN . '-' . $locale . '.mo';
 
+				// Whatever WordPress loaded by itself for the site language is dropped, so the choice made here wins.
+				unload_textdomain( self::DOMAIN );
+
 				if ( is_readable( $file ) ) {
-					load_textdomain( self::DOMAIN, $file, $locale );
+					// WordPress 6.5 and later only reads a file filed under the locale it is currently using, so the
+					// file is filed under that one even when it holds another language.
+					$current = class_exists( '\\WP_Translation_Controller' ) ? \WP_Translation_Controller::get_instance()->get_locale() : determine_locale();
+
+					load_textdomain( self::DOMAIN, $file, $current );
 				}
 			},
 			0

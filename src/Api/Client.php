@@ -32,16 +32,18 @@ final class Client implements Gateway {
 	/**
 	 * Constructor.
 	 *
-	 * @param Transport   $transport   HTTP transport.
-	 * @param Credentials $credentials API credentials.
-	 * @param string      $base_url    API base URL.
-	 * @param Logger      $logger      Diagnostic logger (never receives credentials or message text).
+	 * @param Transport     $transport   HTTP transport.
+	 * @param Credentials   $credentials API credentials.
+	 * @param string        $base_url    API base URL.
+	 * @param Logger        $logger      Diagnostic logger (never receives credentials or message text).
+	 * @param \Closure|null $on_revoked Called when Povikvane says the key was revoked (the shop was disconnected).
 	 */
 	public function __construct(
 		private readonly Transport $transport,
 		private readonly Credentials $credentials,
 		string $base_url = self::DEFAULT_BASE_URL,
-		private readonly Logger $logger = new NullLogger()
+		private readonly Logger $logger = new NullLogger(),
+		private readonly ?\Closure $on_revoked = null
 	) {
 		$this->base_url = rtrim( $base_url, '/' );
 	}
@@ -231,6 +233,34 @@ final class Client implements Gateway {
 	/**
 	 * {@inheritDoc}
 	 *
+	 * @param string $code     Code.
+	 * @param string $verifier Verifier.
+	 * @param string $redirect Callback address.
+	 */
+	public function exchange_connect_code( string $code, string $verifier, string $redirect ): ApiResult {
+		$body = wp_json_encode(
+			array(
+				'code'          => $code,
+				'code_verifier' => $verifier,
+				'redirect_uri'  => $redirect,
+			)
+		);
+
+		// No Authorization header and no service ID: the code is the credential. Never logged.
+		return $this->execute(
+			'POST',
+			'/public-api/v1/connect/token',
+			array(
+				'Content-Type' => 'application/json',
+				'Accept'       => 'application/json',
+			),
+			false === $body ? null : $body
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * @param array<string,mixed> $message Message.
 	 */
 	public function estimate( array $message ): ApiResult {
@@ -292,6 +322,10 @@ final class Client implements Gateway {
 		$started  = microtime( true );
 		$response = $this->transport->request( $method, $this->base_url . $path, $headers, $body );
 		$result   = $this->parse( $response );
+
+		if ( null !== $this->on_revoked && 401 === $result->http_status && 'key_revoked' === $result->error_code ) {
+			( $this->on_revoked )();
+		}
 
 		$this->logger->log(
 			in_array( $result->outcome, array( Outcome::Success, Outcome::NotFound ), true ) ? Logger::DEBUG : Logger::WARNING,

@@ -86,13 +86,13 @@ final class MarketingSection {
 		$all  = $this->settings->all();
 		$name = MarketingSettings::OPTION;
 
-		Ui::card_open( __( 'Promotional messages', 'povikvane-for-woocommerce' ), __( 'Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on.', 'povikvane-for-woocommerce' ), $all['enabled'] ? '' : 'pvk-card--accent' );
+		Ui::card_open( __( 'Promotional messages', 'povikvane-for-woocommerce' ), __( 'Promotional SMS may only be sent to customers who agreed to them. The plugin asks with an unticked checkbox at checkout, checks the agreement again just before each message, adds an unsubscribe link to every promotional message and only sends during the hours below. Have the wording reviewed before you switch this on.', 'povikvane-for-woocommerce' ) );
 
 		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
 		Ui::toggle( $name . '[enabled]', $all['enabled'], __( 'Ask customers for their agreement and allow promotional messages', 'povikvane-for-woocommerce' ), __( 'Off by default. Nothing promotional is ever sent while this is off.', 'povikvane-for-woocommerce' ) );
 		Ui::field_close();
 
-		Ui::field_open( __( 'Checkbox wording', 'povikvane-for-woocommerce' ), 'povikvane_consent_text', __( 'Shown next to the unticked checkbox at checkout and in My Account. A short fingerprint of the wording is stored with each agreement.', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'Checkbox wording', 'povikvane-for-woocommerce' ), 'povikvane_consent_text', __( 'Shown next to the unticked checkbox at checkout and in My Account. The exact wording is kept with each agreement.', 'povikvane-for-woocommerce' ) );
 		printf(
 			'<textarea id="povikvane_consent_text" name="%1$s[consent_text]" rows="3" maxlength="400">%2$s</textarea>',
 			esc_attr( $name ),
@@ -104,7 +104,7 @@ final class MarketingSection {
 
 		Ui::card_open( __( 'When and how often', 'povikvane-for-woocommerce' ) );
 
-		Ui::field_open( __( 'Sending hours', 'povikvane-for-woocommerce' ), '', __( 'Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Equal hours mean no limit.', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'Sending hours', 'povikvane-for-woocommerce' ), '', __( 'Whole hours in the shop time zone. Promotional messages wait for the next opening. Order messages are not affected. Set both to the same hour to allow any time.', 'povikvane-for-woocommerce' ) );
 		printf(
 			'<div class="pvk-inline"><span>%1$s</span> <input type="number" name="%2$s[quiet_open]" value="%3$d" min="0" max="23" aria-label="%4$s"> <span>%5$s</span> <input type="number" name="%2$s[quiet_close]" value="%6$d" min="0" max="23" aria-label="%7$s"></div>',
 			esc_html__( 'From', 'povikvane-for-woocommerce' ),
@@ -135,7 +135,7 @@ final class MarketingSection {
 		$count = $this->ledger->count_opted_in();
 
 		Ui::card_open( __( 'Customers who agreed', 'povikvane-for-woocommerce' ) );
-		Ui::field_open( __( 'Opted in', 'povikvane-for-woocommerce' ), '', __( 'The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data.', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'Agreement list', 'povikvane-for-woocommerce' ), '', __( 'The file contains full phone numbers, ready to import as contacts in Povikvane for your own campaigns. Handle it as personal data.', 'povikvane-for-woocommerce' ) );
 		printf(
 			'<p><strong>%1$s</strong></p><p><a class="pvk-btn" href="%2$s">%3$s</a></p>',
 			esc_html(
@@ -187,7 +187,7 @@ final class MarketingSection {
 			esc_attr__( 'Copied', 'povikvane-for-woocommerce' ),
 			esc_html__( 'Copy', 'povikvane-for-woocommerce' )
 		);
-		echo '<ol style="margin:12px 0 0 18px;padding:0"><li>' . esc_html__( 'In WordPress, go to Pages > Add New and give the page a name, for example "Stop promotional SMS".', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Add a Shortcode block (or paste into the text editor) and paste the shortcode above.', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Publish the page and link to it from your footer or privacy page.', 'povikvane-for-woocommerce' ) . '</li></ol>';
+		echo '<ol style="margin:12px 0 0 18px;padding:0"><li>' . esc_html__( 'In WordPress, go to Pages > Add New and give the page a name, for example "Stop promotional SMS".', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Add a "Shortcode" block and paste the code above into it.', 'povikvane-for-woocommerce' ) . '</li><li>' . esc_html__( 'Publish the page and link to it from your footer or privacy page.', 'povikvane-for-woocommerce' ) . '</li></ol>';
 		echo '<p class="pvk-field__hint" style="margin-top:8px">' . esc_html__( 'The form answers the same whether or not the number was on your list, so it tells nobody who is. It works even when promotional messages are switched off.', 'povikvane-for-woocommerce' ) . '</p>';
 		Ui::field_close();
 

@@ -68,6 +68,11 @@ final class BalanceNotice {
 	 * Show the notice when credits are low.
 	 */
 	public function render(): void {
+		// Setup has its own flow; a credits reminder does not belong on its first screen.
+		if ( SetupWizard::is_current_page() ) {
+			return;
+		}
+
 		$threshold = $this->settings->low_balance_threshold();
 		$balance   = $this->balances->get();
 

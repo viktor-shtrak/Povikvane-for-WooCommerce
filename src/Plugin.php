@@ -15,6 +15,7 @@ use Povikvane\WooCommerce\Admin\BalanceAjax;
 use Povikvane\WooCommerce\Admin\BalanceNotice;
 use Povikvane\WooCommerce\Admin\ConnectionPanel;
 use Povikvane\WooCommerce\Admin\DeliveryPanel;
+use Povikvane\WooCommerce\Admin\LanguageSwitcher;
 use Povikvane\WooCommerce\Admin\MarketingSection;
 use Povikvane\WooCommerce\Admin\MessageLogPage;
 use Povikvane\WooCommerce\Admin\MessageStatusAjax;
@@ -45,6 +46,9 @@ use Povikvane\WooCommerce\Log\Retention;
 use Povikvane\WooCommerce\Log\Schema;
 use Povikvane\WooCommerce\Marketing\AccountConsent;
 use Povikvane\WooCommerce\Marketing\CheckoutConsent;
+use Povikvane\WooCommerce\Admin\ConnectPanel;
+use Povikvane\WooCommerce\Connect\ConnectFlow;
+use Povikvane\WooCommerce\Connect\ConnectionStore;
 use Povikvane\WooCommerce\Marketing\ApiContactSync;
 use Povikvane\WooCommerce\Marketing\Consent;
 use Povikvane\WooCommerce\Marketing\ContactJobs;
@@ -169,6 +173,7 @@ final class Plugin {
 		}
 
 		Schema::maybe_upgrade();
+		$this->settings()->apply_defaults_once();
 
 		( new SiteGuard( $this->state() ) )->check();
 
@@ -237,6 +242,17 @@ final class Plugin {
 			$labels->register();
 			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter, $labels );
 			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
+			$connect = new ConnectPanel(
+				new ConnectFlow( $this->client(), $this->connection_store(), $this->settings()->base_url() ),
+				$this->connection_store(),
+				$this->settings(),
+				new Token(),
+				$this->state(),
+				array( $this, 'run_probe' ),
+				fn(): WebhookRegistration => new WebhookRegistration( $this->client(), $this->webhook_secret() )
+			);
+			$connect->register();
+			( new LanguageSwitcher() )->register();
 			$delivery = new DeliveryPanel( new Token(), new OptionActivity(), $this->repository(), new WebhookRegistration( $this->client(), $this->webhook_secret() ), array( $this, 'run_probe' ), $this->webhook_secret() );
 			$delivery->register();
 
@@ -261,13 +277,14 @@ final class Plugin {
 				new OptionBalanceStore(),
 				$marketing_section,
 				new OverviewPanel(),
-				new ConnectionPanel( $this->settings(), $delivery ),
+				new ConnectionPanel( $this->settings(), $delivery, $connect ),
 				new AdvancedPanel( new SupportInfo( $this->settings(), $this->repository(), $this->state(), $activity, new OptionBalanceStore(), $this->marketing() ) ),
 				$activity,
 				$tester,
 				$sanitizer,
 				$progress,
-				array( $this, 'run_probe' )
+				array( $this, 'run_probe' ),
+				$this->connection_store()
 			) )->register();
 
 			( new SetupWizard(
@@ -282,7 +299,8 @@ final class Plugin {
 				$activity,
 				$templates,
 				$labels,
-				array( $this, 'run_probe' )
+				array( $this, 'run_probe' ),
+				$connect
 			) )->register();
 
 			( new SetupNotice( $setup_flag, $progress ) )->register();
@@ -706,6 +724,21 @@ final class Plugin {
 	 * API client with the current credentials.
 	 */
 	private function client(): Client {
-		return new Client( new WpTransport(), $this->settings()->credentials(), $this->settings()->base_url(), $this->logger() );
+		return new Client(
+			new WpTransport(),
+			$this->settings()->credentials(),
+			$this->settings()->base_url(),
+			$this->logger(),
+			function (): void {
+				$this->connection_store()->mark_revoked();
+			}
+		);
+	}
+
+	/**
+	 * What is known about a connection made with "Connect with Povikvane".
+	 */
+	private function connection_store(): ConnectionStore {
+		return new ConnectionStore( $this->settings(), $this->webhook_secret() );
 	}
 }

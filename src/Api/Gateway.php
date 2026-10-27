@@ -115,6 +115,15 @@ interface Gateway {
 	public function create_webhook_secret(): ApiResult;
 
 	/**
+	 * Exchange the one-time code from "Connect with Povikvane" for the key (no credentials needed).
+	 *
+	 * @param string $code     Code from the callback.
+	 * @param string $verifier PKCE verifier.
+	 * @param string $redirect The callback address, exactly as it was sent to the approval page.
+	 */
+	public function exchange_connect_code( string $code, string $verifier, string $redirect ): ApiResult;
+
+	/**
 	 * Price a message without sending it.
 	 *
 	 * @param array<string,mixed> $message The message object a send would carry.

@@ -99,6 +99,13 @@ function pvk_options( bool $connected, array $extra = array() ): void {
 	);
 }
 
+function pvk_connect( Settings $settings, OptionSendingState $state ): Povikvane\WooCommerce\Admin\ConnectPanel {
+	$store = new Povikvane\WooCommerce\Connect\ConnectionStore( $settings, new Povikvane\WooCommerce\Webhook\WebhookSecret( new Crypto( 'preview-salt' ) ) );
+	$flow  = new Povikvane\WooCommerce\Connect\ConnectFlow( new Povikvane\WooCommerce\Api\Client( new Povikvane\WooCommerce\Api\WpTransport(), $settings->credentials() ), $store, 'https://app.povikvane.com' );
+
+	return new Povikvane\WooCommerce\Admin\ConnectPanel( $flow, $store, $settings, new Token(), $state, static fn() => null, static fn() => new Povikvane\WooCommerce\Webhook\WebhookRegistration( new Povikvane\WooCommerce\Api\Client( new Povikvane\WooCommerce\Api\WpTransport(), $settings->credentials() ) ) );
+}
+
 function pvk_settings_page(): SettingsPage {
 	$settings  = new Settings( new Crypto( 'preview-salt' ) );
 	$repo      = new Repository();
@@ -113,7 +120,7 @@ function pvk_settings_page(): SettingsPage {
 
 	return new SettingsPage(
 		$settings, $repo, $state, $triggers, $templates, new OptionBalanceStore(), $marketing,
-		new OverviewPanel(), new ConnectionPanel( $settings, $delivery ), new AdvancedPanel(), $activity, $tester,
+		new OverviewPanel(), new ConnectionPanel( $settings, $delivery, pvk_connect( $settings, $state ) ), new AdvancedPanel(), $activity, $tester,
 		new SettingsSanitizer( $settings, $state ), new SetupProgress( $triggers, $repo, $activity ), static fn() => null
 	);
 }
@@ -128,7 +135,7 @@ function pvk_wizard(): SetupWizard {
 
 	return new SetupWizard(
 		$settings, new SettingsSanitizer( $settings, $state ), $triggers, $repo, $tester, new SetupState(),
-		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null ), static fn() => null
+		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null ), static fn() => null, pvk_connect( $settings, $state )
 	);
 }
 

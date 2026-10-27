@@ -45,11 +45,14 @@ final class Layout {
 		echo '<div class="pvk' . ( '' !== $modifier ? ' ' . esc_attr( $modifier ) : '' ) . '"' . ( '' !== $attrs ? ' ' . $attrs : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Documented as already escaped.
 
 		printf(
-			'<header class="pvk-header"><img class="pvk-header__logo" src="%1$s" alt="Povikvane" width="140" height="24"><span class="pvk-header__product">%2$s</span><span class="pvk-header__version">%3$s</span></header>',
+			'<header class="pvk-header"><img class="pvk-header__logo" src="%1$s" alt="Povikvane" width="140" height="24"><span class="pvk-header__product">%2$s</span><span class="pvk-header__version">%3$s</span>',
 			esc_url( plugins_url( 'assets/img/povikvane-logo.svg', PLUGIN_FILE ) ),
 			esc_html__( 'Viber & SMS for WooCommerce', 'povikvane-for-woocommerce' ),
 			esc_html( 'v' . VERSION )
 		);
+
+		LanguageSwitcher::render();
+		echo '</header>';
 	}
 
 	/**
@@ -90,15 +93,16 @@ final class Layout {
 	 * @param array<string,string> $fields       Extra hidden fields.
 	 * @param string               $css_class    CSS classes for the button.
 	 * @param string               $confirm_text If set, ask for confirmation first.
+	 * @param string               $busy_text    If set, the button shows this and is switched off while the page is working.
 	 */
-	public static function action_button( string $label, string $action, array $fields = array(), string $css_class = 'pvk-btn', string $confirm_text = '' ): void {
+	public static function action_button( string $label, string $action, array $fields = array(), string $css_class = 'pvk-btn', string $confirm_text = '', string $busy_text = '' ): void {
 		$id = self::register_form( $action, $fields );
 
 		printf(
 			'<button type="submit" form="%1$s" class="%2$s"%3$s>%4$s</button>',
 			esc_attr( $id ),
 			esc_attr( $css_class ),
-			'' !== $confirm_text ? ' data-povikvane-confirm="' . esc_attr( $confirm_text ) . '"' : '',
+			( '' !== $confirm_text ? ' data-povikvane-confirm="' . esc_attr( $confirm_text ) . '"' : '' ) . ( '' !== $busy_text ? ' data-pvk-busy="' . esc_attr( $busy_text ) . '"' : '' ),
 			esc_html( $label )
 		);
 	}

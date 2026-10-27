@@ -54,6 +54,7 @@ foreach ( array(
 	'povikvane_balance',
 	'povikvane_balance_alert',
 	'povikvane_webhook_token',
+	'povikvane_connection',
 	'povikvane_webhook_secret_enc',
 	'povikvane_webhook_seen',
 	'povikvane_contacts_synced',
@@ -63,9 +64,13 @@ foreach ( array(
 	'povikvane_db_version',
 	'povikvane_delete_data_on_uninstall',
 	'povikvane_activation_redirect',
+	'povikvane_landline_default',
+	'povikvane_wizard_viber_chosen',
+	'povikvane_webhook_verified_at',
 ) as $povikvane_option ) {
 	delete_option( $povikvane_option );
 }
 
 delete_metadata( 'user', 0, 'povikvane_balance_notice_dismissed', '', true );
+delete_metadata( 'user', 0, 'povikvane_language', '', true );
 delete_metadata( 'user', 0, 'povikvane_attention_dismissed', '', true );

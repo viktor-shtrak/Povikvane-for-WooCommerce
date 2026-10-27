@@ -107,6 +107,7 @@ final class FakeGateway implements Gateway {
 		'wtest'     => array(),
 		'estimate'  => array(),
 		'secret'    => array(),
+		'exchange'  => array(),
 	);
 
 	/**
@@ -312,6 +313,22 @@ final class FakeGateway implements Gateway {
 	 */
 	public function create_webhook_secret(): ApiResult {
 		return $this->next( 'secret' );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @param string $code     Code.
+	 * @param string $verifier Verifier.
+	 * @param string $redirect Callback.
+	 */
+	public function exchange_connect_code( string $code, string $verifier, string $redirect ): ApiResult {
+		$this->writes[] = array(
+			'op'   => 'exchange',
+			'args' => compact( 'code', 'verifier', 'redirect' ),
+		);
+
+		return $this->next( 'exchange' );
 	}
 
 	/**

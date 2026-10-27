@@ -23,12 +23,14 @@ final class ConnectionPanel {
 	/**
 	 * Constructor.
 	 *
-	 * @param Settings      $settings Settings.
-	 * @param DeliveryPanel $delivery Delivery reports card.
+	 * @param Settings          $settings Settings.
+	 * @param DeliveryPanel     $delivery Delivery reports card.
+	 * @param ConnectPanel|null $connect The "Connect with Povikvane" block.
 	 */
 	public function __construct(
 		private readonly Settings $settings,
-		private readonly DeliveryPanel $delivery
+		private readonly DeliveryPanel $delivery,
+		private readonly ?ConnectPanel $connect = null
 	) {}
 
 	/**
@@ -39,6 +41,12 @@ final class ConnectionPanel {
 	public function render( array $values ): void {
 		$name   = Settings::OPTION;
 		$source = $this->settings->api_key_source();
+
+		if ( null !== $this->connect && Settings::KEY_SOURCE_CONSTANT !== $source ) {
+			Ui::card_open( __( 'Connect with Povikvane', 'povikvane-for-woocommerce' ), __( 'Approve this shop in your Povikvane account and the key, service ID and delivery-report address are set up for you.', 'povikvane-for-woocommerce' ) );
+			$this->connect->render( 'settings' );
+			Ui::card_close();
+		}
 
 		Ui::card_open( __( 'Your Povikvane account', 'povikvane-for-woocommerce' ), __( 'Find your API key and service ID in Povikvane under Settings > API. They stay on this site, and the key is stored encrypted.', 'povikvane-for-woocommerce' ) );
 
@@ -84,7 +92,7 @@ final class ConnectionPanel {
 		echo '</select>';
 		Ui::field_close();
 
-		Ui::field_open( __( 'Language', 'povikvane-for-woocommerce' ), 'povikvane_language', __( 'Used for these screens and for the default message wording. "Automatic" follows the site language.', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'Language', 'povikvane-for-woocommerce' ), 'povikvane_language', __( 'Sets the wording of customer messages. "Automatic" follows the site language. Each person can pick their own language for these screens in the header.', 'povikvane-for-woocommerce' ) );
 		printf( '<select id="povikvane_language" name="%s[plugin_language]">', esc_attr( $name ) );
 		foreach ( array(
 			Language::AUTO      => __( 'Automatic (follow the site language)', 'povikvane-for-woocommerce' ),

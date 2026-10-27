@@ -3,7 +3,7 @@
 WooCommerce plugin that sends order status SMS (and opt-in marketing) messages
 through the Povikvane Public API. Distributed through WordPress.org.
 
-Requires WordPress 7.0, WooCommerce 11.0, PHP 8.3.
+Requires WordPress 7.0, WooCommerce 11.0, PHP 8.1.
 
 The development plan and API contract notes live in the Povikvane application
 repository (`docs/woocommerce-plugin-plan.md`,
@@ -13,7 +13,7 @@ repository (`docs/woocommerce-plugin-plan.md`,
 
 ```bash
 composer install
-composer lint     # WordPress coding standards + PHP 8.3 compatibility
+composer lint     # WordPress coding standards + PHP 8.1+ compatibility
 composer test     # PHPUnit unit tests
 ```
 

@@ -49,7 +49,7 @@ final class AdvancedPanel {
 		Ui::field_close();
 
 		Ui::field_open( __( 'Landline numbers', 'povikvane-for-woocommerce' ) );
-		Ui::toggle( $name . '[mobile_only]', (bool) $values['mobile_only'], __( 'Skip numbers that are not mobile (checked for Bulgaria)', 'povikvane-for-woocommerce' ), __( 'A message to a landline is charged but cannot be delivered.', 'povikvane-for-woocommerce' ) );
+		Ui::toggle( $name . '[mobile_only]', (bool) $values['mobile_only'], __( 'Do not send to landline numbers', 'povikvane-for-woocommerce' ), __( 'A message to a landline is charged but cannot be delivered. Only Bulgarian numbers are checked.', 'povikvane-for-woocommerce' ) );
 		Ui::field_close();
 
 		Ui::field_open( __( 'Orders created in the admin', 'povikvane-for-woocommerce' ) );

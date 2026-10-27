@@ -101,16 +101,69 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 	/**
 	 * Minimal wp_parse_url().
 	 *
-	 * @param string $url URL.
-	 * @return array<string,mixed>|false
+	 * @param string $url       URL.
+	 * @param int    $component Component, or -1 for all.
+	 * @return mixed
 	 */
-	function wp_parse_url( string $url ) {
-		return parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Test stand-in for wp_parse_url().
+	function wp_parse_url( string $url, int $component = -1 ) {
+		return parse_url( $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- Test stand-in for wp_parse_url().
 	}
 }
 
 // Stand-ins for the WordPress translation and number helpers: the text comes back untranslated.
 // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+// In-memory transients and text sanitising for classes that use them.
+if ( ! function_exists( 'set_transient' ) ) {
+	/**
+	 * Minimal set_transient().
+	 *
+	 * @param string $name  Name.
+	 * @param mixed  $value Value.
+	 * @param int    $ttl   Seconds (ignored).
+	 */
+	function set_transient( string $name, $value, int $ttl = 0 ): bool {
+		$GLOBALS['povikvane_test_transients'][ $name ] = $value;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_transient' ) ) {
+	/**
+	 * Minimal get_transient().
+	 *
+	 * @param string $name Name.
+	 * @return mixed
+	 */
+	function get_transient( string $name ) {
+		return $GLOBALS['povikvane_test_transients'][ $name ] ?? false;
+	}
+}
+
+if ( ! function_exists( 'delete_transient' ) ) {
+	/**
+	 * Minimal delete_transient().
+	 *
+	 * @param string $name Name.
+	 */
+	function delete_transient( string $name ): bool {
+		unset( $GLOBALS['povikvane_test_transients'][ $name ] );
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	/**
+	 * Minimal sanitize_text_field().
+	 *
+	 * @param string $text Text.
+	 */
+	function sanitize_text_field( string $text ): string {
+		return trim( strip_tags( $text ) );
+	}
+}
+
 if ( ! function_exists( '__' ) ) {
 	/**
 	 * Untranslated text.
@@ -119,6 +172,19 @@ if ( ! function_exists( '__' ) ) {
 	 * @param string $domain Text domain.
 	 */
 	function __( string $text, string $domain = 'default' ): string {
+		return $text;
+	}
+}
+
+if ( ! function_exists( '_x' ) ) {
+	/**
+	 * Untranslated text with a context.
+	 *
+	 * @param string $text    Text.
+	 * @param string $context Context.
+	 * @param string $domain  Text domain.
+	 */
+	function _x( string $text, string $context, string $domain = 'default' ): string {
 		return $text;
 	}
 }

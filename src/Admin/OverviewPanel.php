@@ -57,7 +57,7 @@ final class OverviewPanel {
 	private function render_checklist( OverviewData $data ): void {
 		$percent = SetupChecklist::percent( $data->checklist );
 
-		Ui::card_open( __( 'Finish setting up', 'povikvane-for-woocommerce' ), __( 'A few steps and your customers get their order updates by text message.', 'povikvane-for-woocommerce' ), 'pvk-card--accent' );
+		Ui::card_open( __( 'Finish setting up', 'povikvane-for-woocommerce' ), __( 'A few steps and your customers get their order updates by text message.', 'povikvane-for-woocommerce' ) );
 
 		printf(
 			'<div class="pvk-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="%1$d" aria-label="%2$s"><span style="width:%1$d%%"></span></div>',
@@ -96,10 +96,10 @@ final class OverviewPanel {
 	 */
 	private function describe_step( string $id ): array {
 		return match ( $id ) {
-			SetupChecklist::CONNECT  => array( __( 'Connect your Povikvane account', 'povikvane-for-woocommerce' ), __( 'Enter your API key and service ID.', 'povikvane-for-woocommerce' ), 'connection' ),
+			SetupChecklist::CONNECT  => array( __( 'Connect your Povikvane account', 'povikvane-for-woocommerce' ), __( 'Link this shop to your Povikvane account.', 'povikvane-for-woocommerce' ), 'connection' ),
 			SetupChecklist::MESSAGES => array( __( 'Choose which orders send a message', 'povikvane-for-woocommerce' ), __( 'Only "Completed" is switched on by default.', 'povikvane-for-woocommerce' ), 'messages' ),
 			SetupChecklist::TEST     => array( __( 'Send a test message', 'povikvane-for-woocommerce' ), __( 'Check that a real SMS reaches your phone.', 'povikvane-for-woocommerce' ), '' ),
-			default                  => array( __( 'Get delivery reports', 'povikvane-for-woocommerce' ), __( 'Add the webhook address in Povikvane to see "Delivered" as it happens.', 'povikvane-for-woocommerce' ), 'connection' ),
+			default                  => array( __( 'Get delivery reports', 'povikvane-for-woocommerce' ), __( 'Turn this on to see "Delivered" as it happens.', 'povikvane-for-woocommerce' ), 'connection' ),
 		};
 	}
 
@@ -162,7 +162,7 @@ final class OverviewPanel {
 
 		// Delivery reports.
 		if ( null === $data->last_report ) {
-			Ui::tile( __( 'Delivery reports', 'povikvane-for-woocommerce' ), Ui::pill( __( 'None yet', 'povikvane-for-woocommerce' ) ), __( 'Messages are still checked regularly. Add the webhook for instant results.', 'povikvane-for-woocommerce' ) );
+			Ui::tile( __( 'Delivery reports', 'povikvane-for-woocommerce' ), Ui::pill( __( 'None yet', 'povikvane-for-woocommerce' ) ), __( 'Delivery is checked every few minutes. Turn on delivery reports for instant results.', 'povikvane-for-woocommerce' ) );
 		} else {
 			Ui::tile(
 				__( 'Delivery reports', 'povikvane-for-woocommerce' ),

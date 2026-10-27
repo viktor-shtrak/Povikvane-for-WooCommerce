@@ -23,6 +23,11 @@ defined( 'ABSPATH' ) || exit;
  */
 final class WebhookRegistration {
 
+	/**
+	 * Option holding when Povikvane last reached this site with its own test.
+	 */
+	public const VERIFIED_OPTION = 'povikvane_webhook_verified_at';
+
 	public const REGISTERED = 'registered';
 	public const REFUSED    = 'refused';
 	public const FAILED     = 'failed';
