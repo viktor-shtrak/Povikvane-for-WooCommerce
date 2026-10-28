@@ -7,13 +7,19 @@ on:
 
 jobs:
   lint-and-test:
+    name: lint-and-test (PHP ${{ matrix.php }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest PHP the plugin supports, and the newest we develop on.
+        php: ['8.1', '8.3']
     steps:
       - uses: actions/checkout@v5
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php }}
           tools: composer
 
       - name: Install dependencies

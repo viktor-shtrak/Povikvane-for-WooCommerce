@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.12.0
+Stable tag: 0.13.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,20 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.13.0 =
+* New: "Check price" under each message asks Povikvane what the message costs, as an SMS or over Viber, without sending anything.
+* New: under each message you can pick one of your approved templates to fill the message, or go back to the message the plugin suggests.
+* New: "Show all templates" lists your templates with their language and status.
+* A template now counts as approved for Viber only after the Viber provider has approved it, not when Povikvane alone has.
+* Messages with {shop_url} can now go out over Viber: the shop address is written into the template.
+* The plugin now checks Viber's rules before sending a message for approval, including a field followed only by punctuation at the end of a message, and a field inside a web address.
+* Setup wizard: continuing now sends the selected messages for approval, and sending for approval also saves your choices. "Refresh templates" sits next to the heading and keeps what you changed.
+* Setup wizard: the custom field names are part of the messages step. An account with no names gets them filled in; an account with names is asked which fields to rename.
+* Setup wizard: the count of approved templates is gone.
+* Every notice after a step is shown now, not only the last one.
+* Prices read "1 credit" and "2 credits" correctly.
+* Development: the automatic tests now also run on PHP 8.1.
 
 = 0.12.0 =
 * New: "Connect with Povikvane". One button in the setup wizard and on the Settings tab takes you to Povikvane, you log in and approve this shop, and the plugin sets up the API key, service ID and signed delivery reports for you. There is nothing to copy. Entering a key by hand still works.

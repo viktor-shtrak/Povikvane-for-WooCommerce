@@ -26,6 +26,7 @@ use Povikvane\WooCommerce\Support\Settings;
 use Povikvane\WooCommerce\Support\SettingsSanitizer;
 use Povikvane\WooCommerce\Viber\TemplateCatalog;
 use Povikvane\WooCommerce\Viber\TemplateMatcher;
+use Povikvane\WooCommerce\Viber\TemplateRequestService;
 use Povikvane\WooCommerce\Webhook\SelfTest;
 use Povikvane\WooCommerce\Webhook\Token;
 use Povikvane\WooCommerce\Webhook\WebhookActivity;
@@ -55,6 +56,8 @@ final class SetupWizard {
 	 */
 	private const VIBER_CHOSEN = 'povikvane_wizard_viber_chosen';
 
+	public const SAVE_ACTION = 'povikvane_wizard_save';
+
 	private const CORE_STATUSES = array( 'processing', 'completed', 'on-hold', 'cancelled', 'refunded', 'failed' );
 
 	/**
@@ -74,19 +77,20 @@ final class SetupWizard {
 	/**
 	 * Constructor.
 	 *
-	 * @param Settings          $settings   Settings.
-	 * @param SettingsSanitizer $sanitizer  Validates settings.
-	 * @param TriggerRepository $triggers   Trigger configuration.
-	 * @param Repository        $repository Message log.
-	 * @param TestSender        $tester     Sends test messages.
-	 * @param SetupState        $state      Setup flags.
-	 * @param SetupProgress     $progress   Setup checklist.
-	 * @param Token             $token      Webhook secret.
-	 * @param WebhookActivity   $activity   Last delivery report.
-	 * @param TemplatesSection  $templates  Provides the message length estimate script.
-	 * @param FieldLabelsPanel  $labels     Custom field label check.
-	 * @param callable          $probe      Runs a capability probe.
-	 * @param ConnectPanel|null $connect    The "Connect with Povikvane" block.
+	 * @param Settings               $settings   Settings.
+	 * @param SettingsSanitizer      $sanitizer  Validates settings.
+	 * @param TriggerRepository      $triggers   Trigger configuration.
+	 * @param Repository             $repository Message log.
+	 * @param TestSender             $tester     Sends test messages.
+	 * @param SetupState             $state      Setup flags.
+	 * @param SetupProgress          $progress   Setup checklist.
+	 * @param Token                  $token      Webhook secret.
+	 * @param WebhookActivity        $activity   Last delivery report.
+	 * @param TemplatesSection       $templates  Provides the message length estimate script.
+	 * @param FieldLabelsPanel       $labels     Custom field label check.
+	 * @param TemplateRequestService $approvals Sends messages to Povikvane for approval.
+	 * @param callable               $probe      Runs a capability probe.
+	 * @param ConnectPanel|null      $connect    The "Connect with Povikvane" block.
 	 */
 	public function __construct(
 		private readonly Settings $settings,
@@ -100,6 +104,7 @@ final class SetupWizard {
 		private readonly WebhookActivity $activity,
 		private readonly TemplatesSection $templates,
 		private readonly FieldLabelsPanel $labels,
+		private readonly TemplateRequestService $approvals,
 		callable $probe,
 		private readonly ?ConnectPanel $connect = null
 	) {
@@ -126,6 +131,7 @@ final class SetupWizard {
 		add_action( 'admin_post_povikvane_wizard_test', array( $this, 'handle_test' ) );
 		add_action( 'admin_post_povikvane_wizard_finish', array( $this, 'handle_finish' ) );
 		add_action( 'wp_ajax_povikvane_wizard_status', array( $this, 'ajax_status' ) );
+		add_action( 'wp_ajax_' . self::SAVE_ACTION, array( $this, 'ajax_save' ) );
 	}
 
 	/**
@@ -332,13 +338,28 @@ final class SetupWizard {
 
 		$this->templates->render_viber_card( $caps, $viber_on, true );
 
-		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-step__title">' . esc_html__( 'Choose your messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-step__lead">' . esc_html__( 'Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later.', 'povikvane-for-woocommerce' ) . '</p><p class="pvk-card__intro" style="margin-top:8px">' . esc_html__( 'Details you can add:', 'povikvane-for-woocommerce' ) . ' ';
+		echo '<section class="pvk-card"><div class="pvk-card__head"><div class="pvk-card__headline"><h2 class="pvk-step__title">' . esc_html__( 'Choose your messages', 'povikvane-for-woocommerce' ) . '</h2>';
+		printf(
+			'<button type="submit" form="%1$s" name="pvk_after" value="refresh" class="pvk-btn" data-pvk-busy="%2$s">%3$s</button>',
+			esc_attr( $form ),
+			esc_attr__( 'Refreshing...', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Refresh templates', 'povikvane-for-woocommerce' )
+		);
+		echo '</div><p class="pvk-step__lead">' . esc_html__( 'Switch on the order updates your customers should receive, and adjust the wording if you like. You can change all of this later.', 'povikvane-for-woocommerce' ) . '</p><p class="pvk-card__intro" style="margin-top:8px">' . esc_html__( 'Details you can add:', 'povikvane-for-woocommerce' ) . ' ';
 		foreach ( Placeholders::NAMES as $name ) {
 			if ( ! in_array( $name, array( 'optout_link', 'tracking_url' ), true ) ) {
 				echo '<code>{' . esc_html( $name ) . '}</code> ';
 			}
 		}
 		echo '</p></div>';
+
+		ob_start();
+		$this->labels->render_for_wizard();
+		$labels = (string) ob_get_clean();
+
+		if ( '' !== $labels ) {
+			echo '<div class="pvk-card__body pvk-step__labels">' . $labels . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Printed and escaped by FieldLabelsPanel.
+		}
 
 		$this->templates->render_request_bar( $viber_on );
 
@@ -363,6 +384,7 @@ final class SetupWizard {
 				esc_attr( $match->state )
 			);
 			Ui::toggle( $name . '[enabled]', $trigger->enabled, $all[ $slug ] );
+			$this->templates->template_picker( $slug, $viber_on );
 			echo '</div><div>';
 			printf(
 				'<label class="screen-reader-text" for="pvk-text-%1$s">%2$s</label><textarea id="pvk-text-%1$s" name="%3$s[template]" rows="3" maxlength="1000" data-povikvane-template>%4$s</textarea><div class="pvk-estimate povikvane-estimate" aria-live="polite"></div>',
@@ -371,15 +393,21 @@ final class SetupWizard {
 				esc_attr( $name ),
 				esc_textarea( $trigger->template )
 			);
+			$this->templates->price_check();
 			$this->templates->viber_notes( $slug, $trigger->template, $viber_on, $match );
 			echo '</div></div>';
 		}
 
 		echo '</div></section>';
 
-		Ui::card_open();
-		$this->labels->render( $this->step_url( WizardSteps::MESSAGES ) );
-		Ui::card_close();
+		if ( $this->templates->can_request() ) {
+			// Choosing messages and wanting them on Viber is one wish: continuing sends the ones without a template for approval.
+			printf(
+				'<div class="pvk-step__approval" data-pvk-viber-only%1$s><label><input type="checkbox" name="pvk_send_approval" value="1" checked> %2$s</label></div>',
+				$viber_on ? '' : ' hidden',
+				esc_html__( 'When I continue, send the selected messages to Povikvane for approval, so they can go out over Viber.', 'povikvane-for-woocommerce' )
+			);
+		}
 
 		echo '</form>';
 
@@ -635,13 +663,104 @@ final class SetupWizard {
 	}
 
 	/**
-	 * Save the chosen messages.
+	 * Save the chosen messages, then do what the button that was pressed asks for.
 	 */
 	public function handle_messages(): void {
 		check_admin_referer( 'povikvane_wizard_messages' );
 		$this->require_capability();
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Nonce verified above; every value is sanitised by TriggerRepository::sanitize().
+		$this->save_choices();
+
+		$after = isset( $_POST['pvk_after'] ) ? sanitize_key( wp_unslash( $_POST['pvk_after'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+
+		if ( 'refresh' === $after ) {
+			( $this->probe )();
+			Flash::add( 'success', __( 'Your messages are saved and the templates are refreshed.', 'povikvane-for-woocommerce' ) );
+			$this->go( WizardSteps::MESSAGES );
+		}
+
+		Flash::add( 'success', __( 'Your messages are saved.', 'povikvane-for-woocommerce' ) );
+
+		if ( ! empty( $_POST['pvk_send_approval'] ) && ! empty( $_POST['viber_enabled'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+			$this->send_for_approval();
+		}
+
+		if ( ! empty( $_POST['pvk_labels_asked'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+			// The owner was shown the fields and ticked the ones to rename.
+			$ticked = isset( $_POST['pvk_label_fields'] ) && is_array( $_POST['pvk_label_fields'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['pvk_label_fields'] ) ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; sanitised here.
+
+			$this->labels->apply_fields( array_values( array_intersect( $ticked, AccountInfo::FIELDS ) ) );
+		} elseif ( $this->labels->fill_if_empty() ) {
+			// An account without custom field names gets the plugin's, so the owner is not asked.
+			Flash::add( 'success', __( 'The custom fields in Povikvane now have names: order number, order total and shop name.', 'povikvane-for-woocommerce' ) );
+		}
+
+		$this->go( WizardSteps::TEST );
+	}
+
+	/**
+	 * Send every switched-on message that has no approved template to Povikvane, and say what happened.
+	 */
+	private function send_for_approval(): void {
+		$names = $this->triggers->statuses();
+		$texts = array();
+
+		foreach ( self::CORE_STATUSES as $slug ) {
+			$trigger = $this->triggers->for_status( $slug );
+
+			if ( isset( $names[ $slug ] ) && $trigger->enabled && '' !== trim( $trigger->template ) ) {
+				$texts[ $slug ] = $trigger->template;
+			}
+		}
+
+		$sent     = 0;
+		$problems = array();
+
+		foreach ( $this->approvals->send( $texts, $names, wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ), time() ) as $slug => $result ) {
+			if ( TemplateRequestService::SENT === $result['result'] ) {
+				++$sent;
+			} elseif ( in_array( $result['result'], array( TemplateRequestService::BLOCKED, TemplateRequestService::FAILED ), true ) ) {
+				$problems[] = $names[ $slug ] . ': ' . $result['reason'];
+			}
+		}
+
+		if ( $sent > 0 ) {
+			Flash::add(
+				'success',
+				sprintf(
+					/* translators: %d: number of messages. */
+					_n( '%d message was sent to Povikvane for approval.', '%d messages were sent to Povikvane for approval.', $sent, 'povikvane-for-woocommerce' ),
+					$sent
+				)
+			);
+		}
+
+		if ( array() !== $problems ) {
+			Flash::add( 'error', implode( ' ', $problems ) );
+		}
+	}
+
+	/**
+	 * Save the messages from the page without leaving it, so sending messages for approval
+	 * never leaves the choices on screen unsaved.
+	 */
+	public function ajax_save(): void {
+		check_ajax_referer( 'povikvane_wizard_messages', '_wpnonce' );
+
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_send_json_error( array(), 403 );
+		}
+
+		$this->save_choices();
+		wp_send_json_success();
+	}
+
+	/**
+	 * Store the switches, wording and Viber choices posted by the messages step.
+	 * The caller has checked the nonce and the user's rights.
+	 */
+	private function save_choices(): void {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- Nonce verified by the caller; every value is sanitised by TriggerRepository::sanitize().
 		$posted = isset( $_POST[ TriggerRepository::OPTION ] ) && is_array( $_POST[ TriggerRepository::OPTION ] ) ? wp_unslash( $_POST[ TriggerRepository::OPTION ] ) : array();
 		$merged = $this->triggers->current_input();
 
@@ -669,17 +788,14 @@ final class SetupWizard {
 					$this->settings->all(),
 					array(
 						'api_key'            => '',
-						'viber_enabled'      => ! empty( $_POST['viber_enabled'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
-						'viber_sms_fallback' => $allowed && ! empty( $_POST['viber_sms_fallback'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+						'viber_enabled'      => ! empty( $_POST['viber_enabled'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by the caller.
+						'viber_sms_fallback' => $allowed && ! empty( $_POST['viber_sms_fallback'] ), // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by the caller.
 					)
 				)
 			)
 		);
 
 		update_option( self::VIBER_CHOSEN, '1', true );
-
-		Flash::add( 'success', __( 'Your messages are saved.', 'povikvane-for-woocommerce' ) );
-		$this->go( WizardSteps::TEST );
 	}
 
 	/**

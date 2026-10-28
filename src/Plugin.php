@@ -16,6 +16,7 @@ use Povikvane\WooCommerce\Admin\BalanceNotice;
 use Povikvane\WooCommerce\Admin\ConnectionPanel;
 use Povikvane\WooCommerce\Admin\DeliveryPanel;
 use Povikvane\WooCommerce\Admin\LanguageSwitcher;
+use Povikvane\WooCommerce\Admin\PriceEstimateAjax;
 use Povikvane\WooCommerce\Admin\MarketingSection;
 use Povikvane\WooCommerce\Admin\MessageLogPage;
 use Povikvane\WooCommerce\Admin\MessageStatusAjax;
@@ -241,7 +242,9 @@ final class Plugin {
 			$labels    = new FieldLabelsPanel( array( $this, 'run_probe' ), new ApiLabelWriter( $this->client(), is_array( $caps ) && true === ( $caps['account'] ?? null ) ) );
 			$labels->register();
 			$templates = new TemplatesSection( $this->triggers(), $this->settings(), $catalog, $requests, $submitter, $labels );
-			( new TemplateRequestAjax( new TemplateRequestService( $submitter, $catalog, $requests ), $this->triggers() ) )->register();
+			( new PriceEstimateAjax( $this->client(), $this->settings(), $catalog ) )->register();
+			$approvals = new TemplateRequestService( $submitter, $catalog, $requests );
+			( new TemplateRequestAjax( $approvals, $this->triggers() ) )->register();
 			$connect = new ConnectPanel(
 				new ConnectFlow( $this->client(), $this->connection_store(), $this->settings()->base_url() ),
 				$this->connection_store(),
@@ -299,6 +302,7 @@ final class Plugin {
 				$activity,
 				$templates,
 				$labels,
+				$approvals,
 				array( $this, 'run_probe' ),
 				$connect
 			) )->register();

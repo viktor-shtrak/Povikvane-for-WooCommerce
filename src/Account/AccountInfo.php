@@ -109,7 +109,15 @@ final class AccountInfo {
 	 */
 	public static function custom_field_labels( mixed $caps ): ?array {
 		$account = is_array( $caps ) && is_array( $caps['balance'] ?? null ) ? $caps['balance'] : array();
-		$raw     = $account['custom_fields'] ?? $account['customFields'] ?? null;
+		$raw     = null;
+
+		// Povikvane calls these the field descriptors inside the app, so accept that name too.
+		foreach ( array( 'custom_fields', 'customFields', 'custom_field_descriptors', 'customFieldDescriptors', 'custom_field_labels', 'customFieldLabels' ) as $key ) {
+			if ( is_array( $account[ $key ] ?? null ) ) {
+				$raw = $account[ $key ];
+				break;
+			}
+		}
 
 		if ( ! is_array( $raw ) ) {
 			return null;

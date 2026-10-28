@@ -3,7 +3,7 @@
  * Plugin Name:          Povikvane SMS for WooCommerce
  * Plugin URI:           https://app.povikvane.com/
  * Description:          Send order status SMS notifications and opt-in marketing messages from WooCommerce through your Povikvane account.
- * Version:              0.12.0
+ * Version:              0.13.0
  * Requires at least:    7.0
  * Requires PHP:         8.1
  * Requires Plugins:     woocommerce
@@ -24,7 +24,7 @@ namespace Povikvane\WooCommerce;
 
 defined( 'ABSPATH' ) || exit;
 
-const VERSION        = '0.12.0';
+const VERSION        = '0.13.0';
 const MIN_WC_VERSION = '11.0';
 const PLUGIN_FILE    = __FILE__;
 const PLUGIN_DIR     = __DIR__ . '/';

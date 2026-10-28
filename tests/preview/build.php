@@ -135,7 +135,26 @@ function pvk_wizard(): SetupWizard {
 
 	return new SetupWizard(
 		$settings, new SettingsSanitizer( $settings, $state ), $triggers, $repo, $tester, new SetupState(),
-		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null ), static fn() => null, pvk_connect( $settings, $state )
+		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel(
+			static fn() => null,
+			new class() implements Povikvane\WooCommerce\Account\LabelWriter {
+				/**
+				 * The preview shows the screen as it looks when the account allows renaming.
+				 */
+				public function available(): bool {
+					return true;
+				}
+
+				/**
+				 * Nothing is written.
+				 *
+				 * @param array<string,string> $labels Labels.
+				 */
+				public function save( array $labels ): bool {
+					return true;
+				}
+			}
+		), new Povikvane\WooCommerce\Viber\TemplateRequestService( new Povikvane\WooCommerce\Viber\UnavailableSubmitter(), new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests() ), static fn() => null, pvk_connect( $settings, $state )
 	);
 }
 
@@ -202,7 +221,7 @@ foreach ( $jobs as $name => $job ) {
 		$GLOBALS['pvk_options'][ Povikvane\WooCommerce\Viber\TemplateCatalog::OPTION ] = array(
 			'fetched_at' => time(),
 			'items'      => array(
-				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Order {customField1} from {customField2} is being processed.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Order {customField1} from {customField2} is being processed.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'provider_status' => 'approved', 'message_type' => 'transactional' ),
 				array( 'id' => 'tpl-2', 'name' => 'Hold notice', 'content' => 'Order {customField1} from {customField2} is on hold.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'pending', 'message_type' => null ),
 				array( 'id' => 'tpl-3', 'name' => 'Old offer', 'content' => 'Order {customField1} from {customField2} is complete. Thank you!', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'rejected', 'message_type' => null ),
 			),

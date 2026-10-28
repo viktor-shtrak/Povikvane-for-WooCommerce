@@ -80,7 +80,7 @@ final class ViberPlanner {
 	 * @return string|null A PROBLEM_* constant.
 	 */
 	public static function problem( ViberTemplate $template ): ?string {
-		if ( ! $template->is_approved() ) {
+		if ( ! $template->is_approved() || ! $template->is_carrier_approved() ) {
 			return self::PROBLEM_NOT_APPROVED;
 		}
 

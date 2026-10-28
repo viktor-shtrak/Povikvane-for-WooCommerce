@@ -37,6 +37,9 @@ use Povikvane\WooCommerce\Tests\Support\RecordingNotifier;
 use Povikvane\WooCommerce\Tests\Support\RecordingScheduler;
 use Povikvane\WooCommerce\Viber\ApiTemplateSubmitter;
 use Povikvane\WooCommerce\Messages\PriceEstimate;
+use Povikvane\WooCommerce\Messages\PriceEstimator;
+use Povikvane\WooCommerce\Viber\TemplateCatalog;
+use Povikvane\WooCommerce\Viber\ViberTemplate;
 use Povikvane\WooCommerce\Webhook\WebhookHandler;
 use Povikvane\WooCommerce\Support\Crypto;
 use Povikvane\WooCommerce\Webhook\SeenEvents;
@@ -643,5 +646,62 @@ final class ApiIntegrationTest extends TestCase {
 		}
 
 		$this->assertLessThanOrEqual( SeenEvents::MAX_KEPT, count( (array) get_option( SeenEvents::OPTION ) ) );
+	}
+
+	/**
+	 * A price check builds the message as a real send would: an SMS when no template matches, Viber when one does.
+	 */
+	public function test_price_check_uses_viber_only_when_a_template_matches(): void {
+		$answer = new ApiResult(
+			Outcome::Success,
+			200,
+			array(
+				'attributes' => array(
+					'credits'       => 0.8,
+					'initial_debit' => 1,
+				),
+			)
+		);
+		$values = array(
+			'order_number' => '1234',
+			'shop_name'    => 'Shop',
+		);
+
+		$sms = new FakeGateway();
+		$sms->will_return_for( 'estimate', $answer );
+		$out = ( new PriceEstimator( $sms, new TemplateCatalog(), true, true, false ) )->estimate( 'Order {order_number} from {shop_name}.', '+359888123456', $values );
+
+		$this->assertSame( 'sms', $out['channel'] ?? null );
+		$this->assertSame( 0.8, $out['estimate']->credits ?? null );
+
+		$catalog = new TemplateCatalog();
+		$catalog->replace(
+			array(
+				ViberTemplate::from_array(
+					array(
+						'id'              => 't1',
+						'name'            => 'Order',
+						'content'         => 'Order {{1}} from {{2}}.',
+						'variables'       => array( '1', '2' ),
+						'status'          => 'approved',
+						'provider_status' => 'approved',
+						'message_type'    => 'transactional',
+					)
+				),
+			),
+			1
+		);
+		$viber = new FakeGateway();
+		$viber->will_return_for( 'estimate', $answer );
+		$out = ( new PriceEstimator( $viber, $catalog, true, true, false ) )->estimate( 'Order {order_number} from {shop_name}.', '+359888123456', $values );
+
+		$this->assertSame( 'viber', $out['channel'] ?? null );
+
+		$off = new FakeGateway();
+		$off->will_return_for( 'estimate', $answer );
+		$out = ( new PriceEstimator( $off, $catalog, false, true, false ) )->estimate( 'Order {order_number} from {shop_name}.', '+359888123456', $values );
+		$this->assertSame( 'sms', $out['channel'] ?? null, 'Viber switched off means an SMS' );
+
+		$this->assertNull( ( new PriceEstimator( new FakeGateway(), new TemplateCatalog(), true, true, false ) )->estimate( '', '+359888123456', $values ) );
 	}
 }

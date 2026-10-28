@@ -52,6 +52,15 @@ final class TriggerRepository implements TriggerProvider {
 	}
 
 	/**
+	 * The ready-made text for a status, in the language of the messages.
+	 *
+	 * @param string $status Status slug without the "wc-" prefix.
+	 */
+	public function default_text( string $status ): string {
+		return TemplateDefaults::for_status( $status, $this->locale );
+	}
+
+	/**
 	 * Order statuses offered in the editor, keyed by slug.
 	 *
 	 * @return array<string,string>

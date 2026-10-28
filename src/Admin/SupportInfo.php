@@ -89,6 +89,8 @@ final class SupportInfo {
 					'Viber'                => Capabilities::viber_status( $caps, $values['viber_sms_fallback'] ),
 					'Viber switched on'    => $values['viber_enabled'],
 					'Viber SMS fallback'   => $values['viber_sms_fallback'],
+					'Custom field names'   => FieldLabelsPanel::plan()->state,
+					'Account answer keys'  => is_array( $caps['balance'] ?? null ) ? implode( ', ', array_map( 'strval', array_keys( $caps['balance'] ) ) ) : null,
 					'Credits'              => null === $balance ? null : $balance->available,
 					'Sending paused'       => $this->state->paused_reason(),
 					'Last webhook'         => null === $last ? null : Dates::format( $last['time'], 'Y-m-d H:i' ) . ' ' . $last['result'],

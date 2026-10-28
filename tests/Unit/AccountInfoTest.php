@@ -97,6 +97,16 @@ final class AccountInfoTest extends TestCase {
 				)
 			)
 		);
+
+		// The app's own name for the labels is read as well.
+		$this->assertSame(
+			array(
+				'customField1' => 'Birthday',
+				'customField2' => '',
+				'customField3' => '',
+			),
+			AccountInfo::custom_field_labels( array( 'balance' => array( 'custom_field_descriptors' => array( 'customField1' => 'Birthday' ) ) ) )
+		);
 	}
 
 	/**
@@ -120,6 +130,33 @@ final class AccountInfoTest extends TestCase {
 			)->state
 		);
 		$this->assertSame( FieldLabelPlan::MATCHES, FieldLabelPlan::compare( $this->woo(), $this->woo() )->state );
+	}
+
+	/**
+	 * The owner can rename only the fields they pick, and nothing else is sent.
+	 */
+	public function test_labels_for_picked_fields_only(): void {
+		$plan = FieldLabelPlan::compare(
+			array(
+				'customField1' => 'Birthday',
+				'customField2' => 'Sum',
+				'customField3' => '',
+			),
+			$this->woo()
+		);
+
+		$wanted = $this->woo();
+
+		$this->assertSame( array( 'customField3' => $wanted['customField3'] ), $plan->labels_for( array( 'customField3' ) ) );
+		$this->assertSame(
+			array(
+				'customField1' => $wanted['customField1'],
+				'customField3' => $wanted['customField3'],
+			),
+			$plan->labels_for( array( 'customField1', 'customField3' ) )
+		);
+		$this->assertSame( array(), $plan->labels_for( array() ) );
+		$this->assertSame( array(), $plan->labels_for( array( 'customField9' ) ) );
 	}
 
 	/**

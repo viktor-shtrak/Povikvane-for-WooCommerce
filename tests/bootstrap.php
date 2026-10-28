@@ -113,6 +113,46 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 // Stand-ins for the WordPress translation and number helpers: the text comes back untranslated.
 // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
 // In-memory transients and text sanitising for classes that use them.
+if ( ! function_exists( 'esc_html' ) ) {
+	/**
+	 * Escape text for HTML.
+	 *
+	 * @param string $text Text.
+	 */
+	function esc_html( string $text ): string {
+		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
+if ( ! function_exists( 'home_url' ) ) {
+	/**
+	 * The shop address used in the tests.
+	 */
+	function home_url(): string {
+		return 'https://shop.test/';
+	}
+}
+
+if ( ! function_exists( 'untrailingslashit' ) ) {
+	/**
+	 * Remove a trailing slash.
+	 *
+	 * @param string $value Address.
+	 */
+	function untrailingslashit( string $value ): string {
+		return rtrim( $value, '/\\' );
+	}
+}
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+	/**
+	 * The one signed-in user the tests use.
+	 */
+	function get_current_user_id(): int {
+		return 1;
+	}
+}
+
 if ( ! function_exists( 'set_transient' ) ) {
 	/**
 	 * Minimal set_transient().

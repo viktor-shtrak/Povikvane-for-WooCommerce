@@ -80,12 +80,79 @@
 		sync();
 	} );
 
+
+	// Fill a message with the wording of an approved template, or with the plugin's own suggestion.
+	document.addEventListener( 'change', function ( event ) {
+		var select = event.target instanceof Element ? event.target.closest( 'select[data-pvk-pick]' ) : null;
+
+		if ( ! select || ! select.value ) {
+			return;
+		}
+
+		var row = select.closest( '.pvk-trigger[data-pvk-status]' );
+		var text = row ? area( row ) : null;
+		var option = select.options[ select.selectedIndex ];
+
+		if ( text && option ) {
+			var edited = text.value.replace( /\s+/g, ' ' ).trim() !== row.getAttribute( 'data-pvk-initial' ).replace( /\s+/g, ' ' ).trim();
+
+			if ( ! edited || window.confirm( select.getAttribute( 'data-confirm' ) ) ) {
+				var badge = row.querySelector( '[data-pvk-badge]' );
+
+				// The text is now the chosen one, so the row counts as that wording stands.
+				row.setAttribute( 'data-pvk-initial', option.getAttribute( 'data-text' ) );
+				row.setAttribute( 'data-pvk-match', option.getAttribute( 'data-match' ) );
+				text.value = option.getAttribute( 'data-text' );
+
+				if ( badge ) {
+					// The server escaped this markup.
+					badge.innerHTML = option.getAttribute( 'data-badge' );
+				}
+
+				text.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			}
+		}
+
+		// Back to the heading, so the list is ready for another choice.
+		select.selectedIndex = 0;
+		select.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+	} );
+
 	var result = document.querySelector( '[data-pvk-request-result]' );
 
 	function say( message ) {
 		if ( result ) {
 			result.textContent = message;
 		}
+	}
+
+	/**
+	 * In the setup wizard, keep the switches and wording on the page: sending messages for
+	 * approval must not leave the choices unsaved.
+	 *
+	 * @return {Promise<boolean>} Whether the choices were saved.
+	 */
+	function saveChoices() {
+		var form = document.getElementById( 'pvk-wizard-messages' );
+
+		if ( ! form || ! config.save_action ) {
+			return Promise.resolve( false );
+		}
+
+		var body = new FormData( form );
+
+		body.set( 'action', config.save_action );
+
+		return fetch( config.url, { method: 'POST', body: body, credentials: 'same-origin' } )
+			.then( function ( response ) {
+				return response.json();
+			} )
+			.then( function ( data ) {
+				return !! ( data && data.success );
+			} )
+			.catch( function () {
+				return false;
+			} );
 	}
 
 	/**
@@ -121,11 +188,15 @@
 		body.append( 'nonce', config.nonce );
 		say( config.working );
 
-		fetch( config.url, { method: 'POST', body: body, credentials: 'same-origin' } )
-			.then( function ( response ) {
+		Promise.all( [
+			saveChoices(),
+			fetch( config.url, { method: 'POST', body: body, credentials: 'same-origin' } ).then( function ( response ) {
 				return response.json();
 			} )
-			.then( function ( data ) {
+		] )
+			.then( function ( both ) {
+				var kept = both[ 0 ];
+				var data = both[ 1 ];
 				var results = data && data.success ? data.data.results : {};
 				var sent = 0;
 				var problems = [];
@@ -146,10 +217,10 @@
 					}
 				} );
 
-				say( ( sent ? config.sent + ': ' + sent + '. ' : '' ) + problems.join( ' ' ) );
+				say( ( sent ? config.sent + ': ' + sent + '. ' : '' ) + problems.join( ' ' ) + ( kept ? ' ' + config.saved : '' ) );
 
 				if ( ! sent && ! problems.length ) {
-					say( config.nothing );
+					say( config.nothing + ( kept ? ' ' + config.saved : '' ) );
 				}
 			} )
 			.catch( function () {

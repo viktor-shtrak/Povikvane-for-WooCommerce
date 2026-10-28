@@ -123,10 +123,19 @@ final class ViberTemplate {
 	}
 
 	/**
-	 * Whether it is registered with the carrier as a transactional template.
+	 * Whether the carrier (MsgHub) has approved it. Povikvane's own approval is not enough:
+	 * until the carrier says yes, a message sent with the template would be refused.
+	 */
+	public function is_carrier_approved(): bool {
+		return 'approved' === strtolower( trim( (string) $this->provider_status ) );
+	}
+
+	/**
+	 * Whether it can be used to send: approved by Povikvane and by the carrier, and
+	 * registered as a transactional template.
 	 */
 	public function is_transactional(): bool {
-		return $this->is_approved() && 'transactional' === $this->message_type;
+		return $this->is_approved() && $this->is_carrier_approved() && 'transactional' === $this->message_type;
 	}
 
 	/**

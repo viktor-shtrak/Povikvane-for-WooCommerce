@@ -43,6 +43,7 @@ use Povikvane\WooCommerce\Tests\Support\RecordingScheduler;
 use Povikvane\WooCommerce\Viber\TemplateCatalog;
 use Povikvane\WooCommerce\Viber\TemplateSync;
 use Povikvane\WooCommerce\Viber\TemplateDraft;
+use Povikvane\WooCommerce\Viber\TemplateFiller;
 use Povikvane\WooCommerce\Viber\TemplateMatch;
 use Povikvane\WooCommerce\Viber\TemplateMatcher;
 use Povikvane\WooCommerce\Viber\ViberPlanner;
@@ -83,6 +84,7 @@ final class ViberTest extends TestCase {
 					'content'               => 'Order {customField1} from {customField2} is shipped.',
 					'variables'             => array( 'customField1', 'customField2' ),
 					'approval_status'       => 'approved',
+					'provider_status'       => 'approved',
 					'message_type'          => 'transactional',
 					'why_not_transactional' => null,
 				),
@@ -272,6 +274,26 @@ final class ViberTest extends TestCase {
 	}
 
 	/**
+	 * A template is usable only once the carrier (MsgHub) has approved it, whatever Povikvane says.
+	 */
+	public function test_only_a_carrier_approved_template_is_usable(): void {
+		foreach ( array( null, 'pending', 'submitted', '' ) as $provider ) {
+			$catalog = $this->catalog( array( $this->api_item( array( 'provider_status' => $provider ) ) ) );
+			$match   = TemplateMatcher::find( $this->text(), $catalog );
+
+			$this->assertSame( TemplateMatch::PENDING, $match->state, 'carrier status: ' . wp_json_encode( $provider ) );
+			$this->assertFalse( $match->is_ready() );
+			$this->assertInstanceOf( ViberTemplate::class, $match->template );
+			$this->assertFalse( $match->template->is_transactional() );
+			$this->assertSame( ViberPlanner::PROBLEM_NOT_APPROVED, ViberPlanner::problem( $match->template ) );
+		}
+
+		$approved = $this->catalog( array( $this->api_item( array( 'provider_status' => 'Approved' ) ) ) );
+
+		$this->assertTrue( TemplateMatcher::find( $this->text(), $approved )->is_ready() );
+	}
+
+	/**
 	 * Approved by Povikvane but still with the carrier counts as waiting, not as a wrong kind of template.
 	 */
 	public function test_template_waiting_for_the_carrier_is_pending(): void {
@@ -338,6 +360,80 @@ final class ViberTest extends TestCase {
 		);
 		$this->assertSame( 'en', $template?->lang );
 		$this->assertSame( 'approved', ViberTemplate::from_array( (array) $template?->to_array() )?->provider_status );
+	}
+
+	/**
+	 * Povikvane's own rules: punctuation after the last field does not make it text, and a field
+	 * may follow a fixed web address but not be part of its domain.
+	 */
+	public function test_draft_follows_the_provider_rules(): void {
+		foreach ( array( 'Order {order_number} from {shop_name}.', 'Order {order_number} from {shop_name}!?  ', 'Hello, order {order_number}.', 'Order is ready (ref {shop_name})', 'Say "{shop_name}"' ) as $text ) {
+			$this->assertSame( TemplateDraft::PROBLEM_EDGE, TemplateDraft::from_text( $text )->problem, $text );
+		}
+
+		$this->assertNull( TemplateDraft::from_text( 'Order {order_number} from {shop_name} is ready.' )->problem );
+		$this->assertNull( TemplateDraft::from_text( 'Order {order_number} from {shop_name}. Thanks!' )->problem );
+
+		foreach ( array( 'Open https://{order_number}/details now', 'Open www.{order_number}/details now', 'Open https://portal.example.com{order_number}/details now', 'Open https://portal.example.com:{order_number}/details now' ) as $text ) {
+			$this->assertSame( TemplateDraft::PROBLEM_URL_HOST, TemplateDraft::from_text( $text )->problem, $text );
+		}
+
+		foreach ( array( 'Open https://portal.example.com/p/{order_number} for details.', 'Open https://portal.example.com/view?id={order_number} for details.', 'Hello, order {order_number} from {shop_name}, thanks.' ) as $text ) {
+			$this->assertNull( TemplateDraft::from_text( $text )->problem, $text );
+		}
+	}
+
+	/**
+	 * All four details work over Viber: the order number, total and shop name travel in fields 1, 2 and 3,
+	 * and the shop address is written into the template as plain text.
+	 */
+	public function test_all_four_details_work_over_viber(): void {
+		$text  = 'Order {order_number} for {order_total} from {shop_name}. See {shop_url} for details.';
+		$draft = TemplateDraft::from_text( $text );
+
+		$this->assertNull( $draft->problem );
+		$this->assertSame( 'Order {customField1} for {customField2} from {customField3}. See https://shop.test for details.', $draft->content );
+
+		// What Povikvane stores after the carrier approves it.
+		$catalog = $this->catalog(
+			array(
+				$this->api_item(
+					array(
+						'content'   => $draft->content,
+						'variables' => array( 'customField1', 'customField2', 'customField3' ),
+					)
+				),
+			)
+		);
+
+		$this->assertTrue( TemplateMatcher::find( $text, $catalog )->is_ready() );
+
+		$values = array(
+			'order_number' => '1234',
+			'order_total'  => '25,00 лв.',
+			'shop_name'    => 'Demo Shop',
+			'shop_url'     => 'https://shop.test',
+		);
+		$plan   = ViberPlanner::plan( true, true, false, $text, $values, Placeholders::render( $text, $values ), $catalog );
+
+		$this->assertNotNull( $plan );
+		$this->assertSame(
+			array(
+				'customField1' => '1234',
+				'customField2' => '25,00 лв.',
+				'customField3' => 'Demo Shop',
+			),
+			$plan->params,
+			'the order values fill the fields; the address is not a field'
+		);
+		$this->assertSame( 'Order 1234 for 25,00 лв. from Demo Shop. See https://shop.test for details.', $plan->text );
+
+		// Picking that template later brings back the message as it is written here.
+		$this->assertSame( $text, TemplateFiller::text_for( $catalog->all()[0] ) );
+
+		// The address may end a message; a changing link still may not be filled in.
+		$this->assertNull( TemplateDraft::from_text( 'Order {order_number} is ready, see {shop_url}' )->problem );
+		$this->assertSame( TemplateDraft::PROBLEM_LINK, TemplateDraft::from_text( 'Track {order_number} here: {tracking_url} please.' )->problem );
 	}
 
 	/**

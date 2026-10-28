@@ -111,8 +111,9 @@ final class TemplateRequestService {
 	public static function problem_text( string $problem ): string {
 		return match ( $problem ) {
 			TemplateDraft::PROBLEM_EMPTY    => __( 'The message is empty.', 'povikvane-for-woocommerce' ),
-			TemplateDraft::PROBLEM_EDGE     => __( 'A Viber message cannot start or end with a field such as {order_number} or {shop_name}. Put some words before and after it.', 'povikvane-for-woocommerce' ),
-			TemplateDraft::PROBLEM_LINK     => __( 'A Viber message cannot contain a field that is a link.', 'povikvane-for-woocommerce' ),
+			TemplateDraft::PROBLEM_EDGE     => __( 'A Viber message cannot start or end with a field such as {order_number} or {shop_name}, even when only a full stop or other punctuation follows it. Put some words before and after it.', 'povikvane-for-woocommerce' ),
+			TemplateDraft::PROBLEM_LINK     => __( 'A Viber message cannot fill in a link from a field such as {tracking_url}. Type the web address into the message instead.', 'povikvane-for-woocommerce' ),
+			TemplateDraft::PROBLEM_URL_HOST => __( 'In a Viber message a field cannot be part of the beginning of a web address. Write the address first and put the field after it, for example https://myshop.bg/order/{order_number}.', 'povikvane-for-woocommerce' ),
 			TemplateDraft::PROBLEM_TOO_MANY => __( 'A Viber message can have at most three different fields.', 'povikvane-for-woocommerce' ),
 			default                         => __( 'The message is too long for Viber.', 'povikvane-for-woocommerce' ),
 		};

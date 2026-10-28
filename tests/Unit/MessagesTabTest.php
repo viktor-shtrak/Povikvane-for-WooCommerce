@@ -12,6 +12,8 @@ namespace Povikvane\WooCommerce\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use Povikvane\WooCommerce\Messages\LegacyPlaceholders;
 use Povikvane\WooCommerce\Viber\SubmitResult;
+use Povikvane\WooCommerce\Viber\TemplateFiller;
+use Povikvane\WooCommerce\Viber\TemplateMatcher;
 use Povikvane\WooCommerce\Viber\TemplateCatalog;
 use Povikvane\WooCommerce\Viber\TemplateRequestService;
 use Povikvane\WooCommerce\Viber\TemplateRequests;
@@ -183,5 +185,59 @@ final class MessagesTabTest extends TestCase {
 	public function test_template_names_are_short_enough(): void {
 		$this->assertSame( 'Demo - Completed', TemplateRequestService::name_for( 'Completed', 'Demo' ) );
 		$this->assertSame( 48, mb_strlen( TemplateRequestService::name_for( str_repeat( 'Я', 60 ), 'Магазин' ) ) );
+	}
+
+	/**
+	 * Build an approved transactional template.
+	 *
+	 * @param string $content Template content.
+	 */
+	private function approved( string $content ): ViberTemplate {
+		$template = ViberTemplate::from_array(
+			array(
+				'id'              => 't1',
+				'name'            => 'Order',
+				'content'         => $content,
+				'variables'       => array(),
+				'status'          => 'approved',
+				'provider_status' => 'approved',
+				'message_type'    => 'transactional',
+			)
+		);
+
+		$this->assertInstanceOf( ViberTemplate::class, $template );
+
+		return $template;
+	}
+
+	/**
+	 * Fields 1, 2 and 3 become the order number, total and shop name, keeping the line breaks.
+	 */
+	public function test_a_template_fills_a_message_with_order_values(): void {
+		$text = TemplateFiller::text_for( $this->approved( "Order {{customField1}} for {customField2}\nfrom {{ customField3 }}." ) );
+
+		$this->assertSame( "Order {order_number} for {order_total}\nfrom {shop_name}.", $text );
+	}
+
+	/**
+	 * A template that needs the customer's name or another field cannot be filled from an order.
+	 */
+	public function test_a_template_with_other_variables_is_left_out(): void {
+		$this->assertNull( TemplateFiller::text_for( $this->approved( 'Hello {{firstName}}, order {{customField1}} is ready.' ) ) );
+		$this->assertNull( TemplateFiller::text_for( $this->approved( 'Order {{customField4}} is ready.' ) ) );
+	}
+
+	/**
+	 * The filled message is recognised as that very template, so nothing is sent for approval.
+	 */
+	public function test_a_filled_message_matches_its_template(): void {
+		$template = $this->approved( 'Order {{customField1}} from {{customField3}} is ready.' );
+		$catalog  = new TemplateCatalog();
+		$catalog->replace( array( $template ), 1 );
+
+		$text = TemplateFiller::text_for( $template );
+
+		$this->assertNotNull( $text );
+		$this->assertTrue( TemplateMatcher::find( (string) $text, $catalog )->is_ready() );
 	}
 }

@@ -59,13 +59,23 @@ final class TemplateMatcher {
 	}
 
 	/**
+	 * Write the shop's address in place of {shop_url}. The address never changes, so Viber
+	 * can carry it as fixed text in the template (a Viber field may not hold a link).
+	 *
+	 * @param string $text SMS text with {placeholders}.
+	 */
+	public static function with_shop_address( string $text ): string {
+		return (string) preg_replace_callback( '/\{shop_url\}/i', static fn(): string => untrailingslashit( home_url() ), $text );
+	}
+
+	/**
 	 * The best template for a text: approved ones first.
 	 *
 	 * @param string          $text    SMS text with {placeholders}.
 	 * @param TemplateCatalog $catalog Templates of the account.
 	 */
 	public static function find( string $text, TemplateCatalog $catalog ): TemplateMatch {
-		$mine = self::split( $text, false );
+		$mine = self::split( self::with_shop_address( $text ), false );
 		$best = TemplateMatch::none();
 		$rank = -1;
 
@@ -137,16 +147,12 @@ final class TemplateMatcher {
 			return TemplateMatch::REJECTED;
 		}
 
-		if ( ! $template->is_approved() ) {
+		// Approved by Povikvane is only half of it: it counts as approved once the carrier has answered yes.
+		if ( ! $template->is_approved() || ! $template->is_carrier_approved() ) {
 			return TemplateMatch::PENDING;
 		}
 
-		if ( $template->is_transactional() ) {
-			return TemplateMatch::READY;
-		}
-
-		// Approved by Povikvane but the carrier has not answered yet: it counts as transactional only once it does.
-		return 'pending' === $provider || str_contains( strtolower( (string) $template->why_not ), 'awaiting' ) ? TemplateMatch::PENDING : TemplateMatch::NOT_TRANSACTION;
+		return $template->is_transactional() ? TemplateMatch::READY : TemplateMatch::NOT_TRANSACTION;
 	}
 
 	/**

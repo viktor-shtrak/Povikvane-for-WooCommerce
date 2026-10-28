@@ -80,4 +80,14 @@ final class FieldLabelPlan {
 
 		return $out;
 	}
+
+	/**
+	 * Labels to send when the owner picked which fields to rename.
+	 *
+	 * @param string[] $fields Fields to rename, such as "customField2".
+	 * @return array<string,string> Field => label, only for the picked fields.
+	 */
+	public function labels_for( array $fields ): array {
+		return array_intersect_key( $this->wanted, array_flip( $fields ) );
+	}
 }
