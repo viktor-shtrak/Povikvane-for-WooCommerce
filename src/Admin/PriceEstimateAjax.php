@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Messages\PriceEstimator;
 use Povikvane\WooCommerce\Support\Countries;
@@ -59,7 +60,7 @@ final class PriceEstimateAjax {
 
 		$text = isset( $_POST['text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['text'] ) ) : '';
 		$caps = get_option( Capabilities::OPTION, array() );
-		$fall = $this->settings->viber_sms_fallback();
+		$fall = $this->settings->viber_sms_fallback() && false !== AccountInfo::sms_fallback_allowed( $caps );
 
 		$estimator = new PriceEstimator(
 			$this->gateway,

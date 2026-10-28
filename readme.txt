@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.13.0
+Stable tag: 0.13.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,11 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 0.13.1 =
+* The SMS fallback switch is greyed out for the Starter and Bronze plans, which do not include it, even when the account does not say so itself. A plan without it never asks for a fallback when sending.
+* On the Messages tab, "Refresh templates" sits under "Your templates".
+* The support report shows the plan name and whether the SMS fallback is allowed.
 
 = 0.13.0 =
 * New: "Check price" under each message asks Povikvane what the message costs, as an SMS or over Viber, without sending anything.

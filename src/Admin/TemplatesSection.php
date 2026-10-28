@@ -130,7 +130,12 @@ final class TemplatesSection {
 
 		if ( ! $in_wizard ) {
 			// The wizard leaves this row out: the lists under each message are enough there.
-			Ui::field_open( __( 'Your templates', 'povikvane-for-woocommerce' ) );
+			// The refresh button sits under the row's name, so the right side only has the facts.
+			ob_start();
+			Layout::action_button( __( 'Refresh templates', 'povikvane-for-woocommerce' ), 'povikvane_check_connection' );
+			$refresh = (string) ob_get_clean();
+
+			Ui::field_open( __( 'Your templates', 'povikvane-for-woocommerce' ), '', '', '<div class="pvk-field__action">' . $refresh . '</div>' );
 
 			if ( 0 === $approved ) {
 				echo Ui::pill( __( 'None approved', 'povikvane-for-woocommerce' ), 'warn' ) . ' ' . esc_html__( 'You have no approved Viber templates yet, so every message goes out as an SMS. Send your messages for approval below.', 'povikvane-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html__().
@@ -139,10 +144,6 @@ final class TemplatesSection {
 			}
 
 			$this->template_list();
-
-			echo '<p class="pvk-field__action">';
-			Layout::action_button( __( 'Refresh templates', 'povikvane-for-woocommerce' ), 'povikvane_check_connection' );
-			echo '</p>';
 			Ui::field_close();
 		}
 

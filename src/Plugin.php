@@ -705,15 +705,21 @@ final class Plugin {
 			 * @param string $status   New order status slug without "wc-".
 			 */
 			static fn( OrderFacts $facts ): bool => (bool) apply_filters( 'povikvane_should_send', true, $facts->order_id, $facts->status ),
-			fn( Trigger $trigger, array $values, string $sms_text ): ?ViberPlan => ViberPlanner::plan(
-				$this->settings()->viber_enabled(),
-				Capabilities::viber_ready( get_option( Capabilities::OPTION, array() ), $this->settings()->viber_sms_fallback() ),
-				$this->settings()->viber_sms_fallback(),
-				$trigger->template,
-				$values,
-				$sms_text,
-				new TemplateCatalog()
-			)
+			function ( Trigger $trigger, array $values, string $sms_text ): ?ViberPlan {
+				$caps = get_option( Capabilities::OPTION, array() );
+				// A plan without the SMS fallback never asks for one, even if the switch was left on before.
+				$fallback = $this->settings()->viber_sms_fallback() && false !== AccountInfo::sms_fallback_allowed( $caps );
+
+				return ViberPlanner::plan(
+					$this->settings()->viber_enabled(),
+					Capabilities::viber_ready( $caps, $fallback ),
+					$fallback,
+					$trigger->template,
+					$values,
+					$sms_text,
+					new TemplateCatalog()
+				);
+			}
 		);
 	}
 

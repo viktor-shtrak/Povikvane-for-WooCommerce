@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace Povikvane\WooCommerce\Admin;
 
+use Povikvane\WooCommerce\Account\AccountInfo;
 use Povikvane\WooCommerce\Api\Capabilities;
 use Povikvane\WooCommerce\Balance\BalanceStore;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
@@ -89,6 +90,8 @@ final class SupportInfo {
 					'Viber'                => Capabilities::viber_status( $caps, $values['viber_sms_fallback'] ),
 					'Viber switched on'    => $values['viber_enabled'],
 					'Viber SMS fallback'   => $values['viber_sms_fallback'],
+					'Plan'                 => AccountInfo::plan_name( $caps ),
+					'SMS fallback allowed' => AccountInfo::sms_fallback_allowed( $caps ),
 					'Custom field names'   => FieldLabelsPanel::plan()->state,
 					'Account answer keys'  => is_array( $caps['balance'] ?? null ) ? implode( ', ', array_map( 'strval', array_keys( $caps['balance'] ) ) ) : null,
 					'Credits'              => null === $balance ? null : $balance->available,

@@ -23,8 +23,8 @@ final class AccountInfo {
 	/**
 	 * Whether the plan includes the SMS fallback for Viber messages.
 	 *
-	 * False when Povikvane refused a fallback or the account says its plan has none;
-	 * true when the account says it has one; null when nothing is known yet.
+	 * False when Povikvane refused a fallback, the account says its plan has none, or the plan
+	 * is Starter or Bronze; true when the account says it has one; null when nothing is known yet.
 	 *
 	 * @param mixed $caps Stored capabilities option.
 	 */
@@ -43,6 +43,11 @@ final class AccountInfo {
 			if ( is_bool( $value ) ) {
 				return $value;
 			}
+		}
+
+		// The account does not say, but it names its plan, and Starter and Bronze have no SMS fallback.
+		if ( 1 === preg_match( '/\b(?:starter|bronze)\b/i', (string) self::plan_name( $caps ) ) ) {
+			return false;
 		}
 
 		return null;

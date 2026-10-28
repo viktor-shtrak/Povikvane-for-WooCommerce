@@ -63,8 +63,9 @@ final class Ui {
 	 * @param string $label Label, plain text.
 	 * @param string $control_id ID of the control the label belongs to, if there is one.
 	 * @param string $hint  Help text under the label, plain text.
+	 * @param string $under_label_html Something to show under the label, such as a button; already escaped HTML.
 	 */
-	public static function field_open( string $label, string $control_id = '', string $hint = '' ): void {
+	public static function field_open( string $label, string $control_id = '', string $hint = '', string $under_label_html = '' ): void {
 		echo '<div class="pvk-field"><div class="pvk-field__label">';
 
 		echo '' !== $control_id
@@ -74,6 +75,8 @@ final class Ui {
 		if ( '' !== $hint ) {
 			echo '<div class="pvk-field__hint">' . esc_html( $hint ) . '</div>';
 		}
+
+		echo $under_label_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Documented as already escaped.
 
 		echo '</div><div class="pvk-field__control">';
 	}
