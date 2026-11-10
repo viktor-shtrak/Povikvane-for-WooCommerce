@@ -4,7 +4,7 @@ Tags: sms, woocommerce, order notifications, text messages, orders
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.13.2
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,8 @@ Povikvane SMS for WooCommerce sends text messages to your customers when their o
 * Privacy tools: suggested policy text, and personal data export and erase for customers.
 * Works with the WooCommerce Blocks checkout, the classic checkout and High-Performance Order Storage.
 * Bulgarian and English are included. The plugin follows your site language, and you can choose another in the settings.
+
+Povikvane (https://povikvane.com/) is a Bulgarian platform for SMS and Viber messages for businesses.
 
 A setup wizard opens after activation and walks you through connecting your account, choosing messages and sending a test.
 
@@ -78,6 +80,9 @@ Messages wait and are sent once credits are available, and you see a notice in t
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
 
 == Changelog ==
+
+= 1.0.0 =
+* First public release. It includes everything from the earlier test versions: order messages, Viber with an SMS fallback, the setup wizard, price check, review requests with consent, the message log and privacy tools.
 
 = 0.13.2 =
 * The review request can now be sent a few hours after an order is completed, so it can go out the same day. Choose hours or days next to the wait; hours go up to 72. Messages still only go out during your sending hours.
