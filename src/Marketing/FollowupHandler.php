@@ -40,8 +40,6 @@ final class FollowupHandler {
 	public const RESULT_QUEUED    = 'queued';
 	public const RESULT_SKIPPED   = 'skipped';
 
-	private const MAX_DAYS = 60;
-
 	/**
 	 * Constructor.
 	 *
@@ -109,7 +107,7 @@ final class FollowupHandler {
 		$message->body = $this->body( $facts, $message->recipient );
 
 		$this->storm->check();
-		$this->enqueuer->enqueue( $message, max( 1, min( self::MAX_DAYS, $this->config->days ) ) * DAY_IN_SECONDS );
+		$this->enqueuer->enqueue( $message, $this->config->delay() );
 
 		return self::RESULT_QUEUED;
 	}

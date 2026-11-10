@@ -117,6 +117,32 @@ final class MarketingSettingsTest extends TestCase {
 	}
 
 	/**
+	 * The wait can be given in hours; an unknown unit means days and hours stop at 72.
+	 */
+	public function test_followup_unit_is_hours_or_days(): void {
+		update_option(
+			MarketingSettings::OPTION,
+			array(
+				'followup_enabled' => true,
+				'followup_days'    => 500,
+				'followup_unit'    => 'hours',
+			)
+		);
+		$all = ( new MarketingSettings( 'en_US' ) )->all();
+		$this->assertSame( array( 'hours', 72 ), array( $all['followup_unit'], $all['followup_days'] ) );
+
+		update_option(
+			MarketingSettings::OPTION,
+			array(
+				'followup_days' => 3,
+				'followup_unit' => 'weeks',
+			)
+		);
+		$all = ( new MarketingSettings( 'en_US' ) )->all();
+		$this->assertSame( array( 'days', 3 ), array( $all['followup_unit'], $all['followup_days'] ) );
+	}
+
+	/**
 	 * Every option the plugin creates is removed on uninstall.
 	 */
 	public function test_uninstall_removes_every_option(): void {

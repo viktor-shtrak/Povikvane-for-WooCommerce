@@ -14,6 +14,7 @@ use Povikvane\WooCommerce\Marketing\ConsentRepository;
 use Povikvane\WooCommerce\Marketing\ContactSync;
 use Povikvane\WooCommerce\Marketing\UnavailableContactSync;
 use Povikvane\WooCommerce\Marketing\Defaults;
+use Povikvane\WooCommerce\Marketing\FollowupConfig;
 use Povikvane\WooCommerce\Marketing\MarketingSettings;
 use Povikvane\WooCommerce\Marketing\OptOutForm;
 use Povikvane\WooCommerce\Support\Csv;
@@ -74,7 +75,8 @@ final class MarketingSection {
 			'cap_max'           => MarketingSettings::clamp( (int) ( $input['cap_max'] ?? 1 ), 0, 100 ),
 			'cap_days'          => MarketingSettings::clamp( (int) ( $input['cap_days'] ?? 7 ), 0, 365 ),
 			'followup_enabled'  => ! empty( $input['followup_enabled'] ),
-			'followup_days'     => MarketingSettings::clamp( (int) ( $input['followup_days'] ?? 7 ), 1, 60 ),
+			'followup_unit'     => MarketingSettings::unit( (string) ( $input['followup_unit'] ?? '' ) ),
+			'followup_days'     => MarketingSettings::clamp( (int) ( $input['followup_days'] ?? 7 ), 1, FollowupConfig::HOURS === MarketingSettings::unit( (string) ( $input['followup_unit'] ?? '' ) ) ? FollowupConfig::MAX_HOURS : FollowupConfig::MAX_DAYS ),
 			'followup_template' => Defaults::followup_template( $this->locale ) === $template ? '' : $this->shorten( $template, 600 ),
 		);
 	}
@@ -210,12 +212,19 @@ final class MarketingSection {
 		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
 		Ui::toggle( $name . '[followup_enabled]', $all['followup_enabled'], __( 'Send a review request', 'povikvane-for-woocommerce' ) );
 		printf(
-			'<div class="pvk-inline"><input type="number" name="%1$s[followup_days]" value="%2$d" min="1" max="60" aria-label="%3$s"> <span>%4$s</span></div>',
+			'<div class="pvk-inline"><input type="number" name="%1$s[followup_days]" value="%2$d" min="1" max="%3$d" aria-label="%4$s"> <select name="%1$s[followup_unit]" aria-label="%5$s"><option value="hours"%6$s>%7$s</option><option value="days"%8$s>%9$s</option></select> <span>%10$s</span></div>',
 			esc_attr( $name ),
 			(int) $all['followup_days'],
-			esc_attr__( 'Days after completion', 'povikvane-for-woocommerce' ),
-			esc_html__( 'days after an order is completed', 'povikvane-for-woocommerce' )
+			(int) FollowupConfig::MAX_DAYS,
+			esc_attr__( 'How long after completion', 'povikvane-for-woocommerce' ),
+			esc_attr__( 'Hours or days', 'povikvane-for-woocommerce' ),
+			selected( $all['followup_unit'], FollowupConfig::HOURS, false ),
+			esc_html__( 'hours', 'povikvane-for-woocommerce' ),
+			selected( $all['followup_unit'], FollowupConfig::DAYS, false ),
+			esc_html__( 'days', 'povikvane-for-woocommerce' ),
+			esc_html__( 'after an order is completed', 'povikvane-for-woocommerce' )
 		);
+		echo '<p class="pvk-field__hint">' . esc_html__( 'To send on the same day, choose hours, for example 2. Up to 72 hours. Promotional messages only go out during the sending hours you set, so a message that would fall outside them waits for the next opening.', 'povikvane-for-woocommerce' ) . '</p>';
 		Ui::field_close();
 
 		Ui::field_open( __( 'Message', 'povikvane-for-woocommerce' ), 'povikvane_followup_template', __( 'An unsubscribe link is added automatically if the text does not contain {optout_link}. The link counts towards the message length.', 'povikvane-for-woocommerce' ) );

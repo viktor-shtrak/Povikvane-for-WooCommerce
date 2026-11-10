@@ -462,9 +462,10 @@ final class MarketingTest extends TestCase {
 	 *
 	 * @param bool   $enabled Whether follow-ups are on.
 	 * @param string $template Template.
-	 * @param int    $days Days.
+	 * @param int    $days Wait, counted in the unit.
+	 * @param string $unit 'days' or 'hours'.
 	 */
-	private function followup( bool $enabled = true, string $template = 'Hi {first_name}, rate us: {shop_url}', int $days = 7 ): FollowupHandler {
+	private function followup( bool $enabled = true, string $template = 'Hi {first_name}, rate us: {shop_url}', int $days = 7, string $unit = 'days' ): FollowupHandler {
 		$state = new InMemoryState();
 
 		return new FollowupHandler(
@@ -479,7 +480,7 @@ final class MarketingTest extends TestCase {
 			$this->clock,
 			'ab12cd34',
 			new Rules(),
-			new FollowupConfig( $enabled, $days, $template, 'Stop:' ),
+			new FollowupConfig( $enabled, $days, $template, 'Stop:', $unit ),
 			'https://shop.example.com/'
 		);
 	}
@@ -526,6 +527,18 @@ final class MarketingTest extends TestCase {
 		$this->assertSame( self::NOW + 7 * 86400, $message->send_after );
 		$this->assertStringContainsString( 'Hi Maria, rate us: https://shop.example.com Stop: https://shop.example.com/?po=', $message->body );
 		$this->assertSame( $this->consent->hash( self::PHONE ), ( new OptOutToken( 'secret' ) )->verify( substr( $message->body, strpos( $message->body, '?po=' ) + 4 ) ) );
+	}
+
+	/**
+	 * Choosing hours sends the request the same day, and the hours are capped at 72.
+	 */
+	public function test_followup_can_be_scheduled_in_hours(): void {
+		$this->consent->grant( self::PHONE, null, ConsentEvent::SOURCE_CHECKOUT, 77, 0, 'abc' );
+
+		$this->followup( true, 'Rate us {optout_link}', 2, 'hours' )->handle( $this->facts() );
+
+		$this->assertSame( self::NOW + 2 * 3600, $this->store->find( 1 )->send_after );
+		$this->assertSame( 72 * 3600, ( new FollowupConfig( true, 500, 'x', 'Stop:', 'hours' ) )->delay() );
 	}
 
 	/**

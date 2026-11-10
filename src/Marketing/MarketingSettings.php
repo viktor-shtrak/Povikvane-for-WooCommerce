@@ -31,6 +31,7 @@ final class MarketingSettings {
 		'cap_days'          => 7,
 		'followup_enabled'  => false,
 		'followup_days'     => 7,
+		'followup_unit'     => 'days',
 		'followup_template' => '',
 	);
 
@@ -44,7 +45,7 @@ final class MarketingSettings {
 	/**
 	 * All settings with defaults applied.
 	 *
-	 * @return array{enabled:bool,consent_text:string,quiet_open:int,quiet_close:int,cap_max:int,cap_days:int,followup_enabled:bool,followup_days:int,followup_template:string}
+	 * @return array{enabled:bool,consent_text:string,quiet_open:int,quiet_close:int,cap_max:int,cap_days:int,followup_enabled:bool,followup_days:int,followup_unit:string,followup_template:string}
 	 */
 	public function all(): array {
 		$stored = get_option( self::OPTION, array() );
@@ -59,7 +60,8 @@ final class MarketingSettings {
 			'cap_max'           => self::clamp( (int) $value( 'cap_max' ), 0, 100 ),
 			'cap_days'          => self::clamp( (int) $value( 'cap_days' ), 0, 365 ),
 			'followup_enabled'  => (bool) $value( 'followup_enabled' ),
-			'followup_days'     => self::clamp( (int) $value( 'followup_days' ), 1, 60 ),
+			'followup_unit'     => self::unit( (string) $value( 'followup_unit' ) ),
+			'followup_days'     => self::clamp( (int) $value( 'followup_days' ), 1, FollowupConfig::HOURS === self::unit( (string) $value( 'followup_unit' ) ) ? FollowupConfig::MAX_HOURS : FollowupConfig::MAX_DAYS ),
 			'followup_template' => (string) $value( 'followup_template' ),
 		);
 	}
@@ -123,8 +125,18 @@ final class MarketingSettings {
 			$all['enabled'] && $all['followup_enabled'],
 			$all['followup_days'],
 			'' !== $template ? $template : Defaults::followup_template( $this->locale ),
-			Defaults::optout_label( $this->locale )
+			Defaults::optout_label( $this->locale ),
+			$all['followup_unit']
 		);
+	}
+
+	/**
+	 * A known wait unit, days when the value is anything else.
+	 *
+	 * @param string $unit Submitted unit.
+	 */
+	public static function unit( string $unit ): string {
+		return FollowupConfig::HOURS === $unit ? FollowupConfig::HOURS : FollowupConfig::DAYS;
 	}
 
 	/**
