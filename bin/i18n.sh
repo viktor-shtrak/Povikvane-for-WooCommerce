@@ -2,10 +2,12 @@
 #
 # Refreshes the translation files.
 #
-#   1. Extracts every translatable string into languages/povikvane-sms-for-woocommerce.pot
+#   1. Extracts every translatable string into translations/povikvane-sms-for-woocommerce.pot
 #      (this English template is the master: all source strings are English).
-#   2. Merges new and changed strings into each languages/*.po file.
-#   3. Compiles every .po into the .mo file WordPress loads.
+#   2. Merges new and changed strings into each translations/*.po file.
+#   3. Checks every .po compiles (the .mo is not kept: WordPress.org builds its own).
+#
+# The files are not shipped in the plugin zip. They are the source for translate.wordpress.org.
 #
 # Needs the GNU gettext tools (xgettext, msgmerge, msgfmt), for example
 # "brew install gettext". Usage: bin/i18n.sh
@@ -17,7 +19,7 @@ cd "$root"
 
 slug="povikvane-sms-for-woocommerce"
 version="$(sed -n 's/^ \* Version: *//p' "${slug}.php" | head -1)"
-pot="languages/${slug}.pot"
+pot="translations/${slug}.pot"
 
 files="$(find src -name '*.php' | sort) ${slug}.php uninstall.php"
 
@@ -35,11 +37,11 @@ xgettext \
 	--sort-by-file \
 	-o "${pot}" ${files}
 
-for po in languages/*.po; do
+for po in translations/*.po; do
 	[ -e "${po}" ] || continue
 	msgmerge --update --backup=none --no-wrap --quiet "${po}" "${pot}"
-	msgfmt --check --output-file="${po%.po}.mo" "${po}"
-	echo "Compiled ${po%.po}.mo"
+	msgfmt --check --output-file=/dev/null "${po}"
+	echo "Checked ${po}"
 done
 
 echo "Wrote ${pot}"

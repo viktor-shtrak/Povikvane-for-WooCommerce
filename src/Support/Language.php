@@ -126,12 +126,14 @@ final class Language {
 			'init',
 			static function (): void {
 				$locale = self::resolve( self::screen_setting(), determine_locale() );
-				$file   = PLUGIN_DIR . 'languages/' . self::DOMAIN . '-' . $locale . '.mo';
-
-				// Whatever WordPress loaded by itself for the site language is dropped, so the choice made here wins.
-				unload_textdomain( self::DOMAIN );
+				// The translation WordPress.org delivers for that language, if it is installed. Without one the
+				// plugin stays in English, and whatever WordPress loaded by itself is left alone.
+				$file = WP_LANG_DIR . '/plugins/' . self::DOMAIN . '-' . $locale . '.mo';
 
 				if ( is_readable( $file ) ) {
+					// Dropped, so the choice made here wins over the site language.
+					unload_textdomain( self::DOMAIN );
+
 					// WordPress 6.5 and later only reads a file filed under the locale it is currently using, so the
 					// file is filed under that one even when it holds another language.
 					$current = class_exists( '\\WP_Translation_Controller' ) ? \WP_Translation_Controller::get_instance()->get_locale() : determine_locale();

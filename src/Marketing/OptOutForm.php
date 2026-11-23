@@ -29,6 +29,9 @@ final class OptOutForm {
 	public const DONE    = 'done';
 	public const INVALID = 'invalid';
 	public const WAIT    = 'wait';
+	public const EXPIRED = 'expired';
+
+	private const NONCE_FIELD = 'povikvane_optout_nonce';
 
 	private const MAX_PER_HOUR = 10;
 
@@ -98,6 +101,7 @@ final class OptOutForm {
 			),
 			self::INVALID => __( 'That does not look like a mobile phone number. Check it and try again.', 'povikvane-sms-for-woocommerce' ),
 			self::WAIT    => __( 'Too many attempts. Please try again later.', 'povikvane-sms-for-woocommerce' ),
+			self::EXPIRED => __( 'This page was out of date. Please press the button again.', 'povikvane-sms-for-woocommerce' ),
 			default       => '',
 		};
 
@@ -112,6 +116,7 @@ final class OptOutForm {
 		// Hidden from people, tempting to robots.
 		$out .= '<p style="position:absolute;left:-9999px" aria-hidden="true"><label>' . esc_html__( 'Leave this empty', 'povikvane-sms-for-woocommerce' ) . '<input type="text" name="website" tabindex="-1" autocomplete="off"></label></p>';
 		$out .= '<input type="hidden" name="action" value="' . esc_attr( self::ACTION ) . '">';
+		$out .= wp_nonce_field( self::ACTION, self::NONCE_FIELD, false, false );
 		$here = get_permalink();
 		$out .= '<input type="hidden" name="back" value="' . esc_url( false === $here ? home_url( '/' ) : $here ) . '">';
 		$out .= '<p><button type="submit">' . esc_html__( 'Stop promotional SMS', 'povikvane-sms-for-woocommerce' ) . '</button></p></form>';
@@ -121,13 +126,21 @@ final class OptOutForm {
 
 	/**
 	 * Handle the form.
+	 *
+	 * The nonce is checked first. A page kept in a shop's page cache can carry an old one, so a
+	 * failed check does not stop the visitor: they are sent back to the page with an extra address
+	 * part, which caches skip, so it shows a fresh form and a short note to press the button again.
 	 */
 	public function handle(): void {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A public opt-out form cannot carry a nonce: pages with the form are cached. It is limited by a hidden field and a rate limit instead, and it can only withdraw consent.
+		$nonce = isset( $_POST[ self::NONCE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_FIELD ] ) ) : '';
+		$back  = isset( $_POST['back'] ) ? esc_url_raw( wp_unslash( $_POST['back'] ) ) : '';
+
+		if ( false === wp_verify_nonce( $nonce, self::ACTION ) ) {
+			$this->finish( self::EXPIRED, $back );
+		}
+
 		$phone = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
 		$trap  = isset( $_POST['website'] ) ? sanitize_text_field( wp_unslash( $_POST['website'] ) ) : '';
-		$back  = isset( $_POST['back'] ) ? esc_url_raw( wp_unslash( $_POST['back'] ) ) : '';
-		// phpcs:enable
 
 		$key     = 'povikvane_optout_' . md5( isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' );
 		$count   = (int) get_transient( $key );
@@ -135,8 +148,16 @@ final class OptOutForm {
 
 		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
 
-		$result = $this->process( $phone, $trap, $limited );
+		$this->finish( $this->process( $phone, $trap, $limited ), $back );
+	}
 
+	/**
+	 * Send the visitor back to the page with the result.
+	 *
+	 * @param string $result One of the result constants.
+	 * @param string $back   Page the form was on.
+	 */
+	private function finish( string $result, string $back ): never {
 		wp_safe_redirect( add_query_arg( self::PARAM, $result, '' !== $back ? $back : home_url( '/' ) ) );
 		exit;
 	}

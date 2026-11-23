@@ -17,7 +17,7 @@ rm -rf "${out:?}/${slug}"
 mkdir -p "${out}/${slug}"
 
 cp "${root}/${slug}.php" "${root}/readme.txt" "${root}/uninstall.php" "${out}/${slug}/"
-cp -R "${root}/src" "${root}/assets" "${root}/languages" "${out}/${slug}/"
+cp -R "${root}/src" "${root}/assets" "${out}/${slug}/"
 find "${out}/${slug}" -name '.DS_Store' -delete
 
 if [ "${2:-}" = "zip" ]; then

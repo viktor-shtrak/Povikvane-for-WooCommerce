@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Povikvane SMS for WooCommerce 1.0.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-11-23 08:53+0200\n"
+"POT-Creation-Date: 2026-11-23 17:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2389,32 +2389,36 @@ msgid "Unsubscribed"
 msgstr ""
 
 #. translators: %s: shop name.
-#: src/Marketing/OptOutForm.php:96
+#: src/Marketing/OptOutForm.php:99
 #, php-format
 msgid "Done. This number will not get promotional SMS messages from %s any more. You will still receive messages about your orders."
 msgstr ""
 
-#: src/Marketing/OptOutForm.php:99
+#: src/Marketing/OptOutForm.php:102
 msgid "That does not look like a mobile phone number. Check it and try again."
 msgstr ""
 
-#: src/Marketing/OptOutForm.php:100
+#: src/Marketing/OptOutForm.php:103
 msgid "Too many attempts. Please try again later."
 msgstr ""
 
-#: src/Marketing/OptOutForm.php:110
+#: src/Marketing/OptOutForm.php:104
+msgid "This page was out of date. Please press the button again."
+msgstr ""
+
+#: src/Marketing/OptOutForm.php:114
 msgid "Your mobile phone number"
 msgstr ""
 
-#: src/Marketing/OptOutForm.php:111
+#: src/Marketing/OptOutForm.php:115
 msgid "e.g. 0888 123 456"
 msgstr ""
 
-#: src/Marketing/OptOutForm.php:113
+#: src/Marketing/OptOutForm.php:117
 msgid "Leave this empty"
 msgstr ""
 
-#: src/Marketing/OptOutForm.php:117
+#: src/Marketing/OptOutForm.php:122
 msgid "Stop promotional SMS"
 msgstr ""
 

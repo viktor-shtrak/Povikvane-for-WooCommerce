@@ -91,6 +91,8 @@ Yes. Bulgarian is included, and the default message texts follow the language se
 
 = 1.0.0 =
 * First public release. It includes everything from the earlier test versions: order messages, Viber with an SMS fallback, the setup wizard, price check, review requests with consent, the message log and privacy tools.
+* The public opt-out form is protected with a nonce. A page kept in a cache with an old one shows a short note and a fresh form.
+* Translations come from translate.wordpress.org, so the plugin ships no translation files.
 
 = 0.13.2 =
 * The review request can now be sent a few hours after an order is completed, so it can go out the same day. Choose hours or days next to the wait; hours go up to 72. Messages still only go out during your sending hours.
