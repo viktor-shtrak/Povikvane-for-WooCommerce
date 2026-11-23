@@ -37,10 +37,7 @@ use Povikvane\WooCommerce\Webhook\OptionActivity;
 use Povikvane\WooCommerce\Webhook\Token;
 
 if ( 'bg_BG' === getenv( 'PVK_LANG' ) ) {
-	// The translation source is not shipped, so it is compiled here for the Bulgarian preview.
-	$mo = sys_get_temp_dir() . '/pvk-preview-bg_BG.mo';
-	exec( 'msgfmt -o ' . escapeshellarg( $mo ) . ' ' . escapeshellarg( dirname( __DIR__, 2 ) . '/translations/povikvane-sms-for-woocommerce-bg_BG.po' ) );
-	$GLOBALS['pvk_mo'] = Povikvane\WooCommerce\Tests\Support\MoFile::read( $mo );
+	$GLOBALS['pvk_mo'] = Povikvane\WooCommerce\Tests\Support\MoFile::read( dirname( __DIR__, 2 ) . '/languages/povikvane-sms-for-woocommerce-bg_BG.mo' );
 }
 $bg     = 'bg_BG' === getenv( 'PVK_LANG' );
 $prefix = $bg ? 'bg-' : '';

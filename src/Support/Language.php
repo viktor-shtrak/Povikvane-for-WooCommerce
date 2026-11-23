@@ -126,11 +126,9 @@ final class Language {
 			'init',
 			static function (): void {
 				$locale = self::resolve( self::screen_setting(), determine_locale() );
-				// The translation WordPress.org delivers for that language, if it is installed. Without one the
-				// plugin stays in English, and whatever WordPress loaded by itself is left alone.
-				$file = WP_LANG_DIR . '/plugins/' . self::DOMAIN . '-' . $locale . '.mo';
+				$file   = self::translation_file( $locale );
 
-				if ( is_readable( $file ) ) {
+				if ( '' !== $file ) {
 					// Dropped, so the choice made here wins over the site language.
 					unload_textdomain( self::DOMAIN );
 
@@ -143,5 +141,26 @@ final class Language {
 			},
 			0
 		);
+	}
+
+	/**
+	 * The translation to load for a language, or '' when there is none.
+	 *
+	 * One in wp-content/languages/plugins comes first: the shop's own (for example saved by Loco
+	 * Translate) or the one translate.wordpress.org delivered. The file shipped with the plugin is the
+	 * fallback, so the Language setting works even on a site whose own language is different.
+	 *
+	 * @param string $locale Locale, for example bg_BG.
+	 */
+	public static function translation_file( string $locale ): string {
+		foreach ( array( WP_LANG_DIR . '/plugins/', PLUGIN_DIR . 'languages/' ) as $dir ) {
+			$file = $dir . self::DOMAIN . '-' . $locale . '.mo';
+
+			if ( is_readable( $file ) ) {
+				return $file;
+			}
+		}
+
+		return '';
 	}
 }
