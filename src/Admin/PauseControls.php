@@ -54,24 +54,24 @@ final class PauseControls {
 	public function render_notice(): void {
 		$reason = $this->state->paused_reason();
 
-		if ( null === $reason || ! current_user_can( self::CAPABILITY ) ) {
+		if ( null === $reason || ! current_user_can( self::CAPABILITY ) || ! NoticeScreens::allowed( true ) ) {
 			return;
 		}
 
-		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ) . '</strong> ' . esc_html( $this->text( $reason ) ) . '</p><p>';
+		echo '<div class="notice notice-error"><p><strong>' . esc_html__( 'Povikvane', 'povikvane-sms-for-woocommerce' ) . '</strong> ' . esc_html( $this->text( $reason ) ) . '</p><p>';
 
 		switch ( $reason ) {
 			case SendingState::REASON_SITE:
-				$this->button( 'povikvane_confirm_site', __( 'This is the live site', 'povikvane-for-woocommerce' ), true );
+				$this->button( 'povikvane_confirm_site', __( 'This is the live site', 'povikvane-sms-for-woocommerce' ), true );
 				break;
 
 			case SendingState::REASON_STORM:
-				$this->button( 'povikvane_resume', __( 'Send these messages', 'povikvane-for-woocommerce' ), true );
-				$this->button( 'povikvane_discard_pending', __( 'Discard waiting messages', 'povikvane-for-woocommerce' ), false );
+				$this->button( 'povikvane_resume', __( 'Send these messages', 'povikvane-sms-for-woocommerce' ), true );
+				$this->button( 'povikvane_discard_pending', __( 'Discard waiting messages', 'povikvane-sms-for-woocommerce' ), false );
 				break;
 
 			default:
-				printf( '<a class="button" href="%1$s">%2$s</a>', esc_url( admin_url( 'admin.php?page=' . SettingsPage::SLUG ) ), esc_html__( 'Open settings', 'povikvane-for-woocommerce' ) );
+				printf( '<a class="button" href="%1$s">%2$s</a>', esc_url( admin_url( 'admin.php?page=' . SettingsPage::SLUG ) ), esc_html__( 'Open settings', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		echo '</p></div>';
@@ -85,7 +85,7 @@ final class PauseControls {
 		$this->require_capability();
 
 		$this->state->resume();
-		Flash::add( 'success', __( 'Sending resumed.', 'povikvane-for-woocommerce' ) );
+		Flash::add( 'success', __( 'Sending resumed.', 'povikvane-sms-for-woocommerce' ) );
 		$this->back();
 	}
 
@@ -97,7 +97,7 @@ final class PauseControls {
 		$this->require_capability();
 
 		$this->site_guard->confirm_live();
-		Flash::add( 'success', __( 'Thanks. This site is now confirmed and sending is active.', 'povikvane-for-woocommerce' ) );
+		Flash::add( 'success', __( 'Thanks. This site is now confirmed and sending is active.', 'povikvane-sms-for-woocommerce' ) );
 		$this->back();
 	}
 
@@ -115,7 +115,7 @@ final class PauseControls {
 			'success',
 			sprintf(
 				/* translators: %d: number of messages. */
-				_n( '%d waiting message was discarded. Sending resumed.', '%d waiting messages were discarded. Sending resumed.', $count, 'povikvane-for-woocommerce' ),
+				_n( '%d waiting message was discarded. Sending resumed.', '%d waiting messages were discarded. Sending resumed.', $count, 'povikvane-sms-for-woocommerce' ),
 				$count
 			)
 		);
@@ -130,10 +130,10 @@ final class PauseControls {
 	private function text( string $reason ): string {
 		switch ( $reason ) {
 			case SendingState::REASON_CREDITS:
-				return __( 'The account has no credits, so messages are on hold. Top up your credits; held messages are sent automatically once credits are available, unless they become too old.', 'povikvane-for-woocommerce' );
+				return __( 'The account has no credits, so messages are on hold. Top up your credits; held messages are sent automatically once credits are available, unless they become too old.', 'povikvane-sms-for-woocommerce' );
 
 			case SendingState::REASON_SITE:
-				return __( 'This site\'s address is different from the one the plugin was set up on (for example a staging copy of the shop). Sending is off so customers are not messaged by mistake, and orders are skipped. If this is the real shop, confirm it below.', 'povikvane-for-woocommerce' );
+				return __( 'This site\'s address is different from the one the plugin was set up on (for example a staging copy of the shop). Sending is off so customers are not messaged by mistake, and orders are skipped. If this is the real shop, confirm it below.', 'povikvane-sms-for-woocommerce' );
 
 			case SendingState::REASON_STORM:
 				$counts  = $this->repository->counts_by_status();
@@ -141,12 +141,12 @@ final class PauseControls {
 
 				return sprintf(
 					/* translators: %d: number of waiting messages. */
-					_n( 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard it.', 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard them.', $waiting, 'povikvane-for-woocommerce' ),
+					_n( 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d message is waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard it.', 'Many messages were created at once, so sending was paused to protect against accidental mass messaging. %d messages are waiting. Review the list under WooCommerce > Povikvane - Viber & SMS, then send or discard them.', $waiting, 'povikvane-sms-for-woocommerce' ),
 					$waiting
 				);
 
 			default:
-				return __( 'The API key or service ID was rejected, so no messages are being sent. Check the connection settings.', 'povikvane-for-woocommerce' );
+				return __( 'The API key or service ID was rejected, so no messages are being sent. Check the connection settings.', 'povikvane-sms-for-woocommerce' );
 		}
 	}
 
@@ -170,7 +170,7 @@ final class PauseControls {
 	 */
 	private function require_capability(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 	}
 

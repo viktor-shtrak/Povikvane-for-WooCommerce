@@ -136,8 +136,8 @@ final class SettingsPage {
 	public function add_menu(): void {
 		$this->hook_suffix = (string) add_submenu_page(
 			'woocommerce',
-			__( 'Povikvane - Viber & SMS', 'povikvane-for-woocommerce' ),
-			__( 'Povikvane - Viber & SMS', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane - Viber & SMS', 'povikvane-sms-for-woocommerce' ),
+			__( 'Povikvane - Viber & SMS', 'povikvane-sms-for-woocommerce' ),
 			self::CAPABILITY,
 			self::SLUG,
 			array( $this, 'render' )
@@ -225,7 +225,7 @@ final class SettingsPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'povikvane-for-woocommerce' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		$values            = $this->settings->all();
@@ -237,41 +237,41 @@ final class SettingsPage {
 
 		Layout::open( '', 'data-pvk-tabs data-pvk-initial="' . esc_attr( $tab ) . '"' );
 
-		// Show the right panel from the first paint, so no other tab flashes before the script runs.
-		echo '<noscript><style>.pvk[data-pvk-tabs] .pvk-panel{display:block!important}</style></noscript>';
-		wp_print_inline_script_tag( '( function () { var h = window.location.hash.slice( 1 ); if ( ' . wp_json_encode( self::TABS ) . '.indexOf( h ) === -1 ) { return; } var s = document.createElement( "style" ); s.textContent = ".pvk[data-pvk-tabs] .pvk-panel{display:none!important}.pvk[data-pvk-tabs] #pvk-panel-" + h + "{display:block!important}"; document.querySelector( ".pvk[data-pvk-tabs]" ).appendChild( s ); }() );' );
+		// A tab named in the address is shown from the first paint, so no other tab flashes before the script runs.
+		// The stylesheet does the showing; this only marks which tab was asked for.
+		wp_print_inline_script_tag( '( function () { var h = window.location.hash.slice( 1 ); var r = document.querySelector( ".pvk[data-pvk-tabs]" ); if ( r && ' . wp_json_encode( self::TABS ) . '.indexOf( h ) !== -1 ) { r.setAttribute( "data-pvk-first", h ); } }() );' );
 
 		Layout::tabs(
 			array(
 				array(
 					'id'    => 'overview',
-					'label' => __( 'Overview', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Overview', 'povikvane-sms-for-woocommerce' ),
 					'dot'   => array() !== $data->attention,
 				),
 				array(
 					'id'    => 'messages',
-					'label' => __( 'Messages', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Messages', 'povikvane-sms-for-woocommerce' ),
 				),
 				array(
 					'id'    => 'promotions',
-					'label' => __( 'Promotions', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Promotions', 'povikvane-sms-for-woocommerce' ),
 				),
 				array(
 					'id'    => 'reviews',
-					'label' => __( 'Review request', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Review request', 'povikvane-sms-for-woocommerce' ),
 				),
 				array(
 					'id'    => 'settings',
-					'label' => __( 'Settings', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Settings', 'povikvane-sms-for-woocommerce' ),
 					'dot'   => Capabilities::CONNECTION_OK !== $data->connection,
 				),
 				array(
 					'id'    => 'advanced',
-					'label' => __( 'Advanced', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Advanced', 'povikvane-sms-for-woocommerce' ),
 				),
 				array(
 					'id'    => 'log',
-					'label' => __( 'Message log', 'povikvane-for-woocommerce' ),
+					'label' => __( 'Message log', 'povikvane-sms-for-woocommerce' ),
 					'url'   => $data->log_url,
 				),
 			),
@@ -307,9 +307,9 @@ final class SettingsPage {
 
 		printf(
 			'<div class="pvk-savebar" data-pvk-savebar><button type="submit" class="pvk-btn pvk-btn--primary">%1$s</button><span class="pvk-savebar__status" data-dirty="%2$s">%3$s</span></div>',
-			esc_html__( 'Save changes', 'povikvane-for-woocommerce' ),
-			esc_attr__( 'You have unsaved changes', 'povikvane-for-woocommerce' ),
-			esc_html__( 'All changes saved', 'povikvane-for-woocommerce' )
+			esc_html__( 'Save changes', 'povikvane-sms-for-woocommerce' ),
+			esc_attr__( 'You have unsaved changes', 'povikvane-sms-for-woocommerce' ),
+			esc_html__( 'All changes saved', 'povikvane-sms-for-woocommerce' )
 		);
 
 		echo '</form>';
@@ -464,7 +464,7 @@ final class SettingsPage {
 	 */
 	private function require_capability(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 	}
 
@@ -483,11 +483,11 @@ final class SettingsPage {
 	 */
 	private function connection_label( string $connection ): string {
 		return match ( $connection ) {
-			Capabilities::CONNECTION_OK          => __( 'Connected.', 'povikvane-for-woocommerce' ),
-			Capabilities::CONNECTION_AUTH        => __( 'The API key or service ID was rejected.', 'povikvane-for-woocommerce' ),
-			Capabilities::CONNECTION_UNREACHABLE => __( 'The service could not be reached.', 'povikvane-for-woocommerce' ),
-			Capabilities::CONNECTION_CONFIG      => __( 'The service rejected the request; check the service ID.', 'povikvane-for-woocommerce' ),
-			default                              => __( 'Not checked yet.', 'povikvane-for-woocommerce' ),
+			Capabilities::CONNECTION_OK          => __( 'Connected.', 'povikvane-sms-for-woocommerce' ),
+			Capabilities::CONNECTION_AUTH        => __( 'The API key or service ID was rejected.', 'povikvane-sms-for-woocommerce' ),
+			Capabilities::CONNECTION_UNREACHABLE => __( 'The service could not be reached.', 'povikvane-sms-for-woocommerce' ),
+			Capabilities::CONNECTION_CONFIG      => __( 'The service rejected the request; check the service ID.', 'povikvane-sms-for-woocommerce' ),
+			default                              => __( 'Not checked yet.', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }

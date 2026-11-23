@@ -2,7 +2,7 @@ parameters:
 	level: 8
 	paths:
 		- src
-		- povikvane-for-woocommerce.php
+		- povikvane-sms-for-woocommerce.php
 		- uninstall.php
 	scanFiles:
 		- vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php

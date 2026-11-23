@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Povikvane SMS for WooCommerce 0.13.1\n"
+"Project-Id-Version: Povikvane SMS for WooCommerce 1.0.0\n"
 "Report-Msgid-Bugs-To: support@povikvane.com\n"
-"POT-Creation-Date: 2026-10-29 09:20+0200\n"
+"POT-Creation-Date: 2026-11-23 08:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2321,7 +2321,7 @@ msgid "SMS fallback"
 msgstr ""
 
 #: src/Admin/ViberControls.php:42
-msgid "Your Povikvane plan does not include the SMS fallback. It is not part of the Starter and Bronze plans."
+msgid "Your Povikvane plan does not include the SMS fallback."
 msgstr ""
 
 #: src/Admin/ViberControls.php:45 src/Admin/ViberControls.php:52
@@ -2329,7 +2329,7 @@ msgid "Send an SMS if Viber cannot deliver"
 msgstr ""
 
 #: src/Admin/ViberControls.php:52
-msgid "Not included in the Starter and Bronze plans: turn it on only if your plan has it. With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message."
+msgid "With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message."
 msgstr ""
 
 #: src/Admin/ViberView.php:28

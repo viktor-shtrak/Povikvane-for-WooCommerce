@@ -56,12 +56,12 @@ final class WpNotifier implements Notifier {
 				return null === $credits
 					? sprintf(
 						/* translators: %s: recipient phone number. */
-						__( 'Povikvane: SMS to %s accepted for delivery.', 'povikvane-for-woocommerce' ),
+						__( 'Povikvane: SMS to %s accepted for delivery.', 'povikvane-sms-for-woocommerce' ),
 						$message->recipient
 					)
 					: sprintf(
 						/* translators: 1: recipient phone number, 2: credits charged. */
-						__( 'Povikvane: SMS to %1$s accepted for delivery (%2$s credits).', 'povikvane-for-woocommerce' ),
+						__( 'Povikvane: SMS to %1$s accepted for delivery (%2$s credits).', 'povikvane-sms-for-woocommerce' ),
 						$message->recipient,
 						(string) $credits
 					);
@@ -69,29 +69,29 @@ final class WpNotifier implements Notifier {
 			case Notifier::NOTE_FAILED:
 				return sprintf(
 					/* translators: 1: recipient phone number, 2: reason. */
-					__( 'Povikvane: SMS to %1$s was not sent: %2$s', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane: SMS to %1$s was not sent: %2$s', 'povikvane-sms-for-woocommerce' ),
 					$message->recipient,
-					(string) ( $params['detail'] ?? __( 'unknown error', 'povikvane-for-woocommerce' ) )
+					(string) ( $params['detail'] ?? __( 'unknown error', 'povikvane-sms-for-woocommerce' ) )
 				);
 
 			case Notifier::NOTE_UNCONFIRMED:
 				return sprintf(
 					/* translators: %s: recipient phone number. */
-					__( 'Povikvane: delivery of the SMS to %s could not be confirmed. Check the message log before sending it again.', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane: delivery of the SMS to %s could not be confirmed. Check the message log before sending it again.', 'povikvane-sms-for-woocommerce' ),
 					$message->recipient
 				);
 
 			case Notifier::NOTE_HELD_CREDITS:
 				return sprintf(
 					/* translators: %s: recipient phone number. */
-					__( 'Povikvane: SMS to %s is on hold because the account has no credits.', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane: SMS to %s is on hold because the account has no credits.', 'povikvane-sms-for-woocommerce' ),
 					$message->recipient
 				);
 
 			case Notifier::NOTE_DELIVERED:
 				return sprintf(
 					/* translators: %s: recipient phone number. */
-					__( 'Povikvane: SMS to %s was delivered.', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane: SMS to %s was delivered.', 'povikvane-sms-for-woocommerce' ),
 					$message->recipient
 				);
 
@@ -101,12 +101,12 @@ final class WpNotifier implements Notifier {
 				return '' === $detail
 					? sprintf(
 						/* translators: %s: recipient phone number. */
-						__( 'Povikvane: SMS to %s could not be delivered.', 'povikvane-for-woocommerce' ),
+						__( 'Povikvane: SMS to %s could not be delivered.', 'povikvane-sms-for-woocommerce' ),
 						$message->recipient
 					)
 					: sprintf(
 						/* translators: 1: recipient phone number, 2: reason. */
-						__( 'Povikvane: SMS to %1$s could not be delivered: %2$s', 'povikvane-for-woocommerce' ),
+						__( 'Povikvane: SMS to %1$s could not be delivered: %2$s', 'povikvane-sms-for-woocommerce' ),
 						$message->recipient,
 						$detail
 					);
@@ -114,14 +114,14 @@ final class WpNotifier implements Notifier {
 			case Notifier::NOTE_SKIPPED:
 				return sprintf(
 					/* translators: %s: reason the SMS was not sent. */
-					__( 'Povikvane: no SMS was sent because %s.', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane: no SMS was sent because %s.', 'povikvane-sms-for-woocommerce' ),
 					SkipLabels::text( (string) ( $params['reason'] ?? '' ) )
 				);
 
 			case Notifier::NOTE_EXPIRED:
 				return sprintf(
 					/* translators: %s: recipient phone number. */
-					__( 'Povikvane: SMS to %s was not sent because it waited too long.', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane: SMS to %s was not sent because it waited too long.', 'povikvane-sms-for-woocommerce' ),
 					$message->recipient
 				);
 		}

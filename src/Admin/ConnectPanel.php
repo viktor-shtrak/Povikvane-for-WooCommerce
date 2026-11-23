@@ -102,19 +102,19 @@ final class ConnectPanel {
 		echo '<div class="pvk-connect">';
 
 		if ( $revoked ) {
-			Ui::note( __( 'Disconnected. This shop was disconnected in Povikvane, so no messages are sent. Connect again to continue.', 'povikvane-for-woocommerce' ), 'bad' );
+			Ui::note( __( 'Disconnected. This shop was disconnected in Povikvane, so no messages are sent. Connect again to continue.', 'povikvane-sms-for-woocommerce' ), 'bad' );
 		} elseif ( null !== $info && Settings::KEY_SOURCE_STORED === $this->settings->api_key_source() ) {
 			Ui::note(
 				'' !== $info['company']
 					? sprintf(
 						/* translators: 1: shop name, 2: company name in Povikvane. */
-						__( 'Connected as "%1$s" to %2$s in Povikvane.', 'povikvane-for-woocommerce' ),
+						__( 'Connected as "%1$s" to %2$s in Povikvane.', 'povikvane-sms-for-woocommerce' ),
 						$info['site_name'],
 						$info['company']
 					)
 					: sprintf(
 						/* translators: %s: shop name. */
-						__( 'Connected as "%s" in Povikvane.', 'povikvane-for-woocommerce' ),
+						__( 'Connected as "%s" in Povikvane.', 'povikvane-sms-for-woocommerce' ),
 						$info['site_name']
 					),
 				'ok'
@@ -125,20 +125,20 @@ final class ConnectPanel {
 
 		if ( null !== $problem ) {
 			Ui::note( self::problem_text( $problem ), 'warn' );
-			echo '<p><button type="button" class="pvk-btn pvk-btn--primary" disabled>' . esc_html__( 'Connect with Povikvane', 'povikvane-for-woocommerce' ) . '</button></p>';
+			echo '<p><button type="button" class="pvk-btn pvk-btn--primary" disabled>' . esc_html__( 'Connect with Povikvane', 'povikvane-sms-for-woocommerce' ) . '</button></p>';
 		} else {
 			echo '<p>';
-			Layout::action_button( null === $info || $revoked ? __( 'Connect with Povikvane', 'povikvane-for-woocommerce' ) : __( 'Connect again', 'povikvane-for-woocommerce' ), self::START, array( 'return' => $origin ), 'pvk-btn pvk-btn--primary' );
+			Layout::action_button( null === $info || $revoked ? __( 'Connect with Povikvane', 'povikvane-sms-for-woocommerce' ) : __( 'Connect again', 'povikvane-sms-for-woocommerce' ), self::START, array( 'return' => $origin ), 'pvk-btn pvk-btn--primary' );
 
 			if ( null !== $info && ! $revoked ) {
 				echo ' ';
-				Layout::action_button( __( 'Disconnect', 'povikvane-for-woocommerce' ), self::DISCONNECT, array( 'return' => $origin ), 'pvk-btn pvk-btn--link', __( 'Disconnect this shop? The key is removed from this site and no messages are sent until you connect again. Your message history stays.', 'povikvane-for-woocommerce' ) );
+				Layout::action_button( __( 'Disconnect', 'povikvane-sms-for-woocommerce' ), self::DISCONNECT, array( 'return' => $origin ), 'pvk-btn pvk-btn--link', __( 'Disconnect this shop? The key is removed from this site and no messages are sent until you connect again. Your message history stays.', 'povikvane-sms-for-woocommerce' ) );
 			}
 
 			echo '</p>';
 
 			if ( null === $info ) {
-				echo '<p class="pvk-field__hint">' . esc_html__( 'You will log in to Povikvane and approve this shop. No key to copy.', 'povikvane-for-woocommerce' ) . '</p>';
+				echo '<p class="pvk-field__hint">' . esc_html__( 'You will log in to Povikvane and approve this shop. No key to copy.', 'povikvane-sms-for-woocommerce' ) . '</p>';
 			}
 		}
 
@@ -152,9 +152,9 @@ final class ConnectPanel {
 	 */
 	public static function problem_text( string $problem ): string {
 		return match ( $problem ) {
-			ConnectFlow::PROBLEM_SITE_NOT_HTTPS => __( 'Connecting with one click needs this site to use https. Use the API key below instead, or switch the site to https.', 'povikvane-for-woocommerce' ),
-			ConnectFlow::PROBLEM_HOST_MISMATCH  => __( 'Connecting with one click needs the site and admin addresses to be the same. Use the API key below instead.', 'povikvane-for-woocommerce' ),
-			default                             => __( 'This site\'s address could not be used to connect. Use the API key below instead.', 'povikvane-for-woocommerce' ),
+			ConnectFlow::PROBLEM_SITE_NOT_HTTPS => __( 'Connecting with one click needs this site to use https. Use the API key below instead, or switch the site to https.', 'povikvane-sms-for-woocommerce' ),
+			ConnectFlow::PROBLEM_HOST_MISMATCH  => __( 'Connecting with one click needs the site and admin addresses to be the same. Use the API key below instead.', 'povikvane-sms-for-woocommerce' ),
+			default                             => __( 'This site\'s address could not be used to connect. Use the API key below instead.', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 
@@ -165,7 +165,7 @@ final class ConnectPanel {
 		check_admin_referer( self::START );
 
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 
 		$origin   = isset( $_POST['return'] ) && 'wizard' === sanitize_key( wp_unslash( $_POST['return'] ) ) ? 'wizard' : 'settings';
@@ -173,7 +173,7 @@ final class ConnectPanel {
 		$redirect = $this->callback_url();
 
 		if ( null !== ConnectFlow::problem( $site_url, $redirect ) ) {
-			Flash::add( 'error', __( 'This site cannot be connected with one click. Use the API key instead.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'This site cannot be connected with one click. Use the API key instead.', 'povikvane-sms-for-woocommerce' ) );
 			$this->back( $origin, false );
 		}
 
@@ -194,7 +194,7 @@ final class ConnectPanel {
 	 */
 	public function handle_callback(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 
 		// The one-time state is the check here: it is single use and tied to this administrator.
@@ -214,7 +214,7 @@ final class ConnectPanel {
 
 			$message = sprintf(
 				/* translators: %s: shop name. */
-				__( 'Connected as "%s".', 'povikvane-for-woocommerce' ),
+				__( 'Connected as "%s".', 'povikvane-sms-for-woocommerce' ),
 				$result->site_name
 			);
 
@@ -226,9 +226,9 @@ final class ConnectPanel {
 				Flash::add( 'success', $message );
 			}
 		} elseif ( ConnectResult::DECLINED === $result->status ) {
-			Flash::add( 'error', __( 'The connection was not approved. Nothing was changed.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'The connection was not approved. Nothing was changed.', 'povikvane-sms-for-woocommerce' ) );
 		} else {
-			Flash::add( 'error', __( 'The connection did not work. Press "Connect with Povikvane" to start again.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'The connection did not work. Press "Connect with Povikvane" to start again.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		$this->back( $result->origin, ConnectResult::CONNECTED === $result->status );
@@ -241,12 +241,12 @@ final class ConnectPanel {
 		check_admin_referer( self::DISCONNECT );
 
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 
 		$this->store->disconnect();
 		( $this->probe )();
-		Flash::add( 'success', __( 'This shop is disconnected. Connect again whenever you want to send messages.', 'povikvane-for-woocommerce' ) );
+		Flash::add( 'success', __( 'This shop is disconnected. Connect again whenever you want to send messages.', 'povikvane-sms-for-woocommerce' ) );
 
 		$this->back( isset( $_POST['return'] ) && 'wizard' === sanitize_key( wp_unslash( $_POST['return'] ) ) ? 'wizard' : 'settings', false );
 	}

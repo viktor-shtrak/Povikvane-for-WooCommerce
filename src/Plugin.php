@@ -513,7 +513,7 @@ final class Plugin {
 			esc_html(
 				sprintf(
 					/* translators: %s: minimum required WooCommerce version. */
-					__( 'Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded.', 'povikvane-for-woocommerce' ),
+					__( 'Povikvane SMS for WooCommerce requires WooCommerce %s or newer and has not been loaded.', 'povikvane-sms-for-woocommerce' ),
 					MIN_WC_VERSION
 				)
 			)

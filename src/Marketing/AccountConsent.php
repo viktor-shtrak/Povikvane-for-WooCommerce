@@ -79,7 +79,7 @@ final class AccountConsent {
 
 		if ( null === $number ) {
 			if ( $ticked && function_exists( 'wc_add_notice' ) ) {
-				wc_add_notice( __( 'Add a mobile number to your billing address first, so we know where to send messages.', 'povikvane-for-woocommerce' ), 'error' );
+				wc_add_notice( __( 'Add a mobile number to your billing address first, so we know where to send messages.', 'povikvane-sms-for-woocommerce' ), 'error' );
 			}
 
 			return;

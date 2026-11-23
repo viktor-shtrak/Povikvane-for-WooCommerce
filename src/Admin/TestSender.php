@@ -46,13 +46,13 @@ final class TestSender {
 	 */
 	public function send( string $phone ): array {
 		if ( ! $this->settings->credentials()->is_complete() ) {
-			return $this->fail( __( 'Enter and save your API key and service ID first.', 'povikvane-for-woocommerce' ) );
+			return $this->fail( __( 'Enter and save your API key and service ID first.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		$number = $this->normalizer->normalize( $phone, Countries::calling_code( $this->settings->default_country() ) );
 
 		if ( ! $number->is_valid() ) {
-			return $this->fail( __( 'That phone number does not look valid.', 'povikvane-for-woocommerce' ) );
+			return $this->fail( __( 'That phone number does not look valid.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		$message            = new Message();
@@ -61,19 +61,19 @@ final class TestSender {
 		$message->reference = Reference::for_test( SiteIdentity::token(), time() );
 		$message->body      = sprintf(
 			/* translators: %s: shop name. */
-			__( 'Test message from %s, sent with Povikvane.', 'povikvane-for-woocommerce' ),
+			__( 'Test message from %s, sent with Povikvane.', 'povikvane-sms-for-woocommerce' ),
 			wp_html_excerpt( wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ), 30 )
 		);
 
 		$id = $this->enqueuer->enqueue( $message );
 
 		if ( null === $id ) {
-			return $this->fail( __( 'A test message was just sent. Wait a second and try again.', 'povikvane-for-woocommerce' ) );
+			return $this->fail( __( 'A test message was just sent. Wait a second and try again.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		return array(
 			'ok'      => true,
-			'message' => __( 'Test message queued. It should reach your phone within a minute.', 'povikvane-for-woocommerce' ),
+			'message' => __( 'Test message queued. It should reach your phone within a minute.', 'povikvane-sms-for-woocommerce' ),
 			'id'      => $id,
 		);
 	}

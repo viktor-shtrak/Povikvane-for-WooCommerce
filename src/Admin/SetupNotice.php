@@ -61,21 +61,21 @@ final class SetupNotice {
 		$required = array_filter( $items, static fn( array $item ): bool => $item['required'] );
 		$done     = count( array_filter( $required, static fn( array $item ): bool => $item['done'] ) );
 
-		echo '<div class="notice notice-info"><p><strong>' . esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ) . '</strong> ';
+		echo '<div class="notice notice-info"><p><strong>' . esc_html__( 'Povikvane', 'povikvane-sms-for-woocommerce' ) . '</strong> ';
 		echo esc_html(
 			sprintf(
 				/* translators: 1: steps done, 2: total steps. */
-				__( 'is almost ready: %1$d of %2$d steps done. Finish setting up so your customers get their order messages.', 'povikvane-for-woocommerce' ),
+				__( 'is almost ready: %1$d of %2$d steps done. Finish setting up so your customers get their order messages.', 'povikvane-sms-for-woocommerce' ),
 				$done,
 				count( $required )
 			)
 		) . '</p><p>';
 
-		printf( '<a class="button button-primary" href="%1$s">%2$s</a> ', esc_url( admin_url( 'admin.php?page=' . SetupWizard::SLUG . ( null === SetupChecklist::next_step( $items ) ? '' : '&step=' . SetupChecklist::next_step( $items ) ) ) ), esc_html__( 'Continue setup', 'povikvane-for-woocommerce' ) );
+		printf( '<a class="button button-primary" href="%1$s">%2$s</a> ', esc_url( admin_url( 'admin.php?page=' . SetupWizard::SLUG . ( null === SetupChecklist::next_step( $items ) ? '' : '&step=' . SetupChecklist::next_step( $items ) ) ) ), esc_html__( 'Continue setup', 'povikvane-sms-for-woocommerce' ) );
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="display:inline"><input type="hidden" name="action" value="povikvane_dismiss_setup">';
 		wp_nonce_field( 'povikvane_dismiss_setup' );
-		printf( '<button type="submit" class="button-link">%s</button></form></p></div>', esc_html__( 'Dismiss', 'povikvane-for-woocommerce' ) );
+		printf( '<button type="submit" class="button-link">%s</button></form></p></div>', esc_html__( 'Dismiss', 'povikvane-sms-for-woocommerce' ) );
 	}
 
 	/**
@@ -85,7 +85,7 @@ final class SetupNotice {
 		check_admin_referer( 'povikvane_dismiss_setup' );
 
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 
 		$this->state->dismiss();
@@ -98,16 +98,6 @@ final class SetupNotice {
 	 * Whether the current screen is one where the reminder belongs.
 	 */
 	private function on_relevant_screen(): bool {
-		$screen = get_current_screen();
-
-		if ( null === $screen ) {
-			return false;
-		}
-
-		if ( str_contains( $screen->id, 'povikvane' ) ) {
-			return false;
-		}
-
-		return in_array( $screen->id, array( 'dashboard', 'plugins' ), true ) || str_contains( $screen->id, 'woocommerce' ) || str_contains( $screen->id, 'shop_order' );
+		return NoticeScreens::allowed( false );
 	}
 }

@@ -26,7 +26,7 @@ final class BalanceView {
 	 */
 	public static function text( ?Balance $balance ): string {
 		if ( null === $balance ) {
-			return __( 'Not known yet', 'povikvane-for-woocommerce' );
+			return __( 'Not known yet', 'povikvane-sms-for-woocommerce' );
 		}
 
 		$amount = number_format_i18n( $balance->available, 1 );
@@ -34,14 +34,14 @@ final class BalanceView {
 		if ( $balance->estimated ) {
 			return sprintf(
 				/* translators: %s: estimated credits. */
-				__( '≈ %s (updating…)', 'povikvane-for-woocommerce' ),
+				__( '≈ %s (updating…)', 'povikvane-sms-for-woocommerce' ),
 				$amount
 			);
 		}
 
 		return sprintf(
 			/* translators: 1: credits, 2: time of day the balance was fetched. */
-			__( '%1$s (as of %2$s)', 'povikvane-for-woocommerce' ),
+			__( '%1$s (as of %2$s)', 'povikvane-sms-for-woocommerce' ),
 			$amount,
 			Dates::format( $balance->fetched_at, 'H:i' )
 		);
@@ -67,16 +67,16 @@ final class BalanceView {
 	 */
 	public static function hint( ?Balance $balance ): string {
 		if ( null === $balance ) {
-			return __( 'Not known yet', 'povikvane-for-woocommerce' );
+			return __( 'Not known yet', 'povikvane-sms-for-woocommerce' );
 		}
 
 		if ( $balance->estimated ) {
-			return __( 'updating…', 'povikvane-for-woocommerce' );
+			return __( 'updating…', 'povikvane-sms-for-woocommerce' );
 		}
 
 		return sprintf(
 			/* translators: %s: time of day the balance was fetched. */
-			__( 'as of %s', 'povikvane-for-woocommerce' ),
+			__( 'as of %s', 'povikvane-sms-for-woocommerce' ),
 			Dates::format( $balance->fetched_at, 'H:i' )
 		);
 	}

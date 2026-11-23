@@ -37,9 +37,10 @@ use Povikvane\WooCommerce\Webhook\OptionActivity;
 use Povikvane\WooCommerce\Webhook\Token;
 
 if ( 'bg_BG' === getenv( 'PVK_LANG' ) ) {
-	$GLOBALS['pvk_mo'] = Povikvane\WooCommerce\Tests\Support\MoFile::read( dirname( __DIR__, 2 ) . '/languages/povikvane-for-woocommerce-bg_BG.mo' );
+	$GLOBALS['pvk_mo'] = Povikvane\WooCommerce\Tests\Support\MoFile::read( dirname( __DIR__, 2 ) . '/languages/povikvane-sms-for-woocommerce-bg_BG.mo' );
 }
-$prefix = 'bg_BG' === getenv( 'PVK_LANG' ) ? 'bg-' : '';
+$bg     = 'bg_BG' === getenv( 'PVK_LANG' );
+$prefix = $bg ? 'bg-' : '';
 $out = dirname( __DIR__, 2 ) . '/build/preview';
 @mkdir( $out, 0777, true );
 
@@ -53,6 +54,16 @@ foreach ( array( 'wp-admin/css/common.min.css', 'wp-admin/css/forms.min.css', 'w
 }
 if ( ! is_link( $out . '/assets-root' ) ) {
 	@symlink( dirname( __DIR__, 2 ), $out . '/assets-root' );
+}
+
+/**
+ * Demo text in the language being previewed.
+ *
+ * @param string $en English text.
+ * @param string $bg Bulgarian text.
+ */
+function pvk_demo( string $en, string $bg ): string {
+	return 'bg_BG' === getenv( 'PVK_LANG' ) ? $bg : $en;
 }
 
 /**
@@ -72,7 +83,7 @@ function pvk_page( string $title, string $body ): string {
 		. '<link rel="stylesheet" href="wp-css/common.min.css"><link rel="stylesheet" href="wp-css/forms.min.css"><link rel="stylesheet" href="wp-css/buttons.min.css"><link rel="stylesheet" href="wp-css/list-tables.min.css"><link rel="stylesheet" href="wp-css/colors.min.css">'
 		. '<link rel="stylesheet" href="assets-root/assets/css/admin.css">'
 		. '<style>body{margin:0;background:#f0f0f1}#pvk-bar{height:32px;background:#1d2327}#pvk-side{position:absolute;top:32px;left:0;bottom:0;width:160px;background:#1d2327}#wpcontent{margin-left:160px;padding-left:20px;padding-top:0}@media(max-width:782px){#pvk-side{display:none}#wpcontent{margin-left:0;padding-left:10px}}</style></head>'
-		. '<body class="wp-admin wp-core-ui"><div id="pvk-bar"></div><div id="pvk-side"></div><div id="wpcontent"><div id="wpbody-content">' . $body . '</div></div>'
+		. '<body class="wp-admin wp-core-ui js"><div id="pvk-bar"></div><div id="pvk-side"></div><div id="wpcontent"><div id="wpbody-content">' . $body . '</div></div>'
 		. '<script>' . $config . '</script>'
 		. '<script src="assets-root/assets/js/tabs.js"></script><script src="assets-root/assets/js/segments.js"></script><script src="assets-root/assets/js/admin.js"></script><script src="assets-root/assets/js/status.js"></script><script src="assets-root/assets/js/select.js"></script><script src="assets-root/assets/js/viber.js"></script></body></html>';
 }
@@ -106,13 +117,55 @@ function pvk_connect( Settings $settings, OptionSendingState $state ): Povikvane
 	return new Povikvane\WooCommerce\Admin\ConnectPanel( $flow, $store, $settings, new Token(), $state, static fn() => null, static fn() => new Povikvane\WooCommerce\Webhook\WebhookRegistration( new Povikvane\WooCommerce\Api\Client( new Povikvane\WooCommerce\Api\WpTransport(), $settings->credentials() ) ) );
 }
 
+/**
+ * A submitter that accepts templates, so the screens show the account that can send them for approval.
+ */
+function pvk_submitter(): Povikvane\WooCommerce\Viber\TemplateSubmitter {
+	return new class() implements Povikvane\WooCommerce\Viber\TemplateSubmitter {
+		/**
+		 * The preview shows the screen as it looks when the account can send templates for approval.
+		 */
+		public function available(): bool {
+			return true;
+		}
+
+		/**
+		 * Nothing is sent.
+		 *
+		 * @param string $name    Name.
+		 * @param string $content Text.
+		 */
+		public function submit( string $name, string $content ): Povikvane\WooCommerce\Viber\SubmitResult {
+			return new Povikvane\WooCommerce\Viber\SubmitResult( true, 'tpl-preview', '' );
+		}
+	};
+}
+
 function pvk_settings_page(): SettingsPage {
 	$settings  = new Settings( new Crypto( 'preview-salt' ) );
 	$repo      = new Repository();
 	$state     = new OptionSendingState();
 	$triggers  = new TriggerRepository( get_locale() );
-	$labels    = new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null );
-	$templates = new TemplatesSection( $triggers, $settings, new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests(), new Povikvane\WooCommerce\Viber\UnavailableSubmitter(), $labels );
+	$writer    = new class() implements Povikvane\WooCommerce\Account\LabelWriter {
+		/**
+		 * The preview shows the screen as it looks when the account allows renaming.
+		 */
+		public function available(): bool {
+			return true;
+		}
+
+		/**
+		 * Nothing is written.
+		 *
+		 * @param array<string,string> $labels Labels.
+		 */
+		public function save( array $labels ): bool {
+			return true;
+		}
+	};
+	$submitter = pvk_submitter();
+	$labels    = new Povikvane\WooCommerce\Admin\FieldLabelsPanel( static fn() => null, $writer );
+	$templates = new TemplatesSection( $triggers, $settings, new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests(), $submitter, $labels );
 	$activity  = new OptionActivity();
 	$delivery  = new DeliveryPanel( new Token(), $activity, $repo );
 	$marketing = new MarketingSection( new MarketingSettings( get_locale() ), new ConsentRepository(), get_locale() );
@@ -135,7 +188,7 @@ function pvk_wizard(): SetupWizard {
 
 	return new SetupWizard(
 		$settings, new SettingsSanitizer( $settings, $state ), $triggers, $repo, $tester, new SetupState(),
-		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel(
+		new SetupProgress( $triggers, $repo, $activity ), new Token(), $activity, new TemplatesSection( $triggers, $settings, new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests(), pvk_submitter() ), new Povikvane\WooCommerce\Admin\FieldLabelsPanel(
 			static fn() => null,
 			new class() implements Povikvane\WooCommerce\Account\LabelWriter {
 				/**
@@ -154,7 +207,7 @@ function pvk_wizard(): SetupWizard {
 					return true;
 				}
 			}
-		), new Povikvane\WooCommerce\Viber\TemplateRequestService( new Povikvane\WooCommerce\Viber\UnavailableSubmitter(), new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests() ), static fn() => null, pvk_connect( $settings, $state )
+		), new Povikvane\WooCommerce\Viber\TemplateRequestService( pvk_submitter(), new Povikvane\WooCommerce\Viber\TemplateCatalog(), new Povikvane\WooCommerce\Viber\TemplateRequests() ), static fn() => null, pvk_connect( $settings, $state )
 	);
 }
 
@@ -186,6 +239,8 @@ $jobs['tab-overview-new'] = array( 'settings', 'overview', false );
 $jobs['tab-overview-attention'] = array( 'settings', 'overview', true );
 $jobs['tab-messages-viber'] = array( 'settings', 'messages', true );
 $jobs['wizard-messages-viber'] = array( 'wizard', 'messages', false );
+$jobs['tab-promotions-on'] = array( 'settings', 'promotions', true );
+$jobs['tab-reviews-on'] = array( 'settings', 'reviews', true );
 
 foreach ( array( 'welcome', 'connect', 'messages', 'test', 'reports', 'done' ) as $step ) {
 	$jobs[ 'wizard-' . $step ] = array( 'wizard', $step, 'wizard-test' === 'x' );
@@ -206,24 +261,32 @@ foreach ( $jobs as $name => $job ) {
 		);
 	}
 
+	if ( in_array( $name, array( 'tab-promotions-on', 'tab-reviews-on' ), true ) ) {
+		$GLOBALS['pvk_options'][ MarketingSettings::OPTION ] = array( 'enabled' => true, 'followup_enabled' => true, 'followup_days' => 2, 'followup_unit' => 'hours' );
+	}
+
 	if ( in_array( $name, array( 'tab-messages-viber', 'wizard-messages-viber' ), true ) ) {
 		$GLOBALS['pvk_options'][ Capabilities::OPTION ]    = array( 'checked_at' => time(), 'connection' => 'ok', 'account' => true, 'lookup' => true, 'templates' => true, 'fallback' => null, 'balance' => array( 'channels' => array( 'sms', 'viber' ) ) );
+		if ( 'tab-messages-viber' === $name ) {
+			$GLOBALS['pvk_options'][ Capabilities::OPTION ]['balance'] = array( 'channels' => array( 'sms', 'viber' ), 'plan' => array( 'sms_fallback' => true ), 'custom_fields' => array( 'customField1' => pvk_demo( 'Order number', 'Номер на поръчката' ), 'customField2' => pvk_demo( 'Order total', 'Сума на поръчката' ), 'customField3' => pvk_demo( 'Shop name', 'Име на магазина' ) ) );
+		}
 		if ( 'wizard-messages-viber' === $name ) {
-			$GLOBALS['pvk_options'][ Capabilities::OPTION ]['balance'] = array( 'channels' => array( 'sms', 'viber' ), 'plan' => array( 'sms_fallback' => false ), 'custom_fields' => array( 'customField2' => 'Сума' ) );
+			$GLOBALS['pvk_options'][ Capabilities::OPTION ]['balance'] = array( 'channels' => array( 'sms', 'viber' ), 'plan' => array( 'sms_fallback' => false ), 'custom_fields' => array( 'customField2' => pvk_demo( 'Total', 'Сума' ) ) );
 		}
 		$GLOBALS['pvk_options'][ Settings::OPTION ]          = array( 'service_id' => 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'default_country' => 'BG', 'viber_enabled' => true );
 		$GLOBALS['pvk_options'][ TriggerRepository::OPTION ] = array(
-			'processing' => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is being processed.' ),
-			'completed'  => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is complete. Thank you!' ),
-			'on-hold'    => array( 'enabled' => true, 'template' => 'Order {order_number} from {shop_name} is on hold.' ),
-			'cancelled'  => array( 'enabled' => true, 'template' => '{shop_name}: your order was cancelled.' ),
+			'processing' => array( 'enabled' => true, 'template' => pvk_demo( 'Order {order_number} from {shop_name} is being processed.', 'Поръчка {order_number} от {shop_name} се обработва.' ) ),
+			'completed'  => array( 'enabled' => true, 'template' => pvk_demo( 'Order {order_number} from {shop_name} is complete. Thank you!', 'Поръчка {order_number} от {shop_name} е завършена. Благодарим Ви!' ) ),
+			'on-hold'    => array( 'enabled' => true, 'template' => pvk_demo( 'Order {order_number} from {shop_name} is on hold.', 'Поръчка {order_number} от {shop_name} е на изчакване.' ) ),
+			'cancelled'  => array( 'enabled' => true, 'template' => pvk_demo( 'Hello! Order {order_number} from {shop_name} was cancelled. We hope to see you again.', 'Здравейте! Поръчка {order_number} от {shop_name} беше отказана. Надяваме се да ви видим отново.' ) ),
 		);
 		$GLOBALS['pvk_options'][ Povikvane\WooCommerce\Viber\TemplateCatalog::OPTION ] = array(
 			'fetched_at' => time(),
 			'items'      => array(
-				array( 'id' => 'tpl-1', 'name' => 'Order update', 'content' => 'Order {customField1} from {customField2} is being processed.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'provider_status' => 'approved', 'message_type' => 'transactional' ),
-				array( 'id' => 'tpl-2', 'name' => 'Hold notice', 'content' => 'Order {customField1} from {customField2} is on hold.', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'pending', 'message_type' => null ),
-				array( 'id' => 'tpl-3', 'name' => 'Old offer', 'content' => 'Order {customField1} from {customField2} is complete. Thank you!', 'variables' => array( 'customField1', 'customField2' ), 'status' => 'rejected', 'message_type' => null ),
+				array( 'id' => 'tpl-1', 'name' => pvk_demo( 'Order update', 'Обработка на поръчка' ), 'content' => pvk_demo( 'Order {customField1} from {customField2} is being processed.', 'Поръчка {customField1} от {customField2} се обработва.' ), 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'provider_status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-2', 'name' => pvk_demo( 'Hold notice', 'Изчакване' ), 'content' => pvk_demo( 'Order {customField1} from {customField2} is on hold.', 'Поръчка {customField1} от {customField2} е на изчакване.' ), 'variables' => array( 'customField1', 'customField2' ), 'status' => 'pending', 'message_type' => null ),
+				array( 'id' => 'tpl-3', 'name' => pvk_demo( 'Order complete', 'Завършена поръчка' ), 'content' => pvk_demo( 'Order {customField1} from {customField2} is complete. Thank you!', 'Поръчка {customField1} от {customField2} е завършена. Благодарим Ви!' ), 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'provider_status' => 'approved', 'message_type' => 'transactional' ),
+				array( 'id' => 'tpl-4', 'name' => pvk_demo( 'Order cancelled', 'Отказана поръчка' ), 'content' => pvk_demo( 'Hello! Order {customField1} from {customField2} was cancelled. We hope to see you again.', 'Здравейте! Поръчка {customField1} от {customField2} беше отказана. Надяваме се да ви видим отново.' ), 'variables' => array( 'customField1', 'customField2' ), 'status' => 'approved', 'provider_status' => 'approved', 'message_type' => 'transactional' ),
 			),
 		);
 	}

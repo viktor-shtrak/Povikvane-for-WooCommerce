@@ -52,7 +52,7 @@ final class ApiTemplateSubmitter implements TemplateSubmitter {
 	 */
 	public function submit( string $name, string $content ): SubmitResult {
 		if ( ! $this->enabled ) {
-			return new SubmitResult( false, '', __( 'Sending templates for review from the plugin is not available on this account.', 'povikvane-for-woocommerce' ) );
+			return new SubmitResult( false, '', __( 'Sending templates for review from the plugin is not available on this account.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		for ( $version = 1; $version <= self::MAX_VERSIONS; $version++ ) {
@@ -69,7 +69,7 @@ final class ApiTemplateSubmitter implements TemplateSubmitter {
 			}
 		}
 
-		return new SubmitResult( false, '', __( 'There are already many templates with this name. Rename or delete old ones in Povikvane.', 'povikvane-for-woocommerce' ) );
+		return new SubmitResult( false, '', __( 'There are already many templates with this name. Rename or delete old ones in Povikvane.', 'povikvane-sms-for-woocommerce' ) );
 	}
 
 	/**
@@ -97,20 +97,20 @@ final class ApiTemplateSubmitter implements TemplateSubmitter {
 	 */
 	public static function reason( ApiResult $result ): string {
 		return match ( $result->error_code ) {
-			'template_limit_reached'       => __( 'Povikvane already has the most templates waiting for review that one account can have. Wait for them to be reviewed and try again.', 'povikvane-for-woocommerce' ),
-			'template_rate_limited'        => __( 'The daily limit for new templates is used up. You can send more tomorrow.', 'povikvane-for-woocommerce' ),
-			'template_variable_at_edge'    => __( 'A Viber message cannot start or end with a field. Put some words before and after it.', 'povikvane-for-woocommerce' ),
-			'template_too_long'            => __( 'The message is too long for Viber.', 'povikvane-for-woocommerce' ),
-			'template_too_many_variables'  => __( 'The message has too many fields for Viber.', 'povikvane-for-woocommerce' ),
-			'template_dynamic_url'         => __( 'A Viber message cannot contain a field inside a link.', 'povikvane-for-woocommerce' ),
+			'template_limit_reached'       => __( 'Povikvane already has the most templates waiting for review that one account can have. Wait for them to be reviewed and try again.', 'povikvane-sms-for-woocommerce' ),
+			'template_rate_limited'        => __( 'The daily limit for new templates is used up. You can send more tomorrow.', 'povikvane-sms-for-woocommerce' ),
+			'template_variable_at_edge'    => __( 'A Viber message cannot start or end with a field. Put some words before and after it.', 'povikvane-sms-for-woocommerce' ),
+			'template_too_long'            => __( 'The message is too long for Viber.', 'povikvane-sms-for-woocommerce' ),
+			'template_too_many_variables'  => __( 'The message has too many fields for Viber.', 'povikvane-sms-for-woocommerce' ),
+			'template_dynamic_url'         => __( 'A Viber message cannot contain a field inside a link.', 'povikvane-sms-for-woocommerce' ),
 			'template_variable_not_allowed',
 			'template_name_invalid',
 			'template_lang_unsupported',
-			'template_channel_unsupported' => __( 'Povikvane did not accept this message as a Viber template.', 'povikvane-for-woocommerce' ),
-			'endpoint_disabled'            => __( 'Sending templates for review from the plugin is not available on this account.', 'povikvane-for-woocommerce' ),
+			'template_channel_unsupported' => __( 'Povikvane did not accept this message as a Viber template.', 'povikvane-sms-for-woocommerce' ),
+			'endpoint_disabled'            => __( 'Sending templates for review from the plugin is not available on this account.', 'povikvane-sms-for-woocommerce' ),
 			default                        => Outcome::AuthFailure === $result->outcome
-				? __( 'Povikvane rejected the API key. Check your connection settings.', 'povikvane-for-woocommerce' )
-				: __( 'Povikvane could not take the template right now. Try again in a moment.', 'povikvane-for-woocommerce' ),
+				? __( 'Povikvane rejected the API key. Check your connection settings.', 'povikvane-sms-for-woocommerce' )
+				: __( 'Povikvane could not take the template right now. Try again in a moment.', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }

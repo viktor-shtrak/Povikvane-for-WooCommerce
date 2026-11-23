@@ -28,32 +28,32 @@ final class Navigation {
 		return array(
 			array(
 				'id'    => 'overview',
-				'label' => __( 'Overview', 'povikvane-for-woocommerce' ),
+				'label' => __( 'Overview', 'povikvane-sms-for-woocommerce' ),
 				'url'   => $settings( 'overview' ),
 			),
 			array(
 				'id'    => 'messages',
-				'label' => __( 'Messages', 'povikvane-for-woocommerce' ),
+				'label' => __( 'Messages', 'povikvane-sms-for-woocommerce' ),
 				'url'   => $settings( 'messages' ),
 			),
 			array(
 				'id'    => 'promotions',
-				'label' => __( 'Promotions', 'povikvane-for-woocommerce' ),
+				'label' => __( 'Promotions', 'povikvane-sms-for-woocommerce' ),
 				'url'   => $settings( 'promotions' ),
 			),
 			array(
 				'id'    => 'settings',
-				'label' => __( 'Settings', 'povikvane-for-woocommerce' ),
+				'label' => __( 'Settings', 'povikvane-sms-for-woocommerce' ),
 				'url'   => $settings( 'settings' ),
 			),
 			array(
 				'id'    => 'advanced',
-				'label' => __( 'Advanced', 'povikvane-for-woocommerce' ),
+				'label' => __( 'Advanced', 'povikvane-sms-for-woocommerce' ),
 				'url'   => $settings( 'advanced' ),
 			),
 			array(
 				'id'      => 'log',
-				'label'   => __( 'Message log', 'povikvane-for-woocommerce' ),
+				'label'   => __( 'Message log', 'povikvane-sms-for-woocommerce' ),
 				'url'     => admin_url( 'admin.php?page=' . MessageLogPage::SLUG ),
 				'current' => true,
 			),

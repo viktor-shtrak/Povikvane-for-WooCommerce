@@ -57,7 +57,7 @@ final class ConsentColumns {
 		$columns = is_array( $columns ) ? $columns : array();
 
 		if ( current_user_can( 'manage_woocommerce' ) ) {
-			$columns[ self::COLUMN ] = __( 'SMS promotions', 'povikvane-for-woocommerce' );
+			$columns[ self::COLUMN ] = __( 'SMS promotions', 'povikvane-sms-for-woocommerce' );
 		}
 
 		return $columns;
@@ -81,10 +81,10 @@ final class ConsentColumns {
 		$event = $this->event_for( $user_id );
 
 		if ( null === $event ) {
-			return '<span aria-label="' . esc_attr__( 'Has not agreed', 'povikvane-for-woocommerce' ) . '">&mdash;</span>';
+			return '<span aria-label="' . esc_attr__( 'Has not agreed', 'povikvane-sms-for-woocommerce' ) . '">&mdash;</span>';
 		}
 
-		return '<strong>' . esc_html__( 'Agreed', 'povikvane-for-woocommerce' ) . '</strong><br><small>' . esc_html( Dates::format( $event->created_at ) ) . '</small>';
+		return '<strong>' . esc_html__( 'Agreed', 'povikvane-sms-for-woocommerce' ) . '</strong><br><small>' . esc_html( Dates::format( $event->created_at ) ) . '</small>';
 	}
 
 	/**
@@ -99,22 +99,22 @@ final class ConsentColumns {
 
 		$event = $this->event_for( (int) $user->ID );
 
-		echo '<h2>' . esc_html__( 'Promotional SMS', 'povikvane-for-woocommerce' ) . '</h2><table class="form-table" role="presentation"><tr><th>' . esc_html__( 'Consent', 'povikvane-for-woocommerce' ) . '</th><td>';
+		echo '<h2>' . esc_html__( 'Promotional SMS', 'povikvane-sms-for-woocommerce' ) . '</h2><table class="form-table" role="presentation"><tr><th>' . esc_html__( 'Consent', 'povikvane-sms-for-woocommerce' ) . '</th><td>';
 
 		if ( null === $event ) {
-			echo esc_html__( 'Has not agreed to promotional messages.', 'povikvane-for-woocommerce' );
+			echo esc_html__( 'Has not agreed to promotional messages.', 'povikvane-sms-for-woocommerce' );
 		} else {
 			echo esc_html(
 				sprintf(
 					/* translators: 1: date and time, 2: where the customer agreed, for example "at checkout". */
-					__( 'Agreed on %1$s %2$s.', 'povikvane-for-woocommerce' ),
+					__( 'Agreed on %1$s %2$s.', 'povikvane-sms-for-woocommerce' ),
 					Dates::format( $event->created_at ),
 					self::source_text( $event->source )
 				)
 			);
 		}
 
-		echo '<p class="description">' . esc_html__( 'Recorded by the Povikvane plugin. Only the customer can change it.', 'povikvane-for-woocommerce' ) . '</p></td></tr></table>';
+		echo '<p class="description">' . esc_html__( 'Recorded by the Povikvane plugin. Only the customer can change it.', 'povikvane-sms-for-woocommerce' ) . '</p></td></tr></table>';
 	}
 
 	/**
@@ -148,8 +148,8 @@ final class ConsentColumns {
 				'users'  => (object) $users,
 				'emails' => (object) $emails,
 				'i18n'   => array(
-					'label' => __( 'SMS promotions', 'povikvane-for-woocommerce' ),
-					'yes'   => __( 'Agreed', 'povikvane-for-woocommerce' ),
+					'label' => __( 'SMS promotions', 'povikvane-sms-for-woocommerce' ),
+					'yes'   => __( 'Agreed', 'povikvane-sms-for-woocommerce' ),
 				),
 			)
 		);
@@ -177,8 +177,8 @@ final class ConsentColumns {
 	 */
 	private static function source_text( string $source ): string {
 		return match ( $source ) {
-			ConsentEvent::SOURCE_CHECKOUT => __( 'at checkout', 'povikvane-for-woocommerce' ),
-			ConsentEvent::SOURCE_ACCOUNT  => __( 'in My Account', 'povikvane-for-woocommerce' ),
+			ConsentEvent::SOURCE_CHECKOUT => __( 'at checkout', 'povikvane-sms-for-woocommerce' ),
+			ConsentEvent::SOURCE_ACCOUNT  => __( 'in My Account', 'povikvane-sms-for-woocommerce' ),
 			default                       => '',
 		};
 	}

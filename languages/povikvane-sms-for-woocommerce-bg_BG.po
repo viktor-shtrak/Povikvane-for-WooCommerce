@@ -2317,16 +2317,16 @@ msgid "SMS fallback"
 msgstr "Резервен SMS"
 
 #: src/Admin/ViberControls.php:42
-msgid "Your Povikvane plan does not include the SMS fallback. It is not part of the Starter and Bronze plans."
-msgstr "Вашият план в Povikvane не включва резервен SMS. Той не е част от плановете Starter и Bronze."
+msgid "Your Povikvane plan does not include the SMS fallback."
+msgstr "Вашият план в Povikvane не включва резервен SMS."
 
 #: src/Admin/ViberControls.php:45 src/Admin/ViberControls.php:52
 msgid "Send an SMS if Viber cannot deliver"
 msgstr "Изпрати SMS, ако Viber не може да достави"
 
 #: src/Admin/ViberControls.php:52
-msgid "Not included in the Starter and Bronze plans: turn it on only if your plan has it. With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message."
-msgstr "Не е включен в плановете Starter и Bronze: включете го само ако вашият план го има. Когато е включен, SMS текстът трябва да се събира в една SMS част, а изчислението на дължината се показва под всяко съобщение."
+msgid "With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message."
+msgstr "Когато е включен, SMS текстът трябва да се събира в една SMS част, а изчислението на дължината се показва под всяко съобщение."
 
 #: src/Admin/ViberView.php:28
 msgid "Viber is available on your account."

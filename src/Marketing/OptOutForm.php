@@ -93,11 +93,11 @@ final class OptOutForm {
 		$message = match ( $result ) {
 			self::DONE    => sprintf(
 				/* translators: %s: shop name. */
-				__( 'Done. This number will not get promotional SMS messages from %s any more. You will still receive messages about your orders.', 'povikvane-for-woocommerce' ),
+				__( 'Done. This number will not get promotional SMS messages from %s any more. You will still receive messages about your orders.', 'povikvane-sms-for-woocommerce' ),
 				wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
 			),
-			self::INVALID => __( 'That does not look like a mobile phone number. Check it and try again.', 'povikvane-for-woocommerce' ),
-			self::WAIT    => __( 'Too many attempts. Please try again later.', 'povikvane-for-woocommerce' ),
+			self::INVALID => __( 'That does not look like a mobile phone number. Check it and try again.', 'povikvane-sms-for-woocommerce' ),
+			self::WAIT    => __( 'Too many attempts. Please try again later.', 'povikvane-sms-for-woocommerce' ),
 			default       => '',
 		};
 
@@ -107,14 +107,14 @@ final class OptOutForm {
 			$out .= '<p class="povikvane-optout__message" role="status">' . esc_html( $message ) . '</p>';
 		}
 
-		$out .= '<p><label for="povikvane-optout-phone">' . esc_html__( 'Your mobile phone number', 'povikvane-for-woocommerce' ) . '</label><br>';
-		$out .= '<input type="tel" id="povikvane-optout-phone" name="phone" autocomplete="tel" required placeholder="' . esc_attr__( 'e.g. 0888 123 456', 'povikvane-for-woocommerce' ) . '"></p>';
+		$out .= '<p><label for="povikvane-optout-phone">' . esc_html__( 'Your mobile phone number', 'povikvane-sms-for-woocommerce' ) . '</label><br>';
+		$out .= '<input type="tel" id="povikvane-optout-phone" name="phone" autocomplete="tel" required placeholder="' . esc_attr__( 'e.g. 0888 123 456', 'povikvane-sms-for-woocommerce' ) . '"></p>';
 		// Hidden from people, tempting to robots.
-		$out .= '<p style="position:absolute;left:-9999px" aria-hidden="true"><label>' . esc_html__( 'Leave this empty', 'povikvane-for-woocommerce' ) . '<input type="text" name="website" tabindex="-1" autocomplete="off"></label></p>';
+		$out .= '<p style="position:absolute;left:-9999px" aria-hidden="true"><label>' . esc_html__( 'Leave this empty', 'povikvane-sms-for-woocommerce' ) . '<input type="text" name="website" tabindex="-1" autocomplete="off"></label></p>';
 		$out .= '<input type="hidden" name="action" value="' . esc_attr( self::ACTION ) . '">';
 		$here = get_permalink();
 		$out .= '<input type="hidden" name="back" value="' . esc_url( false === $here ? home_url( '/' ) : $here ) . '">';
-		$out .= '<p><button type="submit">' . esc_html__( 'Stop promotional SMS', 'povikvane-for-woocommerce' ) . '</button></p></form>';
+		$out .= '<p><button type="submit">' . esc_html__( 'Stop promotional SMS', 'povikvane-sms-for-woocommerce' ) . '</button></p></form>';
 
 		return $out;
 	}

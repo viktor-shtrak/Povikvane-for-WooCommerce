@@ -32,7 +32,7 @@ final class VersionConsistencyTest extends TestCase {
 	 * Header version, VERSION constant and readme stable tag must agree.
 	 */
 	public function test_header_constant_and_readme_versions_match(): void {
-		$main   = $this->read( 'povikvane-for-woocommerce.php' );
+		$main   = $this->read( 'povikvane-sms-for-woocommerce.php' );
 		$readme = $this->read( 'readme.txt' );
 
 		$this->assertSame( 1, preg_match( '/^ \* Version:\s+(\S+)/m', $main, $header ), 'Plugin header version missing' );
@@ -47,7 +47,7 @@ final class VersionConsistencyTest extends TestCase {
 	 * Minimum WordPress and PHP versions must agree between header and readme.
 	 */
 	public function test_minimum_requirements_match_between_header_and_readme(): void {
-		$main   = $this->read( 'povikvane-for-woocommerce.php' );
+		$main   = $this->read( 'povikvane-sms-for-woocommerce.php' );
 		$readme = $this->read( 'readme.txt' );
 
 		foreach ( array( 'Requires at least', 'Requires PHP' ) as $field ) {

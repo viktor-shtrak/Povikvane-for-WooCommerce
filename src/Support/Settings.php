@@ -154,7 +154,7 @@ final class Settings {
 
 	/**
 	 * Whether Viber messages carry an SMS the service sends if Viber cannot deliver.
-	 * Off by default: the Starter and Bronze plans do not include the fallback.
+	 * Off by default: it sends an extra SMS, so the shop owner chooses it.
 	 */
 	public function viber_sms_fallback(): bool {
 		return $this->all()['viber_sms_fallback'];

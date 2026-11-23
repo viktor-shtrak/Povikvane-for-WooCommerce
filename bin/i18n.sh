@@ -2,7 +2,7 @@
 #
 # Refreshes the translation files.
 #
-#   1. Extracts every translatable string into languages/povikvane-for-woocommerce.pot
+#   1. Extracts every translatable string into languages/povikvane-sms-for-woocommerce.pot
 #      (this English template is the master: all source strings are English).
 #   2. Merges new and changed strings into each languages/*.po file.
 #   3. Compiles every .po into the .mo file WordPress loads.
@@ -15,7 +15,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
-slug="povikvane-for-woocommerce"
+slug="povikvane-sms-for-woocommerce"
 version="$(sed -n 's/^ \* Version: *//p' "${slug}.php" | head -1)"
 pot="languages/${slug}.pot"
 

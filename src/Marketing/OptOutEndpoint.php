@@ -51,7 +51,7 @@ final class OptOutEndpoint {
 		nocache_headers();
 
 		if ( null === $hash ) {
-			wp_die( esc_html__( 'This unsubscribe link is not valid.', 'povikvane-for-woocommerce' ), esc_html__( 'Unsubscribe', 'povikvane-for-woocommerce' ), array( 'response' => 400 ) );
+			wp_die( esc_html__( 'This unsubscribe link is not valid.', 'povikvane-sms-for-woocommerce' ), esc_html__( 'Unsubscribe', 'povikvane-sms-for-woocommerce' ), array( 'response' => 400 ) );
 		}
 
 		$this->consent->revoke_by_hash( $hash, ConsentEvent::SOURCE_OPTOUT );
@@ -60,11 +60,11 @@ final class OptOutEndpoint {
 			esc_html(
 				sprintf(
 					/* translators: %s: shop name. */
-					__( 'You have been unsubscribed from promotional SMS messages from %s. You will still receive messages about your orders.', 'povikvane-for-woocommerce' ),
+					__( 'You have been unsubscribed from promotional SMS messages from %s. You will still receive messages about your orders.', 'povikvane-sms-for-woocommerce' ),
 					wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
 				)
 			),
-			esc_html__( 'Unsubscribed', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Unsubscribed', 'povikvane-sms-for-woocommerce' ),
 			array( 'response' => 200 )
 		);
 	}

@@ -89,13 +89,13 @@ final class TriggerRepository implements TriggerProvider {
 	 */
 	private function label( string $slug, string $label ): string {
 		$known = array(
-			'pending'    => array( 'Pending payment', _x( 'Pending payment', 'order status', 'povikvane-for-woocommerce' ) ),
-			'processing' => array( 'Processing', _x( 'Processing', 'order status', 'povikvane-for-woocommerce' ) ),
-			'on-hold'    => array( 'On hold', _x( 'On hold', 'order status', 'povikvane-for-woocommerce' ) ),
-			'completed'  => array( 'Completed', _x( 'Completed', 'order status', 'povikvane-for-woocommerce' ) ),
-			'cancelled'  => array( 'Cancelled', _x( 'Cancelled', 'order status', 'povikvane-for-woocommerce' ) ),
-			'refunded'   => array( 'Refunded', _x( 'Refunded', 'order status', 'povikvane-for-woocommerce' ) ),
-			'failed'     => array( 'Failed', _x( 'Failed', 'order status', 'povikvane-for-woocommerce' ) ),
+			'pending'    => array( 'Pending payment', _x( 'Pending payment', 'order status', 'povikvane-sms-for-woocommerce' ) ),
+			'processing' => array( 'Processing', _x( 'Processing', 'order status', 'povikvane-sms-for-woocommerce' ) ),
+			'on-hold'    => array( 'On hold', _x( 'On hold', 'order status', 'povikvane-sms-for-woocommerce' ) ),
+			'completed'  => array( 'Completed', _x( 'Completed', 'order status', 'povikvane-sms-for-woocommerce' ) ),
+			'cancelled'  => array( 'Cancelled', _x( 'Cancelled', 'order status', 'povikvane-sms-for-woocommerce' ) ),
+			'refunded'   => array( 'Refunded', _x( 'Refunded', 'order status', 'povikvane-sms-for-woocommerce' ) ),
+			'failed'     => array( 'Failed', _x( 'Failed', 'order status', 'povikvane-sms-for-woocommerce' ) ),
 		);
 
 		return isset( $known[ $slug ] ) && $known[ $slug ][0] === $label ? $known[ $slug ][1] : $label;

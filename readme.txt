@@ -69,7 +69,7 @@ Every promotional message contains an unsubscribe link. A customer can also chan
 
 = What happens if a Viber message cannot be delivered? =
 
-If you turned on the SMS fallback (not part of the Starter and Bronze plans), Povikvane sends the SMS itself when Viber cannot deliver. Separately, if Povikvane clearly refuses a Viber message (for example a template problem), the plugin sends that order update as an ordinary SMS instead. It does this only for clear refusals. If the answer is unclear (a timeout, "too many requests", "request in progress" or a server error), the Viber message may already be on its way, so the plugin never sends an SMS on top of it: it retries the same Viber message, or marks it as unconfirmed so you can check it in the message log.
+If you turned on the SMS fallback (available on every plan), Povikvane sends the SMS itself when Viber cannot deliver. Separately, if Povikvane clearly refuses a Viber message (for example a template problem), the plugin sends that order update as an ordinary SMS instead. It does this only for clear refusals. If the answer is unclear (a timeout, "too many requests", "request in progress" or a server error), the Viber message may already be on its way, so the plugin never sends an SMS on top of it: it retries the same Viber message, or marks it as unconfirmed so you can check it in the message log.
 
 = What happens when my credits run out? =
 
@@ -78,6 +78,14 @@ Messages wait and are sent once credits are available, and you see a notice in t
 = Can I send in Bulgarian? =
 
 Yes. Bulgarian is included, and the default message texts follow the language setting. You can edit every text.
+
+== Screenshots ==
+
+1. The overview: connection, credits, delivery results and the latest messages.
+2. The setup wizard: switch on Viber and choose the order messages your customers get.
+3. The Messages tab: each message shows whether it is approved for Viber, with a price check and templates you can pick from.
+4. Promotions: customer agreement, sending hours and a limit on how often one customer is messaged.
+5. The review request: ask customers who agreed for feedback after an order is completed, on the same day or later.
 
 == Changelog ==
 

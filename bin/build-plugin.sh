@@ -4,14 +4,14 @@
 # WordPress.org should receive (no tests, CI config or dotfiles).
 #
 # Usage: bin/build-plugin.sh <output-dir> [zip]
-#   Creates <output-dir>/povikvane-for-woocommerce/ and, with "zip",
-#   <output-dir>/povikvane-for-woocommerce-<version>.zip.
+#   Creates <output-dir>/povikvane-sms-for-woocommerce/ and, with "zip",
+#   <output-dir>/povikvane-sms-for-woocommerce-<version>.zip.
 
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 out="${1:?Usage: bin/build-plugin.sh <output-dir> [zip]}"
-slug="povikvane-for-woocommerce"
+slug="povikvane-sms-for-woocommerce"
 
 rm -rf "${out:?}/${slug}"
 mkdir -p "${out}/${slug}"

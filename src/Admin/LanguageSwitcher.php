@@ -39,19 +39,19 @@ final class LanguageSwitcher {
 		echo '<form class="pvk-header__lang" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo '<input type="hidden" name="action" value="' . esc_attr( self::ACTION ) . '">';
 		wp_nonce_field( self::ACTION );
-		echo '<label class="screen-reader-text" for="pvk-language">' . esc_html__( 'Language of these screens', 'povikvane-for-woocommerce' ) . '</label>';
+		echo '<label class="screen-reader-text" for="pvk-language">' . esc_html__( 'Language of these screens', 'povikvane-sms-for-woocommerce' ) . '</label>';
 		echo '<span class="pvk-header__lang-box"><svg class="pvk-header__globe" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.4 4 5.6 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.6-4-9s1.4-6.6 4-9z"/></svg>';
 		echo '<select id="pvk-language" name="language" data-pvk-native data-povikvane-autosubmit>';
 
 		foreach ( array(
-			''                  => __( 'Language: automatic', 'povikvane-for-woocommerce' ),
+			''                  => __( 'Language: automatic', 'povikvane-sms-for-woocommerce' ),
 			Language::ENGLISH   => 'English',
 			Language::BULGARIAN => 'Български',
 		) as $value => $label ) {
 			printf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( (string) $value ), selected( $current, (string) $value, false ), esc_html( $label ) );
 		}
 
-		echo '</select></span><noscript><button type="submit" class="pvk-btn">' . esc_html__( 'Save', 'povikvane-for-woocommerce' ) . '</button></noscript></form>';
+		echo '</select></span><noscript><button type="submit" class="pvk-btn">' . esc_html__( 'Save', 'povikvane-sms-for-woocommerce' ) . '</button></noscript></form>';
 	}
 
 	/**
@@ -61,7 +61,7 @@ final class LanguageSwitcher {
 		check_admin_referer( self::ACTION );
 
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 
 		$choice = isset( $_POST['language'] ) ? sanitize_text_field( wp_unslash( $_POST['language'] ) ) : '';

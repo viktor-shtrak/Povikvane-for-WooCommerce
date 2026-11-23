@@ -71,6 +71,7 @@
 	}
 
 	activate( initial, false );
+	root.removeAttribute( 'data-pvk-first' );
 
 	tabs.forEach( function ( tab, index ) {
 		tab.addEventListener( 'click', function () {

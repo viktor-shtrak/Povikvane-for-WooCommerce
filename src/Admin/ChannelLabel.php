@@ -25,11 +25,11 @@ final class ChannelLabel {
 	 */
 	public static function text( Message $message ): string {
 		if ( 'viber' !== $message->channel ) {
-			return __( 'SMS', 'povikvane-for-woocommerce' );
+			return __( 'SMS', 'povikvane-sms-for-woocommerce' );
 		}
 
 		return 'sms' === $message->delivered_via
-			? __( 'Viber, delivered by SMS', 'povikvane-for-woocommerce' )
-			: __( 'Viber', 'povikvane-for-woocommerce' );
+			? __( 'Viber, delivered by SMS', 'povikvane-sms-for-woocommerce' )
+			: __( 'Viber', 'povikvane-sms-for-woocommerce' );
 	}
 }

@@ -54,4 +54,4 @@ jobs:
       - name: WordPress.org Plugin Check
         uses: WordPress/plugin-check-action@v1
         with:
-          build-dir: build/povikvane-for-woocommerce
+          build-dir: build/povikvane-sms-for-woocommerce

@@ -65,7 +65,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="povikvane-for-woocommerce"/>
+				<element value="povikvane-sms-for-woocommerce"/>
 			</property>
 		</properties>
 	</rule>

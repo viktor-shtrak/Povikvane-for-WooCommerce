@@ -175,11 +175,26 @@
 
 /* ---------- Panels, cards, fields ---------- */
 
-.pvk[data-pvk-tabs] .pvk-panel {
+/* Without JavaScript every panel is shown one after another; WordPress adds "js" to the page body when scripts run. */
+.js .pvk[data-pvk-tabs] .pvk-panel {
 	display: none;
 }
 
-.pvk[data-pvk-tabs] .pvk-panel.is-active {
+.js .pvk[data-pvk-tabs] .pvk-panel.is-active {
+	display: block;
+}
+
+/* A tab named in the address is shown from the first paint, before the script takes over. */
+.js .pvk[data-pvk-tabs][data-pvk-first] .pvk-panel {
+	display: none;
+}
+
+.js .pvk[data-pvk-tabs][data-pvk-first="overview"] #pvk-panel-overview,
+.js .pvk[data-pvk-tabs][data-pvk-first="messages"] #pvk-panel-messages,
+.js .pvk[data-pvk-tabs][data-pvk-first="promotions"] #pvk-panel-promotions,
+.js .pvk[data-pvk-tabs][data-pvk-first="reviews"] #pvk-panel-reviews,
+.js .pvk[data-pvk-tabs][data-pvk-first="settings"] #pvk-panel-settings,
+.js .pvk[data-pvk-tabs][data-pvk-first="advanced"] #pvk-panel-advanced {
 	display: block;
 }
 

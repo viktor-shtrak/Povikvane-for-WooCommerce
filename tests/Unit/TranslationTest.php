@@ -93,7 +93,7 @@ final class TranslationTest extends TestCase {
 	 * Every English string in the code is in the template.
 	 */
 	public function test_template_contains_every_string_in_the_code(): void {
-		$entries  = $this->parse_po( $this->path( 'languages/povikvane-for-woocommerce.pot' ) );
+		$entries  = $this->parse_po( $this->path( 'languages/povikvane-sms-for-woocommerce.pot' ) );
 		$template = array_merge( array_column( $entries, 'id' ), array_filter( array_column( $entries, 'plural' ) ) );
 		$missing  = array();
 
@@ -110,8 +110,8 @@ final class TranslationTest extends TestCase {
 	 * Every template string has a Bulgarian translation, and none is left fuzzy.
 	 */
 	public function test_bulgarian_translation_is_complete(): void {
-		$template   = $this->parse_po( $this->path( 'languages/povikvane-for-woocommerce.pot' ) );
-		$bulgarian  = $this->parse_po( $this->path( 'languages/povikvane-for-woocommerce-bg_BG.po' ) );
+		$template   = $this->parse_po( $this->path( 'languages/povikvane-sms-for-woocommerce.pot' ) );
+		$bulgarian  = $this->parse_po( $this->path( 'languages/povikvane-sms-for-woocommerce-bg_BG.po' ) );
 		$translated = array();
 
 		foreach ( $bulgarian as $entry ) {
@@ -134,7 +134,7 @@ final class TranslationTest extends TestCase {
 	 * A translation keeps exactly the placeholders of the English text.
 	 */
 	public function test_translations_keep_their_placeholders(): void {
-		foreach ( $this->parse_po( $this->path( 'languages/povikvane-for-woocommerce-bg_BG.po' ) ) as $entry ) {
+		foreach ( $this->parse_po( $this->path( 'languages/povikvane-sms-for-woocommerce-bg_BG.po' ) ) as $entry ) {
 			$expected = $this->placeholders( $entry['id'] );
 
 			foreach ( $entry['str'] as $index => $text ) {
@@ -152,9 +152,9 @@ final class TranslationTest extends TestCase {
 	 * The compiled file matches the .po (nobody forgot to run bin/i18n.sh).
 	 */
 	public function test_compiled_file_matches_the_po(): void {
-		$compiled = MoFile::read( $this->path( 'languages/povikvane-for-woocommerce-bg_BG.mo' ) );
+		$compiled = MoFile::read( $this->path( 'languages/povikvane-sms-for-woocommerce-bg_BG.mo' ) );
 
-		foreach ( $this->parse_po( $this->path( 'languages/povikvane-for-woocommerce-bg_BG.po' ) ) as $entry ) {
+		foreach ( $this->parse_po( $this->path( 'languages/povikvane-sms-for-woocommerce-bg_BG.po' ) ) as $entry ) {
 			$key = null === $entry['plural'] ? $entry['id'] : $entry['id'] . "\0" . $entry['plural'];
 			$key = '' === $entry['ctx'] ? $key : $entry['ctx'] . "\4" . $key;
 
@@ -167,7 +167,7 @@ final class TranslationTest extends TestCase {
 	 * A few translations read as expected, as a sanity check of the whole chain.
 	 */
 	public function test_known_translations(): void {
-		$compiled = MoFile::read( $this->path( 'languages/povikvane-for-woocommerce-bg_BG.mo' ) );
+		$compiled = MoFile::read( $this->path( 'languages/povikvane-sms-for-woocommerce-bg_BG.mo' ) );
 
 		$this->assertSame( 'Запази промените', $compiled['Save changes'] );
 		$this->assertSame( 'Общ преглед', $compiled['Overview'] );
@@ -182,7 +182,7 @@ final class TranslationTest extends TestCase {
 	 * @return string[]
 	 */
 	private function source_strings(): array {
-		$files   = array( $this->path( 'povikvane-for-woocommerce.php' ), $this->path( 'uninstall.php' ) );
+		$files   = array( $this->path( 'povikvane-sms-for-woocommerce.php' ), $this->path( 'uninstall.php' ) );
 		$strings = array();
 
 		foreach ( new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->path( 'src' ), \FilesystemIterator::SKIP_DOTS ) ) as $file ) {

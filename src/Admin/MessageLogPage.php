@@ -81,8 +81,8 @@ final class MessageLogPage {
 	public function add_menu(): void {
 		$this->hook_suffix = (string) add_submenu_page(
 			'woocommerce',
-			__( 'Povikvane message log', 'povikvane-for-woocommerce' ),
-			__( 'Povikvane message log', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane message log', 'povikvane-sms-for-woocommerce' ),
+			__( 'Povikvane message log', 'povikvane-sms-for-woocommerce' ),
 			self::CAPABILITY,
 			self::SLUG,
 			array( $this, 'render' )
@@ -126,7 +126,7 @@ final class MessageLogPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'povikvane-for-woocommerce' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
@@ -138,11 +138,11 @@ final class MessageLogPage {
 		Layout::open();
 		Layout::tabs( Navigation::for_log_page(), 'log' );
 
-		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px"><h2 class="pvk-card__title">' . esc_html__( 'Message log', 'povikvane-for-woocommerce' ) . '</h2>';
+		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px"><h2 class="pvk-card__title">' . esc_html__( 'Message log', 'povikvane-sms-for-woocommerce' ) . '</h2>';
 		printf(
 			'<a class="pvk-btn" href="%1$s">%2$s</a></div><div class="pvk-card__body">',
 			esc_url( $this->export_url( $query ) ),
-			esc_html__( 'Export CSV', 'povikvane-for-woocommerce' )
+			esc_html__( 'Export CSV', 'povikvane-sms-for-woocommerce' )
 		);
 
 		$this->views( $query );
@@ -151,7 +151,7 @@ final class MessageLogPage {
 		printf( '<input type="hidden" name="page" value="%s">', esc_attr( self::SLUG ) );
 		printf( '<input type="hidden" name="view" value="%s">', esc_attr( $query->needs_attention ? 'attention' : '' ) );
 		wp_nonce_field( 'povikvane_bulk_resend' );
-		$table->search_box( __( 'Search order number, reference or message ID', 'povikvane-for-woocommerce' ), 'povikvane-message' );
+		$table->search_box( __( 'Search order number, reference or message ID', 'povikvane-sms-for-woocommerce' ), 'povikvane-message' );
 		$table->display();
 		echo '</form></div></section>';
 
@@ -171,13 +171,13 @@ final class MessageLogPage {
 			'<p class="pvk-views"><a href="%1$s"%2$s>%3$s</a><a href="%4$s"%5$s>%6$s</a></p>',
 			esc_url( $base ),
 			$query->needs_attention ? '' : ' class="is-current"',
-			esc_html__( 'All messages', 'povikvane-for-woocommerce' ),
+			esc_html__( 'All messages', 'povikvane-sms-for-woocommerce' ),
 			esc_url( add_query_arg( 'view', 'attention', $base ) ),
 			$query->needs_attention ? ' class="is-current"' : '',
 			esc_html(
 				sprintf(
 					/* translators: %d: number of failed or unconfirmed messages. */
-					__( 'Needs attention (%d)', 'povikvane-for-woocommerce' ),
+					__( 'Needs attention (%d)', 'povikvane-sms-for-woocommerce' ),
 					$attention
 				)
 			)
@@ -194,21 +194,21 @@ final class MessageLogPage {
 		$this->require_capability();
 
 		if ( SendingState::REASON_SITE === $this->state->paused_reason() ) {
-			Flash::add( 'error', __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-sms-for-woocommerce' ) );
 			$this->back();
 		}
 
 		$old = $this->repository->find( $id );
 
 		if ( null === $old || ! $this->resendable( $old ) ) {
-			Flash::add( 'error', __( 'This message cannot be sent again.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'This message cannot be sent again.', 'povikvane-sms-for-woocommerce' ) );
 			$this->back();
 		}
 
 		if ( $this->queue_again( $old ) ) {
-			Flash::add( 'success', __( 'The message was queued again.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'success', __( 'The message was queued again.', 'povikvane-sms-for-woocommerce' ) );
 		} else {
-			Flash::add( 'error', __( 'Another message was just queued. Wait a second and try again.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'Another message was just queued. Wait a second and try again.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		$this->back();
@@ -222,7 +222,7 @@ final class MessageLogPage {
 		$this->require_capability();
 
 		if ( SendingState::REASON_SITE === $this->state->paused_reason() ) {
-			Flash::add( 'error', __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-sms-for-woocommerce' ) );
 			$this->back();
 		}
 
@@ -243,7 +243,7 @@ final class MessageLogPage {
 		}
 
 		if ( 0 === $queued && 0 === $skipped ) {
-			Flash::add( 'error', __( 'Select at least one message first.', 'povikvane-for-woocommerce' ) );
+			Flash::add( 'error', __( 'Select at least one message first.', 'povikvane-sms-for-woocommerce' ) );
 			$this->back();
 		}
 
@@ -251,7 +251,7 @@ final class MessageLogPage {
 			$queued > 0 ? 'success' : 'error',
 			sprintf(
 				/* translators: 1: number of messages queued again, 2: number that could not be sent again. */
-				__( '%1$d queued again, %2$d could not be sent again.', 'povikvane-for-woocommerce' ),
+				__( '%1$d queued again, %2$d could not be sent again.', 'povikvane-sms-for-woocommerce' ),
 				$queued,
 				$skipped
 			)
@@ -403,7 +403,7 @@ final class MessageLogPage {
 	 */
 	private function require_capability(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ), '', array( 'response' => 403 ) );
 		}
 	}
 

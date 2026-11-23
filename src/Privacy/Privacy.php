@@ -65,11 +65,11 @@ final class Privacy {
 			return;
 		}
 
-		$text  = '<h2>' . esc_html__( 'SMS messages', 'povikvane-for-woocommerce' ) . '</h2>';
-		$text .= '<p class="privacy-policy-tutorial">' . esc_html__( 'Suggested wording. Review and adapt it to how you use the plugin.', 'povikvane-for-woocommerce' ) . '</p>';
-		$text .= '<p>' . esc_html__( 'When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them on our behalf, so your phone number and the message text are passed to that service.', 'povikvane-for-woocommerce' ) . '</p>';
-		$text .= '<p>' . esc_html__( 'If you agreed to it, we also send occasional promotional text messages. You can withdraw your agreement at any time using the link in each message or in your account. We keep a record of your agreement and of any withdrawal.', 'povikvane-for-woocommerce' ) . '</p>';
-		$text .= '<p>' . esc_html__( 'We keep the text of messages for a limited time and the record of each message (order, status, phone number) for longer, as set in the plugin settings.', 'povikvane-for-woocommerce' ) . '</p>';
+		$text  = '<h2>' . esc_html__( 'SMS messages', 'povikvane-sms-for-woocommerce' ) . '</h2>';
+		$text .= '<p class="privacy-policy-tutorial">' . esc_html__( 'Suggested wording. Review and adapt it to how you use the plugin.', 'povikvane-sms-for-woocommerce' ) . '</p>';
+		$text .= '<p>' . esc_html__( 'When you place an order, we may send text messages about it (for example when it is completed) to the phone number you gave. We use the Povikvane messaging service to send them on our behalf, so your phone number and the message text are passed to that service.', 'povikvane-sms-for-woocommerce' ) . '</p>';
+		$text .= '<p>' . esc_html__( 'If you agreed to it, we also send occasional promotional text messages. You can withdraw your agreement at any time using the link in each message or in your account. We keep a record of your agreement and of any withdrawal.', 'povikvane-sms-for-woocommerce' ) . '</p>';
+		$text .= '<p>' . esc_html__( 'We keep the text of messages for a limited time and the record of each message (order, status, phone number) for longer, as set in the plugin settings.', 'povikvane-sms-for-woocommerce' ) . '</p>';
 
 		wp_add_privacy_policy_content( self::NAME, wp_kses_post( $text ) );
 	}
@@ -121,31 +121,31 @@ final class Privacy {
 		foreach ( $this->messages->for_orders( array_keys( $orders ) ) as $message ) {
 			$data[] = array(
 				'group_id'    => 'povikvane_sms_messages',
-				'group_label' => __( 'SMS messages', 'povikvane-for-woocommerce' ),
+				'group_label' => __( 'SMS messages', 'povikvane-sms-for-woocommerce' ),
 				'item_id'     => 'povikvane-sms-' . $message->id,
 				'data'        => array(
 					array(
-						'name'  => __( 'Date', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Date', 'povikvane-sms-for-woocommerce' ),
 						'value' => gmdate( 'Y-m-d H:i:s', $message->created_at ) . ' UTC',
 					),
 					array(
-						'name'  => __( 'Order', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Order', 'povikvane-sms-for-woocommerce' ),
 						'value' => (string) $message->order_id,
 					),
 					array(
-						'name'  => __( 'Type', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Type', 'povikvane-sms-for-woocommerce' ),
 						'value' => $message->event . ' (' . $message->kind->value . ')',
 					),
 					array(
-						'name'  => __( 'Status', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Status', 'povikvane-sms-for-woocommerce' ),
 						'value' => $message->status->value,
 					),
 					array(
-						'name'  => __( 'Phone number', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Phone number', 'povikvane-sms-for-woocommerce' ),
 						'value' => $message->recipient,
 					),
 					array(
-						'name'  => __( 'Text', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Text', 'povikvane-sms-for-woocommerce' ),
 						'value' => $message->body,
 					),
 				),
@@ -155,27 +155,27 @@ final class Privacy {
 		foreach ( $this->ledger->events_for( $this->hashes_for( $orders ), $email_address ) as $event ) {
 			$data[] = array(
 				'group_id'    => 'povikvane_sms_consent',
-				'group_label' => __( 'SMS promotional consent', 'povikvane-for-woocommerce' ),
+				'group_label' => __( 'SMS promotional consent', 'povikvane-sms-for-woocommerce' ),
 				'item_id'     => 'povikvane-consent-' . $event->id,
 				'data'        => array(
 					array(
-						'name'  => __( 'Date', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Date', 'povikvane-sms-for-woocommerce' ),
 						'value' => gmdate( 'Y-m-d H:i:s', $event->created_at ) . ' UTC',
 					),
 					array(
-						'name'  => __( 'Decision', 'povikvane-for-woocommerce' ),
-						'value' => $event->granted ? __( 'Agreed', 'povikvane-for-woocommerce' ) : __( 'Withdrew', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Decision', 'povikvane-sms-for-woocommerce' ),
+						'value' => $event->granted ? __( 'Agreed', 'povikvane-sms-for-woocommerce' ) : __( 'Withdrew', 'povikvane-sms-for-woocommerce' ),
 					),
 					array(
-						'name'  => __( 'Where', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Where', 'povikvane-sms-for-woocommerce' ),
 						'value' => $event->source,
 					),
 					array(
-						'name'  => __( 'Phone number', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Phone number', 'povikvane-sms-for-woocommerce' ),
 						'value' => (string) $event->phone,
 					),
 					array(
-						'name'  => __( 'Email', 'povikvane-for-woocommerce' ),
+						'name'  => __( 'Email', 'povikvane-sms-for-woocommerce' ),
 						'value' => (string) $event->email,
 					),
 				),
@@ -210,7 +210,7 @@ final class Privacy {
 			'items_removed'  => $messages > 0 || $records > 0,
 			'items_retained' => $records > 0,
 			'messages'       => $records > 0
-				? array( __( 'SMS opt-in and opt-out decisions were kept without the phone number and email, so that a withdrawal stays in force.', 'povikvane-for-woocommerce' ) )
+				? array( __( 'SMS opt-in and opt-out decisions were kept without the phone number and email, so that a withdrawal stays in force.', 'povikvane-sms-for-woocommerce' ) )
 				: array(),
 			'done'           => true,
 		);

@@ -57,12 +57,12 @@ final class OverviewPanel {
 	private function render_checklist( OverviewData $data ): void {
 		$percent = SetupChecklist::percent( $data->checklist );
 
-		Ui::card_open( __( 'Finish setting up', 'povikvane-for-woocommerce' ), __( 'A few steps and your customers get their order updates by text message.', 'povikvane-for-woocommerce' ) );
+		Ui::card_open( __( 'Finish setting up', 'povikvane-sms-for-woocommerce' ), __( 'A few steps and your customers get their order updates by text message.', 'povikvane-sms-for-woocommerce' ) );
 
 		printf(
 			'<div class="pvk-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="%1$d" aria-label="%2$s"><span style="width:%1$d%%"></span></div>',
 			(int) $percent,
-			esc_attr__( 'Setup progress', 'povikvane-for-woocommerce' )
+			esc_attr__( 'Setup progress', 'povikvane-sms-for-woocommerce' )
 		);
 
 		echo '<ul class="pvk-checklist">';
@@ -75,16 +75,16 @@ final class OverviewPanel {
 				$item['done'] ? ' is-done' : '',
 				$item['done'] ? '&#10003;' : '',
 				esc_html( $title ),
-				$item['required'] ? '' : ' ' . Ui::pill( __( 'Optional', 'povikvane-for-woocommerce' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+				$item['required'] ? '' : ' ' . Ui::pill( __( 'Optional', 'povikvane-sms-for-woocommerce' ) ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
 				esc_html( $hint ),
-				$item['done'] || '' === $tab ? '<span class="screen-reader-text">' . esc_html__( 'Done', 'povikvane-for-woocommerce' ) . '</span>' : '<a class="pvk-btn" href="#' . esc_attr( $tab ) . '" data-pvk-goto="' . esc_attr( $tab ) . '">' . esc_html__( 'Open', 'povikvane-for-woocommerce' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on this line.
+				$item['done'] || '' === $tab ? '<span class="screen-reader-text">' . esc_html__( 'Done', 'povikvane-sms-for-woocommerce' ) . '</span>' : '<a class="pvk-btn" href="#' . esc_attr( $tab ) . '" data-pvk-goto="' . esc_attr( $tab ) . '">' . esc_html__( 'Open', 'povikvane-sms-for-woocommerce' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped on this line.
 			);
 		}
 
 		echo '</ul>';
 
 		Ui::card_close(
-			'<a class="pvk-btn pvk-btn--primary" href="' . esc_url( $data->wizard_url ) . '">' . esc_html__( 'Continue setup', 'povikvane-for-woocommerce' ) . '</a>'
+			'<a class="pvk-btn pvk-btn--primary" href="' . esc_url( $data->wizard_url ) . '">' . esc_html__( 'Continue setup', 'povikvane-sms-for-woocommerce' ) . '</a>'
 		);
 	}
 
@@ -96,10 +96,10 @@ final class OverviewPanel {
 	 */
 	private function describe_step( string $id ): array {
 		return match ( $id ) {
-			SetupChecklist::CONNECT  => array( __( 'Connect your Povikvane account', 'povikvane-for-woocommerce' ), __( 'Link this shop to your Povikvane account.', 'povikvane-for-woocommerce' ), 'connection' ),
-			SetupChecklist::MESSAGES => array( __( 'Choose which orders send a message', 'povikvane-for-woocommerce' ), __( 'Only "Completed" is switched on by default.', 'povikvane-for-woocommerce' ), 'messages' ),
-			SetupChecklist::TEST     => array( __( 'Send a test message', 'povikvane-for-woocommerce' ), __( 'Check that a real SMS reaches your phone.', 'povikvane-for-woocommerce' ), '' ),
-			default                  => array( __( 'Get delivery reports', 'povikvane-for-woocommerce' ), __( 'Turn this on to see "Delivered" as it happens.', 'povikvane-for-woocommerce' ), 'connection' ),
+			SetupChecklist::CONNECT  => array( __( 'Connect your Povikvane account', 'povikvane-sms-for-woocommerce' ), __( 'Link this shop to your Povikvane account.', 'povikvane-sms-for-woocommerce' ), 'connection' ),
+			SetupChecklist::MESSAGES => array( __( 'Choose which orders send a message', 'povikvane-sms-for-woocommerce' ), __( 'Only "Completed" is switched on by default.', 'povikvane-sms-for-woocommerce' ), 'messages' ),
+			SetupChecklist::TEST     => array( __( 'Send a test message', 'povikvane-sms-for-woocommerce' ), __( 'Check that a real SMS reaches your phone.', 'povikvane-sms-for-woocommerce' ), '' ),
+			default                  => array( __( 'Get delivery reports', 'povikvane-sms-for-woocommerce' ), __( 'Turn this on to see "Delivered" as it happens.', 'povikvane-sms-for-woocommerce' ), 'connection' ),
 		};
 	}
 
@@ -113,23 +113,23 @@ final class OverviewPanel {
 
 		// Connection.
 		list( $label, $tone ) = match ( $data->connection ) {
-			Capabilities::CONNECTION_OK          => array( __( 'Connected', 'povikvane-for-woocommerce' ), 'ok' ),
-			Capabilities::CONNECTION_AUTH        => array( __( 'Key rejected', 'povikvane-for-woocommerce' ), 'bad' ),
-			Capabilities::CONNECTION_UNREACHABLE => array( __( 'Unreachable', 'povikvane-for-woocommerce' ), 'warn' ),
-			Capabilities::CONNECTION_CONFIG      => array( __( 'Check service ID', 'povikvane-for-woocommerce' ), 'bad' ),
-			default                              => array( __( 'Not set up', 'povikvane-for-woocommerce' ), '' ),
+			Capabilities::CONNECTION_OK          => array( __( 'Connected', 'povikvane-sms-for-woocommerce' ), 'ok' ),
+			Capabilities::CONNECTION_AUTH        => array( __( 'Key rejected', 'povikvane-sms-for-woocommerce' ), 'bad' ),
+			Capabilities::CONNECTION_UNREACHABLE => array( __( 'Unreachable', 'povikvane-sms-for-woocommerce' ), 'warn' ),
+			Capabilities::CONNECTION_CONFIG      => array( __( 'Check service ID', 'povikvane-sms-for-woocommerce' ), 'bad' ),
+			default                              => array( __( 'Not set up', 'povikvane-sms-for-woocommerce' ), '' ),
 		};
 
 		Ui::tile(
-			__( 'Connection', 'povikvane-for-woocommerce' ),
+			__( 'Connection', 'povikvane-sms-for-woocommerce' ),
 			Ui::pill( $label, $tone ),
 			$data->checked_at > 0
 				? sprintf(
 					/* translators: %s: date and time. */
-					__( 'Checked %s', 'povikvane-for-woocommerce' ),
+					__( 'Checked %s', 'povikvane-sms-for-woocommerce' ),
 					Dates::format( $data->checked_at )
 				)
-				: __( 'Not checked yet', 'povikvane-for-woocommerce' )
+				: __( 'Not checked yet', 'povikvane-sms-for-woocommerce' )
 		);
 
 		// Credits.
@@ -138,38 +138,38 @@ final class OverviewPanel {
 
 			printf(
 				'<div class="pvk-tile"><div class="pvk-tile__label">%1$s</div><div class="pvk-tile__value"><span id="povikvane-balance" data-refresh="1" data-age="%2$d" data-estimated="%3$d">%4$s</span>%5$s</div><div class="pvk-tile__hint" id="povikvane-balance-hint">%6$s</div></div>',
-				esc_html__( 'Credits', 'povikvane-for-woocommerce' ),
+				esc_html__( 'Credits', 'povikvane-sms-for-woocommerce' ),
 				(int) ( null === $data->balance ? -1 : max( 0, time() - $data->balance->fetched_at ) ),
 				null !== $data->balance && $data->balance->estimated ? 1 : 0,
 				esc_html( BalanceView::amount( $data->balance ) ),
-				$low ? ' ' . Ui::pill( __( 'Low', 'povikvane-for-woocommerce' ), 'warn' ) : '', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
+				$low ? ' ' . Ui::pill( __( 'Low', 'povikvane-sms-for-woocommerce' ), 'warn' ) : '', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill().
 				esc_html( BalanceView::hint( $data->balance ) )
 			);
 		} else {
-			Ui::tile( __( 'Credits', 'povikvane-for-woocommerce' ), '—', __( 'Your balance is not available from the service yet.', 'povikvane-for-woocommerce' ) );
+			Ui::tile( __( 'Credits', 'povikvane-sms-for-woocommerce' ), '—', __( 'Your balance is not available from the service yet.', 'povikvane-sms-for-woocommerce' ) );
 		}
 
 		// Sending.
 		list( $label, $tone, $hint ) = match ( $data->paused ) {
-			null                          => array( __( 'Active', 'povikvane-for-woocommerce' ), 'ok', __( 'Messages go out as orders change.', 'povikvane-for-woocommerce' ) ),
-			SendingState::REASON_CREDITS  => array( __( 'On hold', 'povikvane-for-woocommerce' ), 'warn', __( 'No credits: messages wait for a top-up.', 'povikvane-for-woocommerce' ) ),
-			SendingState::REASON_SITE     => array( __( 'Paused', 'povikvane-for-woocommerce' ), 'bad', __( 'This site\'s address changed: confirm it is the live shop.', 'povikvane-for-woocommerce' ) ),
-			SendingState::REASON_STORM    => array( __( 'Paused', 'povikvane-for-woocommerce' ), 'warn', __( 'Many messages at once: review and release them.', 'povikvane-for-woocommerce' ) ),
-			default                       => array( __( 'Paused', 'povikvane-for-woocommerce' ), 'bad', __( 'The API key or service ID was rejected.', 'povikvane-for-woocommerce' ) ),
+			null                          => array( __( 'Active', 'povikvane-sms-for-woocommerce' ), 'ok', __( 'Messages go out as orders change.', 'povikvane-sms-for-woocommerce' ) ),
+			SendingState::REASON_CREDITS  => array( __( 'On hold', 'povikvane-sms-for-woocommerce' ), 'warn', __( 'No credits: messages wait for a top-up.', 'povikvane-sms-for-woocommerce' ) ),
+			SendingState::REASON_SITE     => array( __( 'Paused', 'povikvane-sms-for-woocommerce' ), 'bad', __( 'This site\'s address changed: confirm it is the live shop.', 'povikvane-sms-for-woocommerce' ) ),
+			SendingState::REASON_STORM    => array( __( 'Paused', 'povikvane-sms-for-woocommerce' ), 'warn', __( 'Many messages at once: review and release them.', 'povikvane-sms-for-woocommerce' ) ),
+			default                       => array( __( 'Paused', 'povikvane-sms-for-woocommerce' ), 'bad', __( 'The API key or service ID was rejected.', 'povikvane-sms-for-woocommerce' ) ),
 		};
 
-		Ui::tile( __( 'Sending', 'povikvane-for-woocommerce' ), Ui::pill( $label, $tone ), $hint );
+		Ui::tile( __( 'Sending', 'povikvane-sms-for-woocommerce' ), Ui::pill( $label, $tone ), $hint );
 
 		// Delivery reports.
 		if ( null === $data->last_report ) {
-			Ui::tile( __( 'Delivery reports', 'povikvane-for-woocommerce' ), Ui::pill( __( 'None yet', 'povikvane-for-woocommerce' ) ), __( 'Delivery is checked every few minutes. Turn on delivery reports for instant results.', 'povikvane-for-woocommerce' ) );
+			Ui::tile( __( 'Delivery reports', 'povikvane-sms-for-woocommerce' ), Ui::pill( __( 'None yet', 'povikvane-sms-for-woocommerce' ) ), __( 'Delivery is checked every few minutes. Turn on delivery reports for instant results.', 'povikvane-sms-for-woocommerce' ) );
 		} else {
 			Ui::tile(
-				__( 'Delivery reports', 'povikvane-for-woocommerce' ),
-				Ui::pill( __( 'Working', 'povikvane-for-woocommerce' ), 'ok' ),
+				__( 'Delivery reports', 'povikvane-sms-for-woocommerce' ),
+				Ui::pill( __( 'Working', 'povikvane-sms-for-woocommerce' ), 'ok' ),
 				sprintf(
 					/* translators: 1: date and time, 2: what the report did. */
-					__( 'Last: %1$s (%2$s)', 'povikvane-for-woocommerce' ),
+					__( 'Last: %1$s (%2$s)', 'povikvane-sms-for-woocommerce' ),
 					Dates::format( $data->last_report['time'] ),
 					$this->report_label( $data->last_report['result'] )
 				)
@@ -191,7 +191,7 @@ final class OverviewPanel {
 
 		wp_enqueue_script( 'povikvane-attention', plugins_url( 'assets/js/attention.js', PLUGIN_FILE ), array(), VERSION, true );
 
-		Ui::card_open( __( 'Needs attention', 'povikvane-for-woocommerce' ) );
+		Ui::card_open( __( 'Needs attention', 'povikvane-sms-for-woocommerce' ) );
 		echo '<div class="pvk-attn-list">';
 
 		foreach ( $data->attention as $item ) {
@@ -218,7 +218,7 @@ final class OverviewPanel {
 				esc_attr( AttentionDismissals::ACTION ),
 				esc_attr( wp_create_nonce( AttentionDismissals::NONCE ) ),
 				esc_attr( $item['key'] ),
-				esc_attr__( 'Dismiss for a week', 'povikvane-for-woocommerce' )
+				esc_attr__( 'Dismiss for a week', 'povikvane-sms-for-woocommerce' )
 			);
 
 			echo '</div></div>';
@@ -236,7 +236,7 @@ final class OverviewPanel {
 	private function render_report( OverviewData $data ): void {
 		$report = $data->report;
 
-		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px"><h2 class="pvk-card__title">' . esc_html__( 'Results', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-views">';
+		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px"><h2 class="pvk-card__title">' . esc_html__( 'Results', 'povikvane-sms-for-woocommerce' ) . '</h2><p class="pvk-views">';
 
 		foreach ( array( 7, 30, 90 ) as $days ) {
 			printf(
@@ -246,7 +246,7 @@ final class OverviewPanel {
 				esc_html(
 					sprintf(
 						/* translators: %d: number of days. */
-						_n( 'Last %d day', 'Last %d days', $days, 'povikvane-for-woocommerce' ),
+						_n( 'Last %d day', 'Last %d days', $days, 'povikvane-sms-for-woocommerce' ),
 						$days
 					)
 				)
@@ -256,20 +256,20 @@ final class OverviewPanel {
 		echo '</p></div>';
 
 		if ( null === $report || 0 === $report->sent() ) {
-			echo '<div class="pvk-empty">' . esc_html__( 'No messages in this period yet.', 'povikvane-for-woocommerce' ) . '</div></section>';
+			echo '<div class="pvk-empty">' . esc_html__( 'No messages in this period yet.', 'povikvane-sms-for-woocommerce' ) . '</div></section>';
 			return;
 		}
 
 		$rate = $report->rate();
 
 		echo '<div class="pvk-tiles">';
-		Ui::tile( __( 'Sent', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->sent() ) ), 0 === $report->skipped ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d not sent on purpose', 'povikvane-for-woocommerce' ), $report->skipped ) );
-		Ui::tile( __( 'Messages delivered', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->delivered ) ), null === $rate ? '' : sprintf( /* translators: %s: percentage. */ __( '%s%% of finished messages', 'povikvane-for-woocommerce' ), number_format_i18n( $rate, 1 ) ) );
-		Ui::tile( __( 'Did not arrive', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->failed + $report->unconfirmed ) ), 0 === $report->unconfirmed ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d could not be confirmed', 'povikvane-for-woocommerce' ), $report->unconfirmed ) );
-		Ui::tile( __( 'Credits used', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->credits, 1 ) ) );
+		Ui::tile( __( 'Sent', 'povikvane-sms-for-woocommerce' ), esc_html( number_format_i18n( $report->sent() ) ), 0 === $report->skipped ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d not sent on purpose', 'povikvane-sms-for-woocommerce' ), $report->skipped ) );
+		Ui::tile( __( 'Messages delivered', 'povikvane-sms-for-woocommerce' ), esc_html( number_format_i18n( $report->delivered ) ), null === $rate ? '' : sprintf( /* translators: %s: percentage. */ __( '%s%% of finished messages', 'povikvane-sms-for-woocommerce' ), number_format_i18n( $rate, 1 ) ) );
+		Ui::tile( __( 'Did not arrive', 'povikvane-sms-for-woocommerce' ), esc_html( number_format_i18n( $report->failed + $report->unconfirmed ) ), 0 === $report->unconfirmed ? '' : sprintf( /* translators: %d: number of messages. */ __( '%d could not be confirmed', 'povikvane-sms-for-woocommerce' ), $report->unconfirmed ) );
+		Ui::tile( __( 'Credits used', 'povikvane-sms-for-woocommerce' ), esc_html( number_format_i18n( $report->credits, 1 ) ) );
 
 		if ( $report->viber_sent > 0 ) {
-			Ui::tile( __( 'Viber', 'povikvane-for-woocommerce' ), esc_html( number_format_i18n( $report->viber_sent ) ), sprintf( /* translators: %d: number of messages. */ __( '%d fell back to SMS', 'povikvane-for-woocommerce' ), $report->fallbacks ) );
+			Ui::tile( __( 'Viber', 'povikvane-sms-for-woocommerce' ), esc_html( number_format_i18n( $report->viber_sent ) ), sprintf( /* translators: %d: number of messages. */ __( '%d fell back to SMS', 'povikvane-sms-for-woocommerce' ), $report->fallbacks ) );
 		}
 
 		echo '</div>';
@@ -278,7 +278,7 @@ final class OverviewPanel {
 
 		printf(
 			'<div class="pvk-bar" role="img" aria-label="%1$s"><span class="pvk-bar__ok" style="width:%2$s%%"></span><span class="pvk-bar__bad" style="width:%3$s%%"></span><span class="pvk-bar__warn" style="width:%4$s%%"></span></div>',
-			esc_attr__( 'Share of delivered, failed and unconfirmed messages', 'povikvane-for-woocommerce' ),
+			esc_attr__( 'Share of delivered, failed and unconfirmed messages', 'povikvane-sms-for-woocommerce' ),
 			esc_attr( (string) round( 100 * $report->delivered / $total, 1 ) ),
 			esc_attr( (string) round( 100 * $report->failed / $total, 1 ) ),
 			esc_attr( (string) round( 100 * $report->unconfirmed / $total, 1 ) )
@@ -293,17 +293,17 @@ final class OverviewPanel {
 	private function render_test(): void {
 		$form = Layout::register_form( 'povikvane_send_test' );
 
-		Ui::card_open( __( 'Try it', 'povikvane-for-woocommerce' ), __( 'Sends one real SMS and uses message credits.', 'povikvane-for-woocommerce' ) );
+		Ui::card_open( __( 'Try it', 'povikvane-sms-for-woocommerce' ), __( 'Sends one real SMS and uses message credits.', 'povikvane-sms-for-woocommerce' ) );
 
 		echo '<div class="pvk-inline" style="margin-top:12px">';
 		printf(
 			'<label class="screen-reader-text" for="pvk-test-phone">%1$s</label><input type="tel" id="pvk-test-phone" name="test_phone" form="%2$s" placeholder="%3$s" autocomplete="tel" required> <button type="submit" form="%2$s" class="pvk-btn pvk-btn--primary">%4$s</button>',
-			esc_html__( 'Your phone number', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Your phone number', 'povikvane-sms-for-woocommerce' ),
 			esc_attr( $form ),
-			esc_attr__( 'Your phone, e.g. 0888 123 456', 'povikvane-for-woocommerce' ),
-			esc_html__( 'Send a test message', 'povikvane-for-woocommerce' )
+			esc_attr__( 'Your phone, e.g. 0888 123 456', 'povikvane-sms-for-woocommerce' ),
+			esc_html__( 'Send a test message', 'povikvane-sms-for-woocommerce' )
 		);
-		Layout::action_button( __( 'Check connection', 'povikvane-for-woocommerce' ), 'povikvane_check_connection' );
+		Layout::action_button( __( 'Check connection', 'povikvane-sms-for-woocommerce' ), 'povikvane_check_connection' );
 		echo '</div>';
 
 		Ui::card_close();
@@ -315,16 +315,16 @@ final class OverviewPanel {
 	 * @param OverviewData $data What to show.
 	 */
 	private function render_recent( OverviewData $data ): void {
-		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;justify-content:space-between;align-items:center"><h2 class="pvk-card__title">' . esc_html__( 'Latest messages', 'povikvane-for-woocommerce' ) . '</h2>';
-		printf( '<a href="%1$s">%2$s</a></div>', esc_url( $data->log_url ), esc_html__( 'View all', 'povikvane-for-woocommerce' ) );
+		echo '<section class="pvk-card"><div class="pvk-card__head" style="display:flex;justify-content:space-between;align-items:center"><h2 class="pvk-card__title">' . esc_html__( 'Latest messages', 'povikvane-sms-for-woocommerce' ) . '</h2>';
+		printf( '<a href="%1$s">%2$s</a></div>', esc_url( $data->log_url ), esc_html__( 'View all', 'povikvane-sms-for-woocommerce' ) );
 
 		if ( array() === $data->recent ) {
-			echo '<div class="pvk-empty">' . esc_html__( 'No messages yet. They appear here as soon as an order changes status or you send a test.', 'povikvane-for-woocommerce' ) . '</div></section>';
+			echo '<div class="pvk-empty">' . esc_html__( 'No messages yet. They appear here as soon as an order changes status or you send a test.', 'povikvane-sms-for-woocommerce' ) . '</div></section>';
 			return;
 		}
 
 		echo '<table class="pvk-table"><thead><tr>';
-		foreach ( array( __( 'Time', 'povikvane-for-woocommerce' ), __( 'Event', 'povikvane-for-woocommerce' ), __( 'Type', 'povikvane-for-woocommerce' ), __( 'Recipient', 'povikvane-for-woocommerce' ), __( 'Status', 'povikvane-for-woocommerce' ), __( 'Detail', 'povikvane-for-woocommerce' ) ) as $heading ) {
+		foreach ( array( __( 'Time', 'povikvane-sms-for-woocommerce' ), __( 'Event', 'povikvane-sms-for-woocommerce' ), __( 'Type', 'povikvane-sms-for-woocommerce' ), __( 'Recipient', 'povikvane-sms-for-woocommerce' ), __( 'Status', 'povikvane-sms-for-woocommerce' ), __( 'Detail', 'povikvane-sms-for-woocommerce' ) ) as $heading ) {
 			echo '<th scope="col">' . esc_html( $heading ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -351,10 +351,10 @@ final class OverviewPanel {
 	 */
 	private function report_label( string $result ): string {
 		return match ( $result ) {
-			WebhookHandler::RESULT_UPDATED => __( 'updated a message', 'povikvane-for-woocommerce' ),
-			WebhookHandler::RESULT_IGNORED => __( 'already known', 'povikvane-for-woocommerce' ),
-			WebhookHandler::RESULT_UNKNOWN => __( 'another message', 'povikvane-for-woocommerce' ),
-			default                        => __( 'not understood', 'povikvane-for-woocommerce' ),
+			WebhookHandler::RESULT_UPDATED => __( 'updated a message', 'povikvane-sms-for-woocommerce' ),
+			WebhookHandler::RESULT_IGNORED => __( 'already known', 'povikvane-sms-for-woocommerce' ),
+			WebhookHandler::RESULT_UNKNOWN => __( 'another message', 'povikvane-sms-for-woocommerce' ),
+			default                        => __( 'not understood', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }

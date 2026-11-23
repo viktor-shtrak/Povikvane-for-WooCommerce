@@ -54,14 +54,14 @@ final class MessageListTable extends WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'      => '<input type="checkbox" aria-label="' . esc_attr__( 'Select all messages that can be sent again', 'povikvane-for-woocommerce' ) . '">',
-			'created' => __( 'Time', 'povikvane-for-woocommerce' ),
-			'order'   => __( 'Order', 'povikvane-for-woocommerce' ),
-			'event'   => __( 'Event', 'povikvane-for-woocommerce' ),
-			'to'      => __( 'Recipient', 'povikvane-for-woocommerce' ),
-			'status'  => __( 'Status', 'povikvane-for-woocommerce' ),
-			'credits' => __( 'Credits', 'povikvane-for-woocommerce' ),
-			'detail'  => __( 'Detail', 'povikvane-for-woocommerce' ),
+			'cb'      => '<input type="checkbox" aria-label="' . esc_attr__( 'Select all messages that can be sent again', 'povikvane-sms-for-woocommerce' ) . '">',
+			'created' => __( 'Time', 'povikvane-sms-for-woocommerce' ),
+			'order'   => __( 'Order', 'povikvane-sms-for-woocommerce' ),
+			'event'   => __( 'Event', 'povikvane-sms-for-woocommerce' ),
+			'to'      => __( 'Recipient', 'povikvane-sms-for-woocommerce' ),
+			'status'  => __( 'Status', 'povikvane-sms-for-woocommerce' ),
+			'credits' => __( 'Credits', 'povikvane-sms-for-woocommerce' ),
+			'detail'  => __( 'Detail', 'povikvane-sms-for-woocommerce' ),
 		);
 	}
 
@@ -100,7 +100,7 @@ final class MessageListTable extends WP_List_Table {
 	 * @param Message $item Row.
 	 */
 	protected function column_cb( $item ): string {
-		return $this->can_resend( $item ) ? '<input type="checkbox" name="ids[]" value="' . (int) $item->id . '" aria-label="' . esc_attr__( 'Select this message', 'povikvane-for-woocommerce' ) . '">' : '';
+		return $this->can_resend( $item ) ? '<input type="checkbox" name="ids[]" value="' . (int) $item->id . '" aria-label="' . esc_attr__( 'Select this message', 'povikvane-sms-for-woocommerce' ) . '">' : '';
 	}
 
 	/**
@@ -115,8 +115,8 @@ final class MessageListTable extends WP_List_Table {
 			$actions['resend'] = sprintf(
 				'<a href="%1$s" data-povikvane-confirm="%2$s">%3$s</a>',
 				esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=povikvane_resend&message=' . (int) $item->id ), 'povikvane_resend_' . (int) $item->id ) ),
-				esc_attr__( 'Send this message again? The customer may receive it twice if the first one was actually delivered.', 'povikvane-for-woocommerce' ),
-				esc_html__( 'Resend', 'povikvane-for-woocommerce' )
+				esc_attr__( 'Send this message again? The customer may receive it twice if the first one was actually delivered.', 'povikvane-sms-for-woocommerce' ),
+				esc_html__( 'Resend', 'povikvane-sms-for-woocommerce' )
 			);
 		}
 
@@ -212,13 +212,13 @@ final class MessageListTable extends WP_List_Table {
 
 		echo '<div class="alignleft actions">';
 
-		echo '<select name="status"><option value="">' . esc_html__( 'All statuses', 'povikvane-for-woocommerce' ) . '</option>';
+		echo '<select name="status"><option value="">' . esc_html__( 'All statuses', 'povikvane-sms-for-woocommerce' ) . '</option>';
 		foreach ( Status::cases() as $status ) {
 			printf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $status->value ), selected( $this->query->status?->value, $status->value, false ), esc_html( StatusView::label( $status ) ) );
 		}
 		echo '</select> ';
 
-		echo '<select name="event"><option value="">' . esc_html__( 'All events', 'povikvane-for-woocommerce' ) . '</option>';
+		echo '<select name="event"><option value="">' . esc_html__( 'All events', 'povikvane-sms-for-woocommerce' ) . '</option>';
 		foreach ( $this->repository->events() as $event ) {
 			printf( '<option value="%1$s"%2$s>%1$s</option>', esc_attr( $event ), selected( $this->query->event, $event, false ) );
 		}
@@ -226,19 +226,19 @@ final class MessageListTable extends WP_List_Table {
 
 		printf(
 			'<label>%1$s <input type="date" name="from" value="%2$s"></label> <label>%3$s <input type="date" name="to" value="%4$s"></label> ',
-			esc_html__( 'From', 'povikvane-for-woocommerce' ),
+			esc_html__( 'From', 'povikvane-sms-for-woocommerce' ),
 			esc_attr( null === $this->query->from ? '' : gmdate( 'Y-m-d', $this->query->from ) ),
-			esc_html__( 'To', 'povikvane-for-woocommerce' ),
+			esc_html__( 'To', 'povikvane-sms-for-woocommerce' ),
 			esc_attr( null === $this->query->to ? '' : gmdate( 'Y-m-d', $this->query->to - DAY_IN_SECONDS ) )
 		);
 
-		submit_button( __( 'Filter', 'povikvane-for-woocommerce' ), '', 'filter_action', false );
+		submit_button( __( 'Filter', 'povikvane-sms-for-woocommerce' ), '', 'filter_action', false );
 
 		printf(
 			' <button type="submit" class="button" formmethod="post" formaction="%1$s" name="action" value="povikvane_bulk_resend" data-povikvane-confirm="%2$s">%3$s</button>',
 			esc_url( admin_url( 'admin-post.php' ) ),
-			esc_attr__( 'Send the selected messages again? A customer may receive one twice if the first was actually delivered.', 'povikvane-for-woocommerce' ),
-			esc_html__( 'Resend selected', 'povikvane-for-woocommerce' )
+			esc_attr__( 'Send the selected messages again? A customer may receive one twice if the first was actually delivered.', 'povikvane-sms-for-woocommerce' ),
+			esc_html__( 'Resend selected', 'povikvane-sms-for-woocommerce' )
 		);
 
 		echo '</div>';

@@ -82,7 +82,7 @@ final class PriceEstimateAjax {
 		$result = $estimator->estimate( $text, '+' . ltrim( Countries::calling_code( $this->settings->default_country() ), '+' ) . '888123456', $values );
 
 		if ( null === $result ) {
-			wp_send_json_success( array( 'message' => __( 'Povikvane could not price this message right now. Try again in a moment.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_success( array( 'message' => __( 'Povikvane could not price this message right now. Try again in a moment.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
 		$credits = rtrim( rtrim( number_format( $result['estimate']->credits, 2, '.', '' ), '0' ), '.' );
@@ -93,10 +93,10 @@ final class PriceEstimateAjax {
 		// One credit is "credit"; zero, a fraction or several are "credits".
 		if ( $viber ) {
 			/* translators: %s: number of credits. */
-			$format = $one ? __( 'About %s credit per message, sent over Viber.', 'povikvane-for-woocommerce' ) : __( 'About %s credits per message, sent over Viber.', 'povikvane-for-woocommerce' );
+			$format = $one ? __( 'About %s credit per message, sent over Viber.', 'povikvane-sms-for-woocommerce' ) : __( 'About %s credits per message, sent over Viber.', 'povikvane-sms-for-woocommerce' );
 		} else {
 			/* translators: %s: number of credits. */
-			$format = $one ? __( 'About %s credit per message, sent as an SMS.', 'povikvane-for-woocommerce' ) : __( 'About %s credits per message, sent as an SMS.', 'povikvane-for-woocommerce' );
+			$format = $one ? __( 'About %s credit per message, sent as an SMS.', 'povikvane-sms-for-woocommerce' ) : __( 'About %s credits per message, sent as an SMS.', 'povikvane-sms-for-woocommerce' );
 		}
 
 		wp_send_json_success( array( 'message' => sprintf( $format, $credits ) ) );

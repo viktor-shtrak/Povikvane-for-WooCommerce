@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Language {
 
-	public const DOMAIN    = 'povikvane-for-woocommerce';
+	public const DOMAIN    = 'povikvane-sms-for-woocommerce';
 	public const AUTO      = 'auto';
 	public const BULGARIAN = 'bg_BG';
 	public const ENGLISH   = 'en_US';

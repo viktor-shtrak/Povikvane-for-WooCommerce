@@ -23,8 +23,8 @@ final class ViberControls {
 	 * @param string $enabled_name Field name of the switch.
 	 */
 	public static function render_switch( bool $enabled, string $enabled_name ): void {
-		Ui::field_open( __( 'Use Viber', 'povikvane-for-woocommerce' ) );
-		Ui::toggle( $enabled_name, $enabled, __( 'Send order messages over Viber when possible', 'povikvane-for-woocommerce' ), __( 'A Viber message costs 0.8 credits. Messages without an approved template are still sent as SMS.', 'povikvane-for-woocommerce' ), '', 'data-pvk-viber-switch' );
+		Ui::field_open( __( 'Use Viber', 'povikvane-sms-for-woocommerce' ) );
+		Ui::toggle( $enabled_name, $enabled, __( 'Send order messages over Viber when possible', 'povikvane-sms-for-woocommerce' ), __( 'A Viber message costs 0.8 credits. Messages without an approved template are still sent as SMS.', 'povikvane-sms-for-woocommerce' ), '', 'data-pvk-viber-switch' );
 		Ui::field_close();
 	}
 
@@ -36,20 +36,20 @@ final class ViberControls {
 	 * @param string    $fallback_name    Field name of the switch.
 	 */
 	public static function render_fallback( bool $fallback, ?bool $fallback_allowed, string $fallback_name ): void {
-		Ui::field_open( __( 'SMS fallback', 'povikvane-for-woocommerce' ) );
+		Ui::field_open( __( 'SMS fallback', 'povikvane-sms-for-woocommerce' ) );
 
 		if ( false === $fallback_allowed ) {
-			$tip = __( 'Your Povikvane plan does not include the SMS fallback. It is not part of the Starter and Bronze plans.', 'povikvane-for-woocommerce' );
+			$tip = __( 'Your Povikvane plan does not include the SMS fallback.', 'povikvane-sms-for-woocommerce' );
 
 			echo '<div class="pvk-inline">';
-			Ui::toggle( $fallback_name, false, __( 'Send an SMS if Viber cannot deliver', 'povikvane-for-woocommerce' ), '', '', 'disabled data-pvk-fallback-switch' );
+			Ui::toggle( $fallback_name, false, __( 'Send an SMS if Viber cannot deliver', 'povikvane-sms-for-woocommerce' ), '', '', 'disabled data-pvk-fallback-switch' );
 			printf(
 				'<span class="pvk-info" tabindex="0" role="img" aria-label="%1$s" data-pvk-tip="%1$s">i</span>',
 				esc_attr( $tip )
 			);
 			echo '</div>';
 		} else {
-			Ui::toggle( $fallback_name, $fallback, __( 'Send an SMS if Viber cannot deliver', 'povikvane-for-woocommerce' ), __( 'Not included in the Starter and Bronze plans: turn it on only if your plan has it. With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message.', 'povikvane-for-woocommerce' ), '', 'data-pvk-fallback-switch' );
+			Ui::toggle( $fallback_name, $fallback, __( 'Send an SMS if Viber cannot deliver', 'povikvane-sms-for-woocommerce' ), __( 'With it on, the SMS text must fit in one SMS part and the message length estimate is shown under each message.', 'povikvane-sms-for-woocommerce' ), '', 'data-pvk-fallback-switch' );
 		}
 
 		Ui::field_close();

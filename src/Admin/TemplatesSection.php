@@ -66,9 +66,9 @@ final class TemplatesSection {
 
 		$this->render_viber_card( $caps, $enabled );
 
-		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-card__title">' . esc_html__( 'Order messages', 'povikvane-for-woocommerce' ) . '</h2><p class="pvk-card__intro">' . esc_html__( 'Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional.', 'povikvane-for-woocommerce' ) . '</p>';
+		echo '<section class="pvk-card"><div class="pvk-card__head"><h2 class="pvk-card__title">' . esc_html__( 'Order messages', 'povikvane-sms-for-woocommerce' ) . '</h2><p class="pvk-card__intro">' . esc_html__( 'Choose which order statuses send a text message to the customer, and what it says. Only order-related information belongs here; use the Promotions tab for anything promotional.', 'povikvane-sms-for-woocommerce' ) . '</p>';
 
-		echo '<p class="pvk-card__intro">' . esc_html__( 'Details you can add:', 'povikvane-for-woocommerce' ) . ' ';
+		echo '<p class="pvk-card__intro">' . esc_html__( 'Details you can add:', 'povikvane-sms-for-woocommerce' ) . ' ';
 		foreach ( Placeholders::NAMES as $name ) {
 			if ( 'optout_link' !== $name ) {
 				echo '<code>{' . esc_html( $name ) . '}</code> ';
@@ -84,7 +84,7 @@ final class TemplatesSection {
 			$this->render_row( $slug, $label, $this->triggers->for_status( $slug ) );
 		}
 
-		echo '</div><div class="pvk-card__foot">' . esc_html__( 'A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for.', 'povikvane-for-woocommerce' ) . '</div></section>';
+		echo '</div><div class="pvk-card__foot">' . esc_html__( 'A delay lets you cancel by changing the status again. A message is only sent if the order still has the status it was created for.', 'povikvane-sms-for-woocommerce' ) . '</div></section>';
 	}
 
 	/**
@@ -104,43 +104,43 @@ final class TemplatesSection {
 			'action'      => TemplateRequestAjax::ACTION,
 			'nonce'       => wp_create_nonce( TemplateRequestAjax::NONCE ),
 			'available'   => $this->submitter->available(),
-			'confirm'     => __( 'Send the selected messages to Povikvane for approval? The Povikvane team will review them as soon as possible. Until a message is approved it keeps going out as an SMS.', 'povikvane-for-woocommerce' ),
-			'confirm_one' => __( 'Send this message to Povikvane for approval? The Povikvane team will review it as soon as possible. Until it is approved it keeps going out as an SMS.', 'povikvane-for-woocommerce' ),
-			'working'     => __( 'Sending...', 'povikvane-for-woocommerce' ),
-			'nothing'     => __( 'Nothing to send: every selected message already has a template or was already sent.', 'povikvane-for-woocommerce' ),
-			'error'       => __( 'Could not reach the server. Try again.', 'povikvane-for-woocommerce' ),
-			'sent'        => __( 'Sent for approval', 'povikvane-for-woocommerce' ),
+			'confirm'     => __( 'Send the selected messages to Povikvane for approval? The Povikvane team will review them as soon as possible. Until a message is approved it keeps going out as an SMS.', 'povikvane-sms-for-woocommerce' ),
+			'confirm_one' => __( 'Send this message to Povikvane for approval? The Povikvane team will review it as soon as possible. Until it is approved it keeps going out as an SMS.', 'povikvane-sms-for-woocommerce' ),
+			'working'     => __( 'Sending...', 'povikvane-sms-for-woocommerce' ),
+			'nothing'     => __( 'Nothing to send: every selected message already has a template or was already sent.', 'povikvane-sms-for-woocommerce' ),
+			'error'       => __( 'Could not reach the server. Try again.', 'povikvane-sms-for-woocommerce' ),
+			'sent'        => __( 'Sent for approval', 'povikvane-sms-for-woocommerce' ),
 		);
 
 		if ( $in_wizard ) {
 			// Sending for approval also saves the choices on the page.
 			$ajax['save_action'] = SetupWizard::SAVE_ACTION;
-			$ajax['saved']       = __( 'Your choices are saved.', 'povikvane-for-woocommerce' );
+			$ajax['saved']       = __( 'Your choices are saved.', 'povikvane-sms-for-woocommerce' );
 		}
 
-		echo '<section class="pvk-card" data-pvk-viber-card data-pvk-requests="' . esc_attr( (string) wp_json_encode( $ajax ) ) . '"><div class="pvk-card__head"><h2 class="' . ( $in_wizard ? 'pvk-step__title' : 'pvk-card__title' ) . '">' . esc_html__( 'Viber', 'povikvane-for-woocommerce' ) . '</h2><p class="' . ( $in_wizard ? 'pvk-step__lead' : 'pvk-card__intro' ) . '">' . esc_html__( 'Send order updates over Viber instead of SMS. A message goes out over Viber when an approved Viber template has the same wording as the message; otherwise it goes out as an SMS.', 'povikvane-for-woocommerce' ) . '</p></div><div class="pvk-card__body">';
+		echo '<section class="pvk-card" data-pvk-viber-card data-pvk-requests="' . esc_attr( (string) wp_json_encode( $ajax ) ) . '"><div class="pvk-card__head"><h2 class="' . ( $in_wizard ? 'pvk-step__title' : 'pvk-card__title' ) . '">' . esc_html__( 'Viber', 'povikvane-sms-for-woocommerce' ) . '</h2><p class="' . ( $in_wizard ? 'pvk-step__lead' : 'pvk-card__intro' ) . '">' . esc_html__( 'Send order updates over Viber instead of SMS. A message goes out over Viber when an approved Viber template has the same wording as the message; otherwise it goes out as an SMS.', 'povikvane-sms-for-woocommerce' ) . '</p></div><div class="pvk-card__body">';
 
 		ViberControls::render_switch( $enabled, $in_wizard ? 'viber_enabled' : $name . '[viber_enabled]' );
 
 		echo '<div data-pvk-viber-only' . ( $enabled ? '' : ' hidden' ) . '>';
 
-		Ui::field_open( __( 'Status', 'povikvane-for-woocommerce' ) );
-		echo Ui::pill( Capabilities::VIBER_READY === $status ? __( 'Available', 'povikvane-for-woocommerce' ) : __( 'Not available', 'povikvane-for-woocommerce' ), Capabilities::VIBER_READY === $status ? 'ok' : 'warn' ) . ' ' . esc_html( ViberView::reason( $status ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html().
+		Ui::field_open( __( 'Status', 'povikvane-sms-for-woocommerce' ) );
+		echo Ui::pill( Capabilities::VIBER_READY === $status ? __( 'Available', 'povikvane-sms-for-woocommerce' ) : __( 'Not available', 'povikvane-sms-for-woocommerce' ), Capabilities::VIBER_READY === $status ? 'ok' : 'warn' ) . ' ' . esc_html( ViberView::reason( $status ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html().
 		Ui::field_close();
 
 		if ( ! $in_wizard ) {
 			// The wizard leaves this row out: the lists under each message are enough there.
 			// The refresh button sits under the row's name, so the right side only has the facts.
 			ob_start();
-			Layout::action_button( __( 'Refresh templates', 'povikvane-for-woocommerce' ), 'povikvane_check_connection' );
+			Layout::action_button( __( 'Refresh templates', 'povikvane-sms-for-woocommerce' ), 'povikvane_check_connection' );
 			$refresh = (string) ob_get_clean();
 
-			Ui::field_open( __( 'Your templates', 'povikvane-for-woocommerce' ), '', '', '<div class="pvk-field__action">' . $refresh . '</div>' );
+			Ui::field_open( __( 'Your templates', 'povikvane-sms-for-woocommerce' ), '', '', '<div class="pvk-field__action">' . $refresh . '</div>' );
 
 			if ( 0 === $approved ) {
-				echo Ui::pill( __( 'None approved', 'povikvane-for-woocommerce' ), 'warn' ) . ' ' . esc_html__( 'You have no approved Viber templates yet, so every message goes out as an SMS. Send your messages for approval below.', 'povikvane-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html__().
+				echo Ui::pill( __( 'None approved', 'povikvane-sms-for-woocommerce' ), 'warn' ) . ' ' . esc_html__( 'You have no approved Viber templates yet, so every message goes out as an SMS. Send your messages for approval below.', 'povikvane-sms-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html__().
 			} else {
-				echo Ui::pill( sprintf( /* translators: %d: number of templates. */ _n( '%d approved', '%d approved', $approved, 'povikvane-for-woocommerce' ), $approved ), 'ok' ) . ' ' . esc_html__( 'Messages with the same wording as one of these go out over Viber. The badge under each message below shows which.', 'povikvane-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html__().
+				echo Ui::pill( sprintf( /* translators: %d: number of templates. */ _n( '%d approved', '%d approved', $approved, 'povikvane-sms-for-woocommerce' ), $approved ), 'ok' ) . ' ' . esc_html__( 'Messages with the same wording as one of these go out over Viber. The badge under each message below shows which.', 'povikvane-sms-for-woocommerce' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by Ui::pill() and esc_html__().
 			}
 
 			$this->template_list();
@@ -179,10 +179,10 @@ final class TemplatesSection {
 		printf(
 			'<div class="pvk-trigger__field"><label for="pvk-delay-%1$s">%2$s</label><div class="pvk-inline"><input type="number" id="pvk-delay-%1$s" name="%3$s[delay]" value="%4$d" min="0" max="1440"><span>%5$s</span></div></div>',
 			esc_attr( $slug ),
-			esc_html__( 'Wait', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Wait', 'povikvane-sms-for-woocommerce' ),
 			esc_attr( $name ),
 			(int) $trigger->delay_minutes,
-			esc_html__( 'minutes first', 'povikvane-for-woocommerce' )
+			esc_html__( 'minutes first', 'povikvane-sms-for-woocommerce' )
 		);
 		echo '</div><div>';
 		printf(
@@ -191,7 +191,7 @@ final class TemplatesSection {
 			esc_html(
 				sprintf(
 					/* translators: %s: order status name. */
-					__( 'Message when an order becomes "%s"', 'povikvane-for-woocommerce' ),
+					__( 'Message when an order becomes "%s"', 'povikvane-sms-for-woocommerce' ),
 					$label
 				)
 			),
@@ -250,16 +250,16 @@ final class TemplatesSection {
 			esc_attr( $suggested ),
 			esc_attr( $found->state ),
 			esc_attr( $this->badge( $slug, $suggested, $found ) ),
-			esc_html__( 'The message the plugin suggests', 'povikvane-for-woocommerce' )
+			esc_html__( 'The message the plugin suggests', 'povikvane-sms-for-woocommerce' )
 		) . $options;
 
 		printf(
 			'<div class="pvk-pick" data-pvk-viber-only%1$s><label for="pvk-pick-%2$s">%3$s</label><select id="pvk-pick-%2$s" data-pvk-pick data-confirm="%4$s"><option value="">%5$s</option>%6$s</select></div>',
 			$viber_on ? '' : ' hidden',
 			esc_attr( $slug ),
-			esc_html__( 'Or choose a different message', 'povikvane-for-woocommerce' ),
-			esc_attr__( 'Replace the text you changed?', 'povikvane-for-woocommerce' ),
-			esc_html__( 'Choose...', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Or choose a different message', 'povikvane-sms-for-woocommerce' ),
+			esc_attr__( 'Replace the text you changed?', 'povikvane-sms-for-woocommerce' ),
+			esc_html__( 'Choose...', 'povikvane-sms-for-woocommerce' ),
 			$options // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Every part is escaped above.
 		);
 	}
@@ -275,13 +275,13 @@ final class TemplatesSection {
 		}
 
 		$state = array(
-			'approved' => array( __( 'Approved', 'povikvane-for-woocommerce' ), 'ok' ),
-			'pending'  => array( __( 'Awaiting approval', 'povikvane-for-woocommerce' ), 'warn' ),
-			'rejected' => array( __( 'Rejected', 'povikvane-for-woocommerce' ), 'bad' ),
+			'approved' => array( __( 'Approved', 'povikvane-sms-for-woocommerce' ), 'ok' ),
+			'pending'  => array( __( 'Awaiting approval', 'povikvane-sms-for-woocommerce' ), 'warn' ),
+			'rejected' => array( __( 'Rejected', 'povikvane-sms-for-woocommerce' ), 'bad' ),
 		);
 
-		echo '<details class="pvk-templates"><summary>' . esc_html__( 'Show all templates', 'povikvane-for-woocommerce' ) . '</summary>';
-		echo '<table class="pvk-table"><thead><tr><th scope="col">' . esc_html__( 'Name', 'povikvane-for-woocommerce' ) . '</th><th scope="col">' . esc_html__( 'Language', 'povikvane-for-woocommerce' ) . '</th><th scope="col">' . esc_html__( 'Status', 'povikvane-for-woocommerce' ) . '</th></tr></thead><tbody>';
+		echo '<details class="pvk-templates"><summary>' . esc_html__( 'Show all templates', 'povikvane-sms-for-woocommerce' ) . '</summary>';
+		echo '<table class="pvk-table"><thead><tr><th scope="col">' . esc_html__( 'Name', 'povikvane-sms-for-woocommerce' ) . '</th><th scope="col">' . esc_html__( 'Language', 'povikvane-sms-for-woocommerce' ) . '</th><th scope="col">' . esc_html__( 'Status', 'povikvane-sms-for-woocommerce' ) . '</th></tr></thead><tbody>';
 
 		foreach ( $templates as $template ) {
 			$label = $state[ $template->status ] ?? array( $template->status, '' );
@@ -314,7 +314,7 @@ final class TemplatesSection {
 			return;
 		}
 
-		echo '<div class="pvk-price"><button type="button" class="pvk-btn pvk-btn--link" data-pvk-price>' . esc_html__( 'Check price', 'povikvane-for-woocommerce' ) . '</button> <span class="pvk-field__hint" data-pvk-price-result role="status" aria-live="polite"></span></div>';
+		echo '<div class="pvk-price"><button type="button" class="pvk-btn pvk-btn--link" data-pvk-price>' . esc_html__( 'Check price', 'povikvane-sms-for-woocommerce' ) . '</button> <span class="pvk-field__hint" data-pvk-price-result role="status" aria-live="polite"></span></div>';
 	}
 
 	/**
@@ -330,10 +330,10 @@ final class TemplatesSection {
 
 		echo '<div data-pvk-viber-only' . ( $viber_on ? '' : ' hidden' ) . '>';
 		echo '<div class="pvk-viber-badge" data-pvk-badge>' . $this->badge( $slug, $template, $found ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in badge().
-		echo '<div class="pvk-viber-changed" data-pvk-changed hidden><span>' . esc_html__( 'You changed a message that is approved for Viber. As edited it goes out as an SMS until Povikvane approves it.', 'povikvane-for-woocommerce' ) . '</span> ';
+		echo '<div class="pvk-viber-changed" data-pvk-changed hidden><span>' . esc_html__( 'You changed a message that is approved for Viber. As edited it goes out as an SMS until Povikvane approves it.', 'povikvane-sms-for-woocommerce' ) . '</span> ';
 
 		if ( $this->submitter->available() ) {
-			echo '<button type="button" class="pvk-btn" data-pvk-request-one="' . esc_attr( $slug ) . '">' . esc_html__( 'Send for approval', 'povikvane-for-woocommerce' ) . '</button>';
+			echo '<button type="button" class="pvk-btn" data-pvk-request-one="' . esc_attr( $slug ) . '">' . esc_html__( 'Send for approval', 'povikvane-sms-for-woocommerce' ) . '</button>';
 		}
 
 		echo '</div></div>';
@@ -351,34 +351,34 @@ final class TemplatesSection {
 
 		switch ( $found->state ) {
 			case TemplateMatch::READY:
-				return Ui::pill( __( 'Approved for Viber', 'povikvane-for-woocommerce' ), 'ok' ) . ' ' . esc_html(
+				return Ui::pill( __( 'Approved for Viber', 'povikvane-sms-for-woocommerce' ), 'ok' ) . ' ' . esc_html(
 					sprintf(
 						/* translators: %s: template name. */
-						__( 'Matches the template "%s".', 'povikvane-for-woocommerce' ),
+						__( 'Matches the template "%s".', 'povikvane-sms-for-woocommerce' ),
 						$name
 					)
 				);
 			case TemplateMatch::NOT_TRANSACTION:
-				return Ui::pill( __( 'Not usable', 'povikvane-for-woocommerce' ), 'warn' ) . ' ' . esc_html(
+				return Ui::pill( __( 'Not usable', 'povikvane-sms-for-woocommerce' ), 'warn' ) . ' ' . esc_html(
 					sprintf(
 						/* translators: %s: template name. */
-						__( 'Matches the template "%s", but it is not registered as a transactional template, so this message goes out as an SMS.', 'povikvane-for-woocommerce' ),
+						__( 'Matches the template "%s", but it is not registered as a transactional template, so this message goes out as an SMS.', 'povikvane-sms-for-woocommerce' ),
 						$name
 					)
 				);
 			case TemplateMatch::PENDING:
-				return Ui::pill( __( 'Awaiting approval', 'povikvane-for-woocommerce' ), 'warn' ) . ' ' . esc_html(
+				return Ui::pill( __( 'Awaiting approval', 'povikvane-sms-for-woocommerce' ), 'warn' ) . ' ' . esc_html(
 					sprintf(
 						/* translators: %s: template name. */
-						__( 'Matches the template "%s", which is still being reviewed. Until then it goes out as an SMS.', 'povikvane-for-woocommerce' ),
+						__( 'Matches the template "%s", which is still being reviewed. Until then it goes out as an SMS.', 'povikvane-sms-for-woocommerce' ),
 						$name
 					)
 				);
 			case TemplateMatch::REJECTED:
-				return Ui::pill( __( 'Rejected', 'povikvane-for-woocommerce' ), 'bad' ) . ' ' . esc_html(
+				return Ui::pill( __( 'Rejected', 'povikvane-sms-for-woocommerce' ), 'bad' ) . ' ' . esc_html(
 					sprintf(
 						/* translators: %s: template name. */
-						__( 'The template "%s" was rejected, so this message goes out as an SMS. Change the wording to send a new one.', 'povikvane-for-woocommerce' ),
+						__( 'The template "%s" was rejected, so this message goes out as an SMS. Change the wording to send a new one.', 'povikvane-sms-for-woocommerce' ),
 						$name
 					)
 				);
@@ -387,10 +387,10 @@ final class TemplatesSection {
 		$sent = $this->requests->sent_at( $slug, $template );
 
 		if ( 0 !== $sent ) {
-			return Ui::pill( __( 'Sent for approval', 'povikvane-for-woocommerce' ), 'info' ) . ' ' . esc_html(
+			return Ui::pill( __( 'Sent for approval', 'povikvane-sms-for-woocommerce' ), 'info' ) . ' ' . esc_html(
 				sprintf(
 					/* translators: %s: date and time. */
-					__( 'Sent on %s. Until it is approved it goes out as an SMS.', 'povikvane-for-woocommerce' ),
+					__( 'Sent on %s. Until it is approved it goes out as an SMS.', 'povikvane-sms-for-woocommerce' ),
 					Dates::format( $sent )
 				)
 			);
@@ -398,9 +398,9 @@ final class TemplatesSection {
 
 		$draft = TemplateDraft::from_text( $template );
 
-		return Ui::pill( __( 'Not approved', 'povikvane-for-woocommerce' ), 'warn' ) . ' ' . esc_html(
+		return Ui::pill( __( 'Not approved', 'povikvane-sms-for-woocommerce' ), 'warn' ) . ' ' . esc_html(
 			null === $draft->problem
-				? __( 'No approved template has this wording, so it goes out as an SMS. Send it for approval to use Viber.', 'povikvane-for-woocommerce' )
+				? __( 'No approved template has this wording, so it goes out as an SMS. Send it for approval to use Viber.', 'povikvane-sms-for-woocommerce' )
 				: TemplateRequestService::problem_text( $draft->problem )
 		);
 	}
@@ -414,11 +414,11 @@ final class TemplatesSection {
 		echo '<div class="pvk-request-bar" data-pvk-viber-only' . ( $enabled ? '' : ' hidden' ) . '>';
 
 		if ( $this->submitter->available() ) {
-			echo '<button type="button" class="pvk-btn pvk-btn--primary" data-pvk-request-all>' . esc_html__( 'Send selected messages for approval', 'povikvane-for-woocommerce' ) . '</button>';
-			echo '<p class="pvk-field__hint">' . esc_html__( 'Sends every switched-on message that has no approved template. The Povikvane team reviews them as soon as possible.', 'povikvane-for-woocommerce' ) . '</p>';
+			echo '<button type="button" class="pvk-btn pvk-btn--primary" data-pvk-request-all>' . esc_html__( 'Send selected messages for approval', 'povikvane-sms-for-woocommerce' ) . '</button>';
+			echo '<p class="pvk-field__hint">' . esc_html__( 'Sends every switched-on message that has no approved template. The Povikvane team reviews them as soon as possible.', 'povikvane-sms-for-woocommerce' ) . '</p>';
 		} else {
-			echo '<button type="button" class="pvk-btn pvk-btn--primary" disabled>' . esc_html__( 'Send selected messages for approval', 'povikvane-for-woocommerce' ) . '</button>';
-			echo '<p class="pvk-field__hint">' . esc_html__( 'Sending messages for approval from here is coming soon. Until then, create the templates in Povikvane; they appear here once approved.', 'povikvane-for-woocommerce' ) . '</p>';
+			echo '<button type="button" class="pvk-btn pvk-btn--primary" disabled>' . esc_html__( 'Send selected messages for approval', 'povikvane-sms-for-woocommerce' ) . '</button>';
+			echo '<p class="pvk-field__hint">' . esc_html__( 'Sending messages for approval from here is coming soon. Until then, create the templates in Povikvane; they appear here once approved.', 'povikvane-sms-for-woocommerce' ) . '</p>';
 		}
 
 		echo '<p class="pvk-request-result" data-pvk-request-result role="status" aria-live="polite"></p></div>';
@@ -489,8 +489,8 @@ final class TemplatesSection {
 				'url'     => admin_url( 'admin-ajax.php' ),
 				'action'  => PriceEstimateAjax::ACTION,
 				'nonce'   => wp_create_nonce( PriceEstimateAjax::NONCE ),
-				'working' => __( 'Checking...', 'povikvane-for-woocommerce' ),
-				'error'   => __( 'Could not reach the server. Try again.', 'povikvane-for-woocommerce' ),
+				'working' => __( 'Checking...', 'povikvane-sms-for-woocommerce' ),
+				'error'   => __( 'Could not reach the server. Try again.', 'povikvane-sms-for-woocommerce' ),
 			)
 		);
 
@@ -515,16 +515,16 @@ final class TemplatesSection {
 					'cyrillic' => array_merge( $common, array( 'shop_name' => 'Моят магазин' ) ),
 				),
 				'i18n'    => array(
-					'gsm7'       => __( 'Normal text', 'povikvane-for-woocommerce' ),
-					'ucs2'       => __( 'Text with special letters (e.g. Cyrillic)', 'povikvane-for-woocommerce' ),
-					'characters' => __( 'characters', 'povikvane-for-woocommerce' ),
-					'segment'    => __( 'message', 'povikvane-for-woocommerce' ),
-					'segments'   => __( 'messages', 'povikvane-for-woocommerce' ),
-					'credit'     => __( 'credit', 'povikvane-for-woocommerce' ),
-					'credits'    => __( 'credits', 'povikvane-for-woocommerce' ),
-					'cyrillic'   => __( 'With a Cyrillic shop name:', 'povikvane-for-woocommerce' ),
-					'unknown'    => __( 'Unknown placeholder:', 'povikvane-for-woocommerce' ),
-					'empty'      => __( 'Empty message: nothing will be sent.', 'povikvane-for-woocommerce' ),
+					'gsm7'       => __( 'Normal text', 'povikvane-sms-for-woocommerce' ),
+					'ucs2'       => __( 'Text with special letters (e.g. Cyrillic)', 'povikvane-sms-for-woocommerce' ),
+					'characters' => __( 'characters', 'povikvane-sms-for-woocommerce' ),
+					'segment'    => __( 'message', 'povikvane-sms-for-woocommerce' ),
+					'segments'   => __( 'messages', 'povikvane-sms-for-woocommerce' ),
+					'credit'     => __( 'credit', 'povikvane-sms-for-woocommerce' ),
+					'credits'    => __( 'credits', 'povikvane-sms-for-woocommerce' ),
+					'cyrillic'   => __( 'With a Cyrillic shop name:', 'povikvane-sms-for-woocommerce' ),
+					'unknown'    => __( 'Unknown placeholder:', 'povikvane-sms-for-woocommerce' ),
+					'empty'      => __( 'Empty message: nothing will be sent.', 'povikvane-sms-for-woocommerce' ),
 				),
 			)
 		);

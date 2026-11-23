@@ -25,10 +25,10 @@ final class ViberView {
 	 */
 	public static function reason( string $status ): string {
 		return match ( $status ) {
-			Capabilities::VIBER_READY            => __( 'Viber is available on your account.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS.', 'povikvane-for-woocommerce' ),
-			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Povikvane refused the SMS fallback for your account (it is not part of every plan), so order messages go out as SMS. Turn off "Send an SMS if Viber cannot deliver" to use Viber without it.', 'povikvane-for-woocommerce' ),
-			default                              => __( 'Viber has not been checked yet. Open the Settings tab and press "Check connection".', 'povikvane-for-woocommerce' ),
+			Capabilities::VIBER_READY            => __( 'Viber is available on your account.', 'povikvane-sms-for-woocommerce' ),
+			Capabilities::VIBER_TEMPLATES_OFF    => __( 'Viber is not available yet: Viber templates are not switched on for your Povikvane account. Order messages go out as SMS.', 'povikvane-sms-for-woocommerce' ),
+			Capabilities::VIBER_FALLBACK_REFUSED => __( 'Povikvane refused the SMS fallback for your account (it is not part of every plan), so order messages go out as SMS. Turn off "Send an SMS if Viber cannot deliver" to use Viber without it.', 'povikvane-sms-for-woocommerce' ),
+			default                              => __( 'Viber has not been checked yet. Open the Settings tab and press "Check connection".', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }

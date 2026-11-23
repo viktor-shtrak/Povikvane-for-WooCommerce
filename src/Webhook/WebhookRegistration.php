@@ -150,7 +150,7 @@ final class WebhookRegistration {
 		if ( ! self::looks_public( $url ) ) {
 			return array(
 				'result' => self::REFUSED,
-				'reason' => __( 'Povikvane can only call a public https address. This site is not on one, so delivery reports will be found by checking regularly instead.', 'povikvane-for-woocommerce' ),
+				'reason' => __( 'Povikvane can only call a public https address. This site is not on one, so delivery reports will be found by checking regularly instead.', 'povikvane-sms-for-woocommerce' ),
 			);
 		}
 
@@ -167,7 +167,7 @@ final class WebhookRegistration {
 
 		return array(
 			'result' => 422 === $result->http_status ? self::REFUSED : self::FAILED,
-			'reason' => 'webhook_url_invalid' === $result->error_code ? __( 'Povikvane did not accept this address. It must be a public https address.', 'povikvane-for-woocommerce' ) : __( 'Povikvane could not save the address right now. Try again in a moment.', 'povikvane-for-woocommerce' ),
+			'reason' => 'webhook_url_invalid' === $result->error_code ? __( 'Povikvane did not accept this address. It must be a public https address.', 'povikvane-sms-for-woocommerce' ) : __( 'Povikvane could not save the address right now. Try again in a moment.', 'povikvane-sms-for-woocommerce' ),
 		);
 	}
 
@@ -192,21 +192,21 @@ final class WebhookRegistration {
 		if ( 409 === $result->http_status ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'Povikvane has no webhook address for this key yet. Register the address first.', 'povikvane-for-woocommerce' ),
+				'message' => __( 'Povikvane has no webhook address for this key yet. Register the address first.', 'povikvane-sms-for-woocommerce' ),
 			);
 		}
 
 		if ( 429 === $result->http_status ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'You have run the test too many times this hour. Try again later.', 'povikvane-for-woocommerce' ),
+				'message' => __( 'You have run the test too many times this hour. Try again later.', 'povikvane-sms-for-woocommerce' ),
 			);
 		}
 
 		if ( Outcome::Success !== $result->outcome ) {
 			return array(
 				'ok'      => false,
-				'message' => __( 'Povikvane could not run the test right now. Try again in a moment.', 'povikvane-for-woocommerce' ),
+				'message' => __( 'Povikvane could not run the test right now. Try again in a moment.', 'povikvane-sms-for-woocommerce' ),
 			);
 		}
 
@@ -215,7 +215,7 @@ final class WebhookRegistration {
 		if ( true === ( $attributes['delivered'] ?? null ) ) {
 			return array(
 				'ok'      => true,
-				'message' => __( 'Povikvane reached your site. Delivery reports will arrive as soon as messages are delivered.', 'povikvane-for-woocommerce' ),
+				'message' => __( 'Povikvane reached your site. Delivery reports will arrive as soon as messages are delivered.', 'povikvane-sms-for-woocommerce' ),
 			);
 		}
 
@@ -234,21 +234,21 @@ final class WebhookRegistration {
 	 */
 	public static function error_text( string $error ): string {
 		if ( 'http_401' === $error ) {
-			return __( 'Povikvane called your site but the signature did not match. Create a new secret and try again.', 'povikvane-for-woocommerce' );
+			return __( 'Povikvane called your site but the signature did not match. Create a new secret and try again.', 'povikvane-sms-for-woocommerce' );
 		}
 
 		if ( str_starts_with( $error, 'http_' ) ) {
 			return sprintf(
 				/* translators: %s: HTTP status number. */
-				__( 'Povikvane called your site but it answered with an error (%s). Check that the REST API is not blocked by a security plugin or firewall.', 'povikvane-for-woocommerce' ),
+				__( 'Povikvane called your site but it answered with an error (%s). Check that the REST API is not blocked by a security plugin or firewall.', 'povikvane-sms-for-woocommerce' ),
 				substr( $error, 5 )
 			);
 		}
 
 		return match ( $error ) {
-			'timeout'           => __( 'Povikvane called your site but it did not answer in time.', 'povikvane-for-woocommerce' ),
-			'connection_failed' => __( 'Povikvane could not connect to your site. Check that the site is online and its address is public.', 'povikvane-for-woocommerce' ),
-			default             => __( 'Povikvane called your site but did not get a valid answer.', 'povikvane-for-woocommerce' ),
+			'timeout'           => __( 'Povikvane called your site but it did not answer in time.', 'povikvane-sms-for-woocommerce' ),
+			'connection_failed' => __( 'Povikvane could not connect to your site. Check that the site is online and its address is public.', 'povikvane-sms-for-woocommerce' ),
+			default             => __( 'Povikvane called your site but did not get a valid answer.', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }

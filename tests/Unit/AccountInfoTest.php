@@ -44,10 +44,9 @@ final class AccountInfoTest extends TestCase {
 		$this->assertTrue( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'sms_fallback' => true ) ) ) );
 		$this->assertNull( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'plan' => array( 'sms_fallback' => 'yes' ) ) ) ), 'not a real answer' );
 
-		// Without an answer, the plan's name decides: Starter and Bronze have no SMS fallback.
-		$this->assertFalse( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'plan' => array( 'name' => 'Starter' ) ) ) ) );
-		$this->assertFalse( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'plan' => array( 'name' => 'bronze' ) ) ) ) );
-		$this->assertNull( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'plan' => array( 'name' => 'Silver' ) ) ) ) );
+		// The plan's name alone decides nothing: every plan can have the fallback.
+		$this->assertNull( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'plan' => array( 'name' => 'Starter' ) ) ) ) );
+		$this->assertNull( AccountInfo::sms_fallback_allowed( array( 'balance' => array( 'plan' => array( 'name' => 'bronze' ) ) ) ) );
 		$this->assertTrue(
 			AccountInfo::sms_fallback_allowed(
 				array(

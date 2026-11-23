@@ -69,7 +69,7 @@ final class RestController {
 	 */
 	public function authorize( WP_REST_Request $request ) {
 		if ( ! $this->token->matches( (string) $request['token'] ) ) {
-			return new WP_Error( 'rest_no_route', __( 'No route was found matching the URL and request method.', 'povikvane-for-woocommerce' ), array( 'status' => 404 ) );
+			return new WP_Error( 'rest_no_route', __( 'No route was found matching the URL and request method.', 'povikvane-sms-for-woocommerce' ), array( 'status' => 404 ) );
 		}
 
 		return true;
@@ -83,24 +83,24 @@ final class RestController {
 	 */
 	public function handle( WP_REST_Request $request ) {
 		if ( $this->over_rate_limit() ) {
-			return new WP_Error( 'povikvane_rate_limited', __( 'Too many requests.', 'povikvane-for-woocommerce' ), array( 'status' => 429 ) );
+			return new WP_Error( 'povikvane_rate_limited', __( 'Too many requests.', 'povikvane-sms-for-woocommerce' ), array( 'status' => 429 ) );
 		}
 
 		if ( strlen( $request->get_body() ) > self::MAX_BODY_BYTES ) {
-			return new WP_Error( 'povikvane_too_large', __( 'Request too large.', 'povikvane-for-woocommerce' ), array( 'status' => 413 ) );
+			return new WP_Error( 'povikvane_too_large', __( 'Request too large.', 'povikvane-sms-for-woocommerce' ), array( 'status' => 413 ) );
 		}
 
 		// Once a signing secret is stored, only deliveries that carry a valid signature count.
 		$secret = $this->secret?->get();
 
 		if ( null !== $secret && ! SignatureVerifier::verify( $request->get_body(), (string) $request->get_header( 'povikvane_signature' ), $secret, time() ) ) {
-			return new WP_Error( 'povikvane_bad_signature', __( 'The signature is missing or wrong.', 'povikvane-for-woocommerce' ), array( 'status' => 401 ) );
+			return new WP_Error( 'povikvane_bad_signature', __( 'The signature is missing or wrong.', 'povikvane-sms-for-woocommerce' ), array( 'status' => 401 ) );
 		}
 
 		$body = $request->get_json_params();
 
 		if ( ! is_array( $body ) ) {
-			return new WP_Error( 'povikvane_bad_request', __( 'Expected a JSON body.', 'povikvane-for-woocommerce' ), array( 'status' => 400 ) );
+			return new WP_Error( 'povikvane_bad_request', __( 'Expected a JSON body.', 'povikvane-sms-for-woocommerce' ), array( 'status' => 400 ) );
 		}
 
 		// The site's own check: answered, never recorded as a report from Povikvane.

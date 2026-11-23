@@ -69,7 +69,7 @@ final class BalanceNotice {
 	 */
 	public function render(): void {
 		// Setup has its own flow; a credits reminder does not belong on its first screen.
-		if ( SetupWizard::is_current_page() ) {
+		if ( SetupWizard::is_current_page() || ! NoticeScreens::allowed( true ) ) {
 			return;
 		}
 
@@ -92,16 +92,16 @@ final class BalanceNotice {
 
 		printf(
 			'<div class="notice notice-warning is-dismissible povikvane-dismissible" data-action="%5$s" data-nonce="%6$s"><p><strong>%1$s</strong> %2$s <a href="%3$s">%4$s</a></p></div>',
-			esc_html__( 'Povikvane', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Povikvane', 'povikvane-sms-for-woocommerce' ),
 			esc_html(
 				sprintf(
 					/* translators: %s: credits left. */
-					__( 'Only %s credits are left. Top up soon so customer messages keep going out.', 'povikvane-for-woocommerce' ),
+					__( 'Only %s credits are left. Top up soon so customer messages keep going out.', 'povikvane-sms-for-woocommerce' ),
 					number_format_i18n( $balance->available, 1 )
 				)
 			),
 			esc_url( admin_url( 'admin.php?page=' . SettingsPage::SLUG ) ),
-			esc_html__( 'Open settings', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Open settings', 'povikvane-sms-for-woocommerce' ),
 			esc_attr( self::ACTION ),
 			esc_attr( wp_create_nonce( self::NONCE ) )
 		);

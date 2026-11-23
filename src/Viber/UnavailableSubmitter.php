@@ -30,6 +30,6 @@ final class UnavailableSubmitter implements TemplateSubmitter {
 	 * @param string $content Template text.
 	 */
 	public function submit( string $name, string $content ): SubmitResult {
-		return new SubmitResult( false, '', __( 'Sending templates for review from the plugin is not available yet.', 'povikvane-for-woocommerce' ) );
+		return new SubmitResult( false, '', __( 'Sending templates for review from the plugin is not available yet.', 'povikvane-sms-for-woocommerce' ) );
 	}
 }

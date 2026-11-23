@@ -85,11 +85,11 @@ final class SelfTest {
 	 */
 	public static function message( string $result ): string {
 		return match ( $result ) {
-			self::OK          => __( 'The address works. To see that Povikvane can reach it, send a test message and watch "Last report received".', 'povikvane-for-woocommerce' ),
-			self::NOT_FOUND   => __( 'The address was not found. Check that pretty permalinks are on and the REST API is not disabled, or create a new address.', 'povikvane-for-woocommerce' ),
-			self::BLOCKED     => __( 'Your site blocked the address, probably a security plugin or a firewall. Allow requests to /wp-json/povikvane/ and try again.', 'povikvane-for-woocommerce' ),
-			self::UNREACHABLE => __( 'This server could not reach its own address. That does not always mean Povikvane cannot; send a test message and watch "Last report received".', 'povikvane-for-woocommerce' ),
-			default           => __( 'The address gave an unexpected answer. Try again, or create a new address.', 'povikvane-for-woocommerce' ),
+			self::OK          => __( 'The address works. To see that Povikvane can reach it, send a test message and watch "Last report received".', 'povikvane-sms-for-woocommerce' ),
+			self::NOT_FOUND   => __( 'The address was not found. Check that pretty permalinks are on and the REST API is not disabled, or create a new address.', 'povikvane-sms-for-woocommerce' ),
+			self::BLOCKED     => __( 'Your site blocked the address, probably a security plugin or a firewall. Allow requests to /wp-json/povikvane/ and try again.', 'povikvane-sms-for-woocommerce' ),
+			self::UNREACHABLE => __( 'This server could not reach its own address. That does not always mean Povikvane cannot; send a test message and watch "Last report received".', 'povikvane-sms-for-woocommerce' ),
+			default           => __( 'The address gave an unexpected answer. Try again, or create a new address.', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }

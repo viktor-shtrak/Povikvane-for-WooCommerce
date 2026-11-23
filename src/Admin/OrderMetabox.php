@@ -75,7 +75,7 @@ final class OrderMetabox {
 	public function add(): void {
 		add_meta_box(
 			'povikvane-sms',
-			__( 'Povikvane', 'povikvane-for-woocommerce' ),
+			__( 'Povikvane', 'povikvane-sms-for-woocommerce' ),
 			array( $this, 'render' ),
 			wc_get_page_screen_id( 'shop-order' ),
 			'side',
@@ -101,8 +101,8 @@ final class OrderMetabox {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( self::NONCE ),
 				'i18n'    => array(
-					'sending' => __( 'Sending…', 'povikvane-for-woocommerce' ),
-					'failed'  => __( 'The message could not be queued. Reload the page and try again.', 'povikvane-for-woocommerce' ),
+					'sending' => __( 'Sending…', 'povikvane-sms-for-woocommerce' ),
+					'failed'  => __( 'The message could not be queued. Reload the page and try again.', 'povikvane-sms-for-woocommerce' ),
 				),
 			)
 		);
@@ -123,7 +123,7 @@ final class OrderMetabox {
 		$rows = $this->repository->for_order( $order->get_id(), 5 );
 
 		if ( array() === $rows ) {
-			echo '<p>' . esc_html__( 'No messages for this order yet.', 'povikvane-for-woocommerce' ) . '</p>';
+			echo '<p>' . esc_html__( 'No messages for this order yet.', 'povikvane-sms-for-woocommerce' ) . '</p>';
 		} else {
 			echo '<ul style="margin:0 0 12px">';
 			foreach ( $rows as $row ) {
@@ -141,9 +141,9 @@ final class OrderMetabox {
 		printf(
 			'<div id="povikvane-manual" data-order-id="%1$d"><p><label for="povikvane-manual-text">%2$s</label></p><textarea id="povikvane-manual-text" rows="3" maxlength="%3$d" class="widefat"></textarea><p><button type="button" class="button" id="povikvane-manual-send">%4$s</button></p><p id="povikvane-manual-result" class="description" role="status"></p></div>',
 			(int) $order->get_id(),
-			esc_html__( 'Send a message about this order to the customer:', 'povikvane-for-woocommerce' ),
+			esc_html__( 'Send a message about this order to the customer:', 'povikvane-sms-for-woocommerce' ),
 			(int) self::MAX_LENGTH,
-			esc_html__( 'Send SMS', 'povikvane-for-woocommerce' )
+			esc_html__( 'Send SMS', 'povikvane-sms-for-woocommerce' )
 		);
 	}
 
@@ -154,33 +154,33 @@ final class OrderMetabox {
 		check_ajax_referer( self::NONCE, 'nonce' );
 
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'povikvane-for-woocommerce' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'povikvane-sms-for-woocommerce' ) ), 403 );
 		}
 
 		$order = wc_get_order( isset( $_POST['order_id'] ) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0 );
 		$text  = isset( $_POST['text'] ) ? trim( sanitize_textarea_field( wp_unslash( $_POST['text'] ) ) ) : '';
 
 		if ( ! $order instanceof WC_Order ) {
-			wp_send_json_error( array( 'message' => __( 'Order not found.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Order not found.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
 		if ( '' === $text || strlen( $text ) > self::MAX_LENGTH * 4 ) {
-			wp_send_json_error( array( 'message' => __( 'Write a message first.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Write a message first.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
 		if ( ! $this->settings->credentials()->is_complete() ) {
-			wp_send_json_error( array( 'message' => __( 'Enter and save your API key and service ID first.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Enter and save your API key and service ID first.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
 		if ( SendingState::REASON_SITE === $this->state->paused_reason() ) {
-			wp_send_json_error( array( 'message' => __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_error( array( 'message' => __( 'This site is not confirmed as the live shop yet. Confirm it first.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
 		$facts  = $this->context->facts( $order, self::EVENT );
 		$number = $this->normalizer->normalize( $facts->phone, $facts->calling_code );
 
 		if ( ! $number->is_valid() ) {
-			wp_send_json_error( array( 'message' => __( 'The order has no valid phone number.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_error( array( 'message' => __( 'The order has no valid phone number.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
 		$message            = new Message();
@@ -196,10 +196,10 @@ final class OrderMetabox {
 		);
 
 		if ( null === $this->enqueuer->enqueue( $message ) ) {
-			wp_send_json_error( array( 'message' => __( 'Another message was just queued. Wait a second and try again.', 'povikvane-for-woocommerce' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Another message was just queued. Wait a second and try again.', 'povikvane-sms-for-woocommerce' ) ) );
 		}
 
-		wp_send_json_success( array( 'message' => __( 'Queued. It will appear in the order notes once accepted.', 'povikvane-for-woocommerce' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Queued. It will appear in the order notes once accepted.', 'povikvane-sms-for-woocommerce' ) ) );
 	}
 
 	/**
@@ -209,15 +209,15 @@ final class OrderMetabox {
 	 */
 	private function status_text( Status $status ): string {
 		return match ( $status ) {
-			Status::Pending     => __( 'waiting', 'povikvane-for-woocommerce' ),
-			Status::Sending     => __( 'sending', 'povikvane-for-woocommerce' ),
-			Status::Queued      => __( 'accepted', 'povikvane-for-woocommerce' ),
-			Status::Delivered   => __( 'delivered', 'povikvane-for-woocommerce' ),
-			Status::Failed      => __( 'failed', 'povikvane-for-woocommerce' ),
-			Status::Unconfirmed => __( 'unconfirmed', 'povikvane-for-woocommerce' ),
-			Status::Skipped     => __( 'not sent', 'povikvane-for-woocommerce' ),
-			Status::HeldCredits => __( 'on hold', 'povikvane-for-woocommerce' ),
-			Status::Expired     => __( 'expired', 'povikvane-for-woocommerce' ),
+			Status::Pending     => __( 'waiting', 'povikvane-sms-for-woocommerce' ),
+			Status::Sending     => __( 'sending', 'povikvane-sms-for-woocommerce' ),
+			Status::Queued      => __( 'accepted', 'povikvane-sms-for-woocommerce' ),
+			Status::Delivered   => __( 'delivered', 'povikvane-sms-for-woocommerce' ),
+			Status::Failed      => __( 'failed', 'povikvane-sms-for-woocommerce' ),
+			Status::Unconfirmed => __( 'unconfirmed', 'povikvane-sms-for-woocommerce' ),
+			Status::Skipped     => __( 'not sent', 'povikvane-sms-for-woocommerce' ),
+			Status::HeldCredits => __( 'on hold', 'povikvane-sms-for-woocommerce' ),
+			Status::Expired     => __( 'expired', 'povikvane-sms-for-woocommerce' ),
 		};
 	}
 }
